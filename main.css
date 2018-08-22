@@ -1,0 +1,24 @@
+body {
+    background: gray;
+    margin: 0px;
+}
+
+.container {
+    text-align: center;
+    padding: 10px;
+    margin: auto;
+}
+
+.container p {
+    user-select: none;
+}
+
+.container .big {
+    font-size: 1.5em;
+    padding: 0px;
+    margin: 0px;
+}
+
+.container .eq {
+    font-style: italic;
+}
