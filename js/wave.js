@@ -167,7 +167,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
   if (useJS) {
     wave(document.getElementById('canvas'), waveAlgorithm(width, height));
   } else {
-    fetch('out/main.wasm').then(response => response.arrayBuffer())
+    fetch('wasm/main.wasm').then(response => response.arrayBuffer())
       .then((bytes) => {
         return WebAssembly.instantiate(bytes, {
           env: {

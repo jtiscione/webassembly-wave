@@ -1,4 +1,4 @@
-fetch('../out/main.wasm').then(response => response.arrayBuffer())
+fetch('../wasm/main.wasm').then(response => response.arrayBuffer())
   .then((bytes) => {
     return WebAssembly.instantiate(bytes, {
       env: {
