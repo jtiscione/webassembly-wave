@@ -1,4 +1,19 @@
 console.log('Running...');
+
+// initial size of 10 pages (640KiB), and a maximum size of 100 pages (6.4MiB)
+/*
+const memory = new WebAssembly.Memory({initial:10, maximum:100});
+WebAssembly.instantiateStreaming(fetch('../out/main.wasm'), { js: { mem: memory } })
+  .then(obj => {
+    var i32 = new Uint32Array(memory.buffer);
+    for (var i = 0; i < 10; i++) {
+      i32[i] = i;
+    }
+    var sum = obj.instance.exports.accumulate(0, 10);
+    console.log(sum);
+  });
+*/
+
 // https://webassembly.studio/?f=oj4l8ovvex
 // https://stackoverflow.com/questions/46748572/how-to-access-webassembly-linear-memory-from-c-c
 fetch('../out/main.wasm').then(response => response.arrayBuffer())
