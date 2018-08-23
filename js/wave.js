@@ -7,6 +7,8 @@ function wave(canvas, algorithm) {
 
   let startTime = Date.now();
 
+  let msgCount = 0;
+
   function animate() {
     if (lastX !== null && lastY !== null) {
      applyBrush(lastX, lastY);
@@ -16,9 +18,15 @@ function wave(canvas, algorithm) {
     const u1 = algorithm.getU1Array();
     const vel = algorithm.getVelArray();
     */
-    console.time('iterate');
-    algorithm.iterate(Math.floor(0x3FFFFFFF * Math.sin(3 * (Date.now() - startTime) / 1000)), false, applyBrakes);
-    console.timeEnd('iterate');
+
+    if (msgCount < 100) {
+      console.time('iterate');
+      algorithm.iterate(Math.floor(0x3FFFFFFF * Math.sin(3 * (Date.now() - startTime) / 1000)), false, applyBrakes);
+      console.timeEnd('iterate');
+    } else {
+      algorithm.iterate(Math.floor(0x3FFFFFFF * Math.sin(3 * (Date.now() - startTime) / 1000)), false, applyBrakes);
+    }
+    msgCount++;
     const arr = algorithm.getImageArray();
     const imgData = context.createImageData(width, height);
     imgData.data.set(arr);
@@ -163,7 +171,7 @@ function wave(canvas, algorithm) {
 document.addEventListener("DOMContentLoaded", function(event) {
   let width = canvas.width;
   let height = canvas.height;
-  const useJS = true;
+  const useJS = false;
   if (useJS) {
     wave(document.getElementById('canvas'), waveAlgorithm(width, height));
   } else {
