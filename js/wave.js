@@ -1,11 +1,10 @@
-function wave(canvas) {
+function wave(canvas, algorithm) {
 
   let width = canvas.width;
   let height = canvas.height;
   let applyBrakes = false;
   const context = canvas.getContext('2d');
 
-  const algorithm = waveAlgorithm(width, height);
   let startTime = Date.now();
 
   function animate() {
@@ -19,50 +18,6 @@ function wave(canvas) {
     context.putImageData(imgData, 0, 0);
     setTimeout(animate, 1); // 1 ms delay
   }
-
-  /*
-  if (!boosted) {
-    algorithm = waveAlgorithm(width, height);
-
-    setTimeout(animate, 1); // 1 ms delay
-  } else {
-    // Need room for five Int32 arrays, each with width * height elements.
-    const canvas_offset = 0;
-    const force_offset = 4 * width * height;
-    const pageSize = 0x80000; // This is 64k. Older version used 0x400000 (about 4MB)
-
-    const numPages = Math.ceil((5 * 4 * width * height) / pageSize);
-    const memory = new WebAssembly.memory({ initial: numPages });
-    const heap = memory.buffer;
-
-    fetch('wave.masm', {
-      imports: {
-        memory: memory,
-        width: width,
-        height: height,
-      }
-    }).then(function(obj) {
-
-        algorithm = {
-          getForceArray: function() {
-            return new Int32Array(heap, 4 * force_offset, 4 * width * height);
-          },
-          getFlagsArray: function() {
-            return new Int32Array(heap, 4 * flags_offset, 4 * width * height);
-          },
-          getImageArray: function() {
-            return new Uint8ClampedArray(heap, canvas_offset, 4 * width * height);
-          },
-          iterate: function(forceAmplitude, skipRGB, applyBrakes) {
-            obj.exports.iterate(forceAmplitude, skipRGB, applyBrakes);
-          }
-        };
-
-        setTimeout(animate, 10);
-      });
-  }
-  */
-
   function windowToCanvas(canvas, x, y) {
     const bbox = canvas.getBoundingClientRect();
     return {
@@ -190,7 +145,6 @@ function wave(canvas) {
 
   canvas.onmouseout = function(e) {
     applyBrakes = false;
-    console.log('onmouseout');
     lastX = null;
     lastY = null;
   };
@@ -200,6 +154,16 @@ function wave(canvas) {
 }
 
 document.addEventListener("DOMContentLoaded", function(event) {
-  // console.log('RUNNING.');
-  wave(document.getElementById('canvas'), false);
+  let width = canvas.width;
+  let height = canvas.height;
+  //wave(document.getElementById('canvas'), waveAlgorithm(width, height));
+
+  fetch('out/main.wasm').then(response => response.arrayBuffer())
+    .then((bytes) => {
+      return WebAssembly.instantiate(bytes, {});
+    })
+    .then((wasm) => {
+      const algorithm = cWaveAlgorithm(wasm, width, height);
+      wave(document.getElementById('canvas'), algorithm);
+    });
 });

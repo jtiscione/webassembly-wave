@@ -6,28 +6,21 @@ fetch('../out/main.wasm').then(response => response.arrayBuffer())
     return WebAssembly.instantiate(bytes, {});
   })
   .then((result) => {
-      console.log('inside then');
       const instance = result.instance;
-      console.log('got instance');
-      const exporz = instance.exports;
-      console.log('got exports.');
-      const offset = instance.exports.getData();
-      const linearMemory = new Uint32Array(instance.exports.memory.buffer, offset, 10);
-
-      for (let i = 0; i < linearMemory.length; i++) {
-        linearMemory[i] = i;
+      instance.exports.init(5, 5);
+      const offset = instance.exports.getStartByteOffset();
+      // Six arrays - image, u0, u1, vel, force, flags
+      const linearMemory = new Uint32Array(instance.exports.memory.buffer, offset, 6 * 25);
+      // Fill "u0" with random crap
+      for (let i = 0; i < 25; i++) {
+        linearMemory[25 + i] = Math.floor(0x7FFFFFFF * Math.random()) - 0x40000000;
       }
 
-      instance.exports.add(10);
+      // See if it breaks
+      instance.exports.iterate(0, 0, 0);
 
-      let sum = 0;
       for (let i = 0; i < linearMemory.length; i++) {
-        sum += linearMemory[i];
-        console.log(linearMemory[i]);
+        console.log(`${i}: ${linearMemory[i]}`);
       }
-
-      document.getElementById("container").innerText = sum;
-
-
     }
   );
