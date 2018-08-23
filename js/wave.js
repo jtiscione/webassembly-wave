@@ -11,7 +11,14 @@ function wave(canvas, algorithm) {
     if (lastX !== null && lastY !== null) {
      applyBrush(lastX, lastY);
     }
+    /*
+    const u0 = algorithm.getU0Array();
+    const u1 = algorithm.getU1Array();
+    const vel = algorithm.getVelArray();
+    */
+    console.time('iterate');
     algorithm.iterate(Math.floor(0x3FFFFFFF * Math.sin(3 * (Date.now() - startTime) / 1000)), false, applyBrakes);
+    console.timeEnd('iterate');
     const arr = algorithm.getImageArray();
     const imgData = context.createImageData(width, height);
     imgData.data.set(arr);
@@ -156,26 +163,29 @@ function wave(canvas, algorithm) {
 document.addEventListener("DOMContentLoaded", function(event) {
   let width = canvas.width;
   let height = canvas.height;
-  //wave(document.getElementById('canvas'), waveAlgorithm(width, height));
-
-  fetch('out/main.wasm').then(response => response.arrayBuffer())
-    .then((bytes) => {
-      return WebAssembly.instantiate(bytes, {
-        env: {
-          memoryBase: 0,
-          tableBase: 0,
-          memory: new WebAssembly.Memory({
-            initial: 512
-          }),
-          table: new WebAssembly.Table({
-            initial: 0,
-            element: 'anyfunc'
-          })
-        }
+  const useJS = true;
+  if (useJS) {
+    wave(document.getElementById('canvas'), waveAlgorithm(width, height));
+  } else {
+    fetch('out/main.wasm').then(response => response.arrayBuffer())
+      .then((bytes) => {
+        return WebAssembly.instantiate(bytes, {
+          env: {
+            memoryBase: 0,
+            tableBase: 0,
+            memory: new WebAssembly.Memory({
+              initial: 512
+            }),
+            table: new WebAssembly.Table({
+              initial: 0,
+              element: 'anyfunc'
+            })
+          }
+        });
+      })
+      .then((wasm) => {
+        const algorithm = cWaveAlgorithm(wasm, width, height);
+        wave(document.getElementById('canvas'), algorithm);
       });
-    })
-    .then((wasm) => {
-      const algorithm = cWaveAlgorithm(wasm, width, height);
-      wave(document.getElementById('canvas'), algorithm);
-    });
+  }
 });

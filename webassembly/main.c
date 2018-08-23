@@ -147,7 +147,7 @@ void iterate(int signalAmplitude, int skipRGB, int drag) {
         array[force_offset + index] = force;
 
         if (drag > 0) {
-          vel -= (vel >> DRAG_BIT_SHIFT);
+           vel -= (vel >> DRAG_BIT_SHIFT);
         }
 
         array[vel_offset + index] = vel;
@@ -155,15 +155,18 @@ void iterate(int signalAmplitude, int skipRGB, int drag) {
         index++;
       }
     }
-    if (skipRGB == 0) {
-      for (i = 0; i < height; i++) {
-        for (j = 0; j < width; j++) {
-          index = (width * i) + j;
-          if (array[flags_offset + index] == FLAG_WALL) {
-            array[canvas_offset + index] = 0x00000000;
-          } else {
-            array[canvas_offset + index] = toRGB(array[u0_offset + (width * i) + j]);
-          }
+    int swap = u0_offset;
+    u0_offset = u1_offset;
+    u1_offset = swap;
+  }
+  if (skipRGB == 0) {
+    for (i = 0; i < height; i++) {
+      for (j = 0; j < width; j++) {
+        index = (width * i) + j;
+        if (array[flags_offset + index] == FLAG_WALL) {
+          array[canvas_offset + index] = 0x00000000;
+        } else {
+          array[canvas_offset + index] = toRGB(array[u0_offset + (width * i) + j]);
         }
       }
     }
