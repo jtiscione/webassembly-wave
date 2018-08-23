@@ -17,7 +17,8 @@ int vel_offset = 0;
 int force_offset = 0;
 int flags_offset = 0;
 
-int *array;
+// int *array;
+int array[6000000];
 
 WASM_EXPORT
 void init(w, h) {
@@ -26,8 +27,8 @@ void init(w, h) {
   height = h;
   wh = w * h;
 
-  int arr[6 * wh];
-  array = arr;
+  // int arr[6 * wh];
+  // array = arr;
 
   u0_offset = wh;
   u1_offset = 2 * wh;

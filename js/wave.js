@@ -160,7 +160,19 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
   fetch('out/main.wasm').then(response => response.arrayBuffer())
     .then((bytes) => {
-      return WebAssembly.instantiate(bytes, {});
+      return WebAssembly.instantiate(bytes, {
+        env: {
+          memoryBase: 0,
+          tableBase: 0,
+          memory: new WebAssembly.Memory({
+            initial: 512
+          }),
+          table: new WebAssembly.Table({
+            initial: 0,
+            element: 'anyfunc'
+          })
+        }
+      });
     })
     .then((wasm) => {
       const algorithm = cWaveAlgorithm(wasm, width, height);
