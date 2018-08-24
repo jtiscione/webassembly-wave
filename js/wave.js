@@ -188,25 +188,45 @@ document.addEventListener("DOMContentLoaded", function(event) {
   if (useJS) {
     wave(document.getElementById('canvas'), waveAlgorithm(width, height));
   } else {
+
+    // From https://rot47.net/base64encoder.html
+    const b64 = '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';
+    const binaryString = window.atob(b64);
+    const len = binaryString.length;
+    const arry = new Uint8Array(len);
+    for (var i = 0; i < len; i++)        {
+      arry[i] = binaryString.charCodeAt(i);
+    }
+    const bytes = arry.buffer;
+
+    const importObject = {
+      env: {
+        memoryBase: 0,
+        tableBase: 0,
+        memory: new WebAssembly.Memory({
+          initial: 512
+        }),
+        table: new WebAssembly.Table({
+          initial: 0,
+          element: 'anyfunc'
+        })
+      }
+    };
+    WebAssembly.instantiate(bytes, importObject).then((wasm) => {
+      const algorithm = cWaveAlgorithm(wasm, width, height);
+      wave(document.getElementById('canvas'), algorithm);
+    });
+
+    /*
+    Using the main.wasm file (this should be changed to instantiateStreaming())
     fetch('wasm/main.wasm').then(response => response.arrayBuffer())
       .then((bytes) => {
-        return WebAssembly.instantiate(bytes, {
-          env: {
-            memoryBase: 0,
-            tableBase: 0,
-            memory: new WebAssembly.Memory({
-              initial: 512
-            }),
-            table: new WebAssembly.Table({
-              initial: 0,
-              element: 'anyfunc'
-            })
-          }
-        });
+        return WebAssembly.instantiate(bytes, importObject);
       })
       .then((wasm) => {
         const algorithm = cWaveAlgorithm(wasm, width, height);
         wave(document.getElementById('canvas'), algorithm);
       });
+    */
   }
 });
