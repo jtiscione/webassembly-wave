@@ -130,14 +130,15 @@ function waveAlgorithm(width, height) {
     }
 
     if (!skipRGB) {
+      index = 0;
       for (i = 0; i < height; i++) {
         for (j = 0; j < width; j++) {
-          const index = (width * i) + j;
           if (signedHeap[flags_offset + index] === 1) {
             unsignedHeap[canvas_offset + index] = 0x00000000;
           } else {
-            unsignedHeap[canvas_offset + index] = toRGB(signedHeap[u0_offset + (width * i) + j]);
+            unsignedHeap[canvas_offset + index] = toRGB(signedHeap[u0_offset + index]);
           }
+          index++;
         }
       }
     }

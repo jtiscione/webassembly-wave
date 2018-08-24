@@ -139,14 +139,15 @@ void iterate(int signalAmplitude, int skipRGB, int drag) {
     u1_offset = swap;
   }
   if (skipRGB == 0) {
+    index = 0;
     for (i = 0; i < height; i++) {
       for (j = 0; j < width; j++) {
-        index = (width * i) + j;
         if (array[flags_offset + index] == FLAG_WALL) {
           array[canvas_offset + index] = 0x00000000;
         } else {
-          array[canvas_offset + index] = toRGB(array[u0_offset + (width * i) + j]);
+          array[canvas_offset + index] = toRGB(array[u0_offset + index]);
         }
+        index++;
       }
     }
   }
