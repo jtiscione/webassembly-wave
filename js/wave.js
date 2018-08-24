@@ -16,10 +16,10 @@ function wave(canvas, _algorithm) {
     if (lastX !== null && lastY !== null) {
      applyBrush(lastX, lastY);
     }
-    if (msgCount < 100) {
-      console.time('iterate');
+    if (msgCount < 10) {
+      console.time('single pass');
       algorithm.iterate(Math.floor(0x3FFFFFFF * Math.sin(3 * (Date.now() - startTime) / 1000)), false, applyBrakes);
-      console.timeEnd('iterate');
+      console.timeEnd('single pass');
     } else {
       algorithm.iterate(Math.floor(0x3FFFFFFF * Math.sin(3 * (Date.now() - startTime) / 1000)), false, applyBrakes);
     }
@@ -30,7 +30,7 @@ function wave(canvas, _algorithm) {
     const imgData = context.createImageData(width, height);
     imgData.data.set(imageArray);
     context.putImageData(imgData, 0, 0);
-    setTimeout(animate, 1); // 1 ms delay
+    setTimeout(animate, 0); // 1 ms delay
   }
   function windowToCanvas(canvas, x, y) {
     const bbox = canvas.getBoundingClientRect();
@@ -181,6 +181,10 @@ function wave(canvas, _algorithm) {
     swapAlgorithm: function(replacement) {
       replacement.getEntireArray().set(algorithm.getEntireArray());
       algorithm = replacement;
+      forceArray = null;
+      flagsArray = null;
+      imageArray = null;
+      msgCount = 0;
     }
   }
 }
@@ -206,7 +210,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     document.getElementById('wasm-box').disabled = true;
     wave(document.getElementById('canvas'), waveAlgorithm(width, height));
   } else {
-    // https://rot47.net/base64encoder.html
+    // Use inlined string (https://rot47.net/base64encoder.html)
     const b64 = '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';
     const binaryString = window.atob(b64);
     const len = binaryString.length;
@@ -222,12 +226,20 @@ document.addEventListener("DOMContentLoaded", function(event) {
         })
       }
     }).then((wasm) => {
-      const algorithm = cWaveAlgorithm(wasm, width, height);
-      // const jsAlgorithm = waveAlgorithm(width, height);
-      wave(document.getElementById('canvas'), algorithm);
+      const wasmAlgorithm = cWaveAlgorithm(wasm, width, height);
+      const jsAlgorithm = waveAlgorithm(width, height);
+      const handle = wave(document.getElementById('canvas'), jsAlgorithm);
+      document.getElementById('js-box').addEventListener('click', function(event) {
+        handle.swapAlgorithm(jsAlgorithm);
+        console.log('JAVASCRIPT');
+      });
+      document.getElementById('wasm-box').addEventListener('click', function(event) {
+        handle.swapAlgorithm(wasmAlgorithm);
+        console.log('WEBASSEMBLY');
+      });
     });
-
-    // Using the main.wasm file (this should be changed to instantiateStreaming())
+    // Use the main.wasm file
+    // Not using WebAssembly.instantiateStreaming() because of MIME type error (expects application/wasm)
     /*
     fetch('wasm/main.wasm').then(response => response.arrayBuffer())
       .then((bytes) => {
@@ -241,9 +253,18 @@ document.addEventListener("DOMContentLoaded", function(event) {
         });
       })
       .then((wasm) => {
-        const algorithm = cWaveAlgorithm(wasm, width, height);
-        wave(document.getElementById('canvas'), algorithm);
+        const wasmAlgorithm = cWaveAlgorithm(wasm, width, height);
+        const jsAlgorithm = waveAlgorithm(width, height);
+        const handle = wave(document.getElementById('canvas'), jsAlgorithm);
+        document.getElementById('js-box').addEventListener('click', function(event) {
+          handle.swapAlgorithm(jsAlgorithm);
+          console.log('JAVASCRIPT');
+        });
+        document.getElementById('wasm-box').addEventListener('click', function(event) {
+          handle.swapAlgorithm(wasmAlgorithm);
+          console.log('WEBASSEMBLY');
+        });
       });
-    */
+   */
   }
 });

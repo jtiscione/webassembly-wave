@@ -1,6 +1,7 @@
 body {
     background: steelblue;
     margin: 0px;
+    font-family: Arial,sans-serif;
 }
 
 .container {
@@ -45,4 +46,8 @@ body {
 .clearBtn:active {
     position:relative;
     top:1px;
+}
+
+.boxes {
+    margin: 20px;
 }
