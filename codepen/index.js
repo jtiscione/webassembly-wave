@@ -313,9 +313,10 @@ function wave(canvas) {
 
   const clearBtn = document.getElementById('clearBtn');
   if (clearBtn) {
-    clearBtn.onclick = function() {
+    clearBtn.addEventListener('click', function(e) {
+      e.preventDefault();
       applyBrakes = true;
-    };
+    });
   }
 
   initializeNoise();

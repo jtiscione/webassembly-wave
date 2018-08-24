@@ -169,6 +169,14 @@ function wave(canvas, algorithm) {
     lastY = null;
   };
 
+  const clearBtn = document.getElementById('clearBtn');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      applyBrakes = true;
+    });
+  }
+
   initializeNoise();
   animate();
 }
