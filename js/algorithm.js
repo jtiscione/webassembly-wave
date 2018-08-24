@@ -136,18 +136,6 @@ function waveAlgorithm(width, height) {
           if (signedHeap[flags_offset + index] === 1) {
             unsignedHeap[canvas_offset + index] = 0x00000000;
           } else {
-            // This if statement isn't very important...
-            if (drag && i > 0 && i < height-1 && j > 0 && j < width-1) {
-              // Color the points bordering walls yellow.
-              const flagNorth = signedHeap[flags_offset + index - width];
-              const flagSouth = signedHeap[flags_offset + index + width];
-              const flagWest = signedHeap[flags_offset + index - 1];
-              const flagEast = signedHeap[flags_offset + index + 1];
-              if (flagNorth === 1 || flagSouth === 1 || flagEast === 1 || flagWest === 1) {
-                unsignedHeap[canvas_offset + index] = 0xFF00FFFF;
-                continue;
-              }
-            }
             unsignedHeap[canvas_offset + index] = toRGB(signedHeap[u0_offset + (width * i) + j]);
           }
         }
