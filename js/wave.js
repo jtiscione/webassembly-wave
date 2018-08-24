@@ -9,16 +9,12 @@ function wave(canvas, algorithm) {
 
   let msgCount = 0;
 
+  let imageArray = null;
+
   function animate() {
     if (lastX !== null && lastY !== null) {
      applyBrush(lastX, lastY);
     }
-    /*
-    const u0 = algorithm.getU0Array();
-    const u1 = algorithm.getU1Array();
-    const vel = algorithm.getVelArray();
-    */
-
     if (msgCount < 100) {
       console.time('iterate');
       algorithm.iterate(Math.floor(0x3FFFFFFF * Math.sin(3 * (Date.now() - startTime) / 1000)), false, applyBrakes);
@@ -27,9 +23,11 @@ function wave(canvas, algorithm) {
       algorithm.iterate(Math.floor(0x3FFFFFFF * Math.sin(3 * (Date.now() - startTime) / 1000)), false, applyBrakes);
     }
     msgCount++;
-    const arr = algorithm.getImageArray();
+    if (imageArray === null) {
+      imageArray = algorithm.getImageArray();
+    }
     const imgData = context.createImageData(width, height);
-    imgData.data.set(arr);
+    imgData.data.set(imageArray);
     context.putImageData(imgData, 0, 0);
     setTimeout(animate, 1); // 1 ms delay
   }
@@ -52,8 +50,12 @@ function wave(canvas, algorithm) {
     }
   }
 
+  let forceArray = null;
+
   function applyBrush(x, y) {
-    const forceArray = algorithm.getForceArray();
+    if (forceArray === null) {
+      forceArray = algorithm.getForceArray();
+    }
     for (p = -brushMatrixRadius; p <= brushMatrixRadius; p++) {
       const targetY = y + p;
       if (targetY <= 0 || targetY >= height - 1) {
@@ -77,7 +79,7 @@ function wave(canvas, algorithm) {
   }
 
   let lastX = null, lastY = null;
-  const flagsArray = algorithm.getFlagsArray();
+  let flagsArray = null;
 
   function drawCircularWall() {
     const centerX = width / 2;
@@ -95,6 +97,9 @@ function wave(canvas, algorithm) {
   }
 
   function initializeNoise() {
+    if (flagsArray === null) {
+      flagsArray = algorithm.getFlagsArray();
+    }
     for (let i = 0; i < flagsArray.length; i++) {
       if (Math.random() < 0.01) {
         flagsArray[i] = (i %2 === 0) ? 2 : 3;
