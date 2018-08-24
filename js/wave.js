@@ -159,10 +159,6 @@ function wave(canvas, algorithm) {
     lastY = null;
   };
 
-  canvas.onmouseenter = function(e) {
-    applyBrakes = true;
-  };
-
   canvas.onmouseout = function(e) {
     applyBrakes = false;
     lastX = null;
