@@ -201,7 +201,7 @@ function webAssemblySupported() {
 document.addEventListener("DOMContentLoaded", function(event) {
   const width = canvas.width;
   const height = canvas.height;
-  if (1 > 0 || !webAssemblySupported()) {
+  if (!webAssemblySupported()) {
     document.getElementById('js-box').disabled = true;
     document.getElementById('wasm-box').disabled = true;
     wave(document.getElementById('canvas'), waveAlgorithm(width, height));
