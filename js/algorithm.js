@@ -153,6 +153,9 @@ function waveAlgorithm(width, height) {
     getImageArray: function() {
       return new Uint8ClampedArray(heap, 4 * canvas_offset, 4 * wh);
     },
+    getEntireArray: function() {
+      return unsignedHeap;
+    },
     iterate: iterate,
   };
 }

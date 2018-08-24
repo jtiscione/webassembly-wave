@@ -58,6 +58,12 @@ function cWaveAlgorithm(wasm, width, height) {
         startByteOffset + (4 * flags_offset),
         wh);
     },
+    getEntireArray: function() {
+      return new Uint32Array(
+        instance.exports.memory.buffer,
+        startByteOffset,
+        6 * wh);
+    },
     // The main hot spot function that needs to run in WebAssembly:
     iterate: function(signalAmplitude, skipRGB = false, drag = false) {
       instance.exports.iterate(signalAmplitude, skipRGB, drag);
