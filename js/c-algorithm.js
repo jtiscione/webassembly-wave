@@ -60,7 +60,7 @@ function cWaveAlgorithm(wasm, width, height) {
     },
     // The main hot spot function that needs to run in WebAssembly:
     singleFrame: function(signalAmplitude, skipRGB = false, drag = false) {
-      instance.exports.iterate(signalAmplitude, skipRGB, drag);
+      instance.exports.singleFrame(signalAmplitude, skipRGB, drag);
     },
   };
 }

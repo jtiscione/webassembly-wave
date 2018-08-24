@@ -59,7 +59,7 @@ unsigned int toRGB(signed32bitValue) {
 }
 
 WASM_EXPORT
-void iterate(int signalAmplitude, int skipRGB, int drag) {
+void singleFrame(int signalAmplitude, int skipRGB, int drag) {
 
   int index = 0, i = 0, j = 0;
   int uCen = 0, uNorth = 0, uSouth = 0, uEast = 0, uWest = 0;
