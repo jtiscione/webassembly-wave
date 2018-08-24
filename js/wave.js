@@ -18,10 +18,10 @@ function wave(canvas, _algorithm) {
     }
     if (msgCount < 10) {
       console.time('single pass');
-      algorithm.iterate(Math.floor(0x3FFFFFFF * Math.sin(3 * (Date.now() - startTime) / 1000)), false, applyBrakes);
+      algorithm.singleFrame(Math.floor(0x3FFFFFFF * Math.sin(3 * (Date.now() - startTime) / 1000)), false, applyBrakes);
       console.timeEnd('single pass');
     } else {
-      algorithm.iterate(Math.floor(0x3FFFFFFF * Math.sin(3 * (Date.now() - startTime) / 1000)), false, applyBrakes);
+      algorithm.singleFrame(Math.floor(0x3FFFFFFF * Math.sin(3 * (Date.now() - startTime) / 1000)), false, applyBrakes);
     }
     msgCount++;
     if (imageArray === null) {
@@ -80,7 +80,7 @@ function wave(canvas, _algorithm) {
   }
 
   let lastX = null, lastY = null;
-  let flagsArray = null;
+  let statusArray = null;
 
   function drawCircularWall() {
     const centerX = width / 2;
@@ -91,19 +91,19 @@ function wave(canvas, _algorithm) {
         let dist = Math.sqrt(((i - centerY) * (i - centerY)) + ((j - centerX) * (j - centerX)));
         if (dist > radius) {
           const targetIndex = i * width + j;
-          flagsArray[targetIndex] = 1;
+          statusArray[targetIndex] = 1;
         }
       }
     }
   }
 
   function initializeNoise() {
-    if (flagsArray === null) {
-      flagsArray = algorithm.getFlagsArray();
+    if (statusArray === null) {
+      statusArray = algorithm.getStatusArray();
     }
-    for (let i = 0; i < flagsArray.length; i++) {
+    for (let i = 0; i < statusArray.length; i++) {
       if (Math.random() < 0.01) {
-        flagsArray[i] = (i %2 === 0) ? 2 : 3;
+        statusArray[i] = (i %2 === 0) ? 2 : 3;
       }
     }
 
@@ -113,13 +113,13 @@ function wave(canvas, _algorithm) {
       const amplitude = (Math.sin(6.283 * j / 50)
         + Math.sin(6.283 * j / 100)
         + Math.sin(6.283 * j / 200)) / 3;
-      algorithm.iterate(
+      algorithm.singleFrame(
         Math.floor(0x3FFFFFFF * amplitude), true, false);
     }
 
-    for (let i = 0; i < flagsArray.length; i++) {
-      if (flagsArray[i] === 2 || flagsArray[i] === 3) {
-        flagsArray[i] = 0;
+    for (let i = 0; i < statusArray.length; i++) {
+      if (statusArray[i] === 2 || statusArray[i] === 3) {
+        statusArray[i] = 0;
       }
     }
   }
@@ -182,7 +182,7 @@ function wave(canvas, _algorithm) {
       replacement.getEntireArray().set(algorithm.getEntireArray());
       algorithm = replacement;
       forceArray = null;
-      flagsArray = null;
+      statusArray = null;
       imageArray = null;
       msgCount = 0;
     }

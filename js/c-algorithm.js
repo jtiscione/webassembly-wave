@@ -13,7 +13,7 @@ function cWaveAlgorithm(wasm, width, height) {
   const u1_offset = 2 * wh;
   const vel_offset = 3 * wh;
   const force_offset = 4 * wh;
-  const flags_offset = 5 * wh;
+  const status_offset = 5 * wh;
 
   return {
     // The "output" from WASM
@@ -31,13 +31,6 @@ function cWaveAlgorithm(wasm, width, height) {
         wh);
     },
     // internal state, here for debugging
-    getU1Array: function() {
-      return new Int32Array(
-        instance.exports.memory.buffer,
-        startByteOffset + (4 * u1_offset),
-        wh);
-    },
-    // internal state, here for debugging
     getVelArray: function() {
       return new Int32Array(
         instance.exports.memory.buffer,
@@ -51,13 +44,14 @@ function cWaveAlgorithm(wasm, width, height) {
         startByteOffset + (4 * force_offset),
         wh);
     },
-    // Input to WASM: wall and transmitter flags can be set programmatically
-    getFlagsArray: function() {
+    // Input to WASM: wall and transmitter statuses can be set programmatically
+    getStatusArray: function() {
       return new Int32Array(
         instance.exports.memory.buffer,
-        startByteOffset + (4 * flags_offset),
+        startByteOffset + (4 * status_offset),
         wh);
     },
+    // For bulk copying, etc.
     getEntireArray: function() {
       return new Uint32Array(
         instance.exports.memory.buffer,
@@ -65,7 +59,7 @@ function cWaveAlgorithm(wasm, width, height) {
         6 * wh);
     },
     // The main hot spot function that needs to run in WebAssembly:
-    iterate: function(signalAmplitude, skipRGB = false, drag = false) {
+    singleFrame: function(signalAmplitude, skipRGB = false, drag = false) {
       instance.exports.iterate(signalAmplitude, skipRGB, drag);
     },
   };

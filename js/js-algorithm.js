@@ -10,7 +10,7 @@ function waveAlgorithm(width, height) {
   let u1_offset = 2 * wh;
   const vel_offset = 3 * wh;
   const force_offset = 4 * wh;
-  const flags_offset = 5 * wh;
+  const status_offset = 5 * wh;
 
   // Need room for six Int32 arrays, each with imageWidth * imageHeight elements.
   const heapSize = 6 * 4 * wh;
@@ -46,7 +46,7 @@ function waveAlgorithm(width, height) {
    * Applies the wave equation d2u/dt2 = c*c*(d2u/dx2+d2u/dy2)
    * where all derivatives on the right are partial 2nd derivatives
    */
-  function iterate(signalAmplitude, skipRGB = false, drag = false) {
+  function singleFrame(signalAmplitude, skipRGB = false, drag = false) {
 
     let index = 0, i = 0, j = 0;
 
@@ -73,19 +73,19 @@ function waveAlgorithm(width, height) {
             index++;
             continue;
           }
-          const flags = signedHeap[flags_offset + index];
-          if (flags === 1) {
+          const status = signedHeap[status_offset + index];
+          if (status === 1) {
             index++;
             continue;
           }
-          if (flags === 2) {
+          if (status === 2) {
             signedHeap[u0_offset + index] = signalAmplitude;
             signedHeap[vel_offset + index] = 0;
             signedHeap[force_offset + index] = 0;
             index++;
             continue;
           }
-          if (flags === 3) {
+          if (status === 3) {
             signedHeap[u0_offset + index] = -signalAmplitude;
             signedHeap[vel_offset + index] = 0;
             signedHeap[force_offset + index] = 0;
@@ -133,7 +133,7 @@ function waveAlgorithm(width, height) {
       index = 0;
       for (i = 0; i < height; i++) {
         for (j = 0; j < width; j++) {
-          if (signedHeap[flags_offset + index] === 1) {
+          if (signedHeap[status_offset + index] === 1) {
             unsignedHeap[canvas_offset + index] = 0x00000000;
           } else {
             unsignedHeap[canvas_offset + index] = toRGB(signedHeap[u0_offset + index]);
@@ -148,8 +148,8 @@ function waveAlgorithm(width, height) {
     getForceArray: function() {
       return new Int32Array(heap, 4 * force_offset, wh);
     },
-    getFlagsArray: function() {
-      return new Int32Array(heap, 4 * flags_offset, wh);
+    getStatusArray: function() {
+      return new Int32Array(heap, 4 * status_offset, wh);
     },
     getImageArray: function() {
       return new Uint8ClampedArray(heap, 4 * canvas_offset, 4 * wh);
@@ -157,6 +157,6 @@ function waveAlgorithm(width, height) {
     getEntireArray: function() {
       return unsignedHeap;
     },
-    iterate: iterate,
+    singleFrame: singleFrame,
   };
 }

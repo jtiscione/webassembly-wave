@@ -2,9 +2,9 @@
 
 const unsigned int ALPHA = 0xFF000000;
 
-const int FLAG_WALL = 1;
-const int FLAG_POS_TRANSMITTER = 2;
-const int FLAG_NEG_TRANSMITTER = 3;
+const int STATUS_WALL = 1;
+const int STATUS_POS_TRANSMITTER = 2;
+const int STATUS_NEG_TRANSMITTER = 3;
 
 const int DRAG_BIT_SHIFT = 6;
 const int FORCE_DAMPING_BIT_SHIFT = 4;
@@ -15,7 +15,7 @@ int u0_offset = 0;
 int u1_offset = 0;
 int vel_offset = 0;
 int force_offset = 0;
-int flags_offset = 0;
+int status_offset = 0;
 
 // int *array;
 int array[6000000];
@@ -34,7 +34,7 @@ void init(w, h) {
   u1_offset = 2 * wh;
   vel_offset = 3 * wh;
   force_offset = 4 * wh;
-  flags_offset = 5 * wh;
+  status_offset = 5 * wh;
 }
 
 WASM_EXPORT
@@ -84,19 +84,19 @@ void iterate(int signalAmplitude, int skipRGB, int drag) {
           index++;
           continue;
         }
-        int flags = array[flags_offset + index];
-        if (flags == FLAG_WALL) {
+        int status = array[status_offset + index];
+        if (status == STATUS_WALL) {
           index++;
           continue;
         }
-        if (flags == FLAG_POS_TRANSMITTER) {
+        if (status == STATUS_POS_TRANSMITTER) {
           array[u0_offset + index] = signalAmplitude;
           array[vel_offset + index] = 0;
           array[force_offset + index] = 0;
           index++;
           continue;
         }
-        if (flags == FLAG_NEG_TRANSMITTER) {
+        if (status == STATUS_NEG_TRANSMITTER) {
           array[u0_offset + index] = -signalAmplitude;
           array[vel_offset + index] = 0;
           array[force_offset + index] = 0;
@@ -142,7 +142,7 @@ void iterate(int signalAmplitude, int skipRGB, int drag) {
     index = 0;
     for (i = 0; i < height; i++) {
       for (j = 0; j < width; j++) {
-        if (array[flags_offset + index] == FLAG_WALL) {
+        if (array[status_offset + index] == STATUS_WALL) {
           array[canvas_offset + index] = 0x00000000;
         } else {
           array[canvas_offset + index] = toRGB(array[u0_offset + index]);

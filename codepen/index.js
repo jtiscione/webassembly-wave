@@ -11,7 +11,7 @@ function waveAlgorithm(width, height) {
   let u1_offset = 2 * wh;
   const vel_offset = 3 * wh;
   const force_offset = 4 * wh;
-  const flags_offset = 5 * wh;
+  const status_offset = 5 * wh;
 
   // Need room for six Int32 arrays, each with width * height elements.
   const heapSize = 6 * 4 * wh;
@@ -43,7 +43,7 @@ function waveAlgorithm(width, height) {
    * Applies the wave equation d2u/dt2 = c*c*(d2u/dx2+d2u/dy2)
    * where all derivatives on the right are partial 2nd derivatives
    */
-  function iterate(signalAmplitude, skipRGB = false, drag = false) {
+  function singleFrame(signalAmplitude, skipRGB = false, drag = false) {
     let index = 0, i = 0, j = 0;
     let uCen = 0, uNorth = 0, uSouth = 0, uEast = 0, uWest = 0;
     const totalCycles = 2;
@@ -67,19 +67,19 @@ function waveAlgorithm(width, height) {
             index++;
             continue;
           }
-          const flags = signedHeap[flags_offset + index];
-          if (flags === 1) {
+          const status = signedHeap[status_offset + index];
+          if (status === 1) {
             index++;
             continue;
           }
-          if (flags === 2) {
+          if (status === 2) {
             signedHeap[u0_offset + index] = signalAmplitude;
             signedHeap[vel_offset + index] = 0;
             signedHeap[force_offset + index] = 0;
             index++;
             continue;
           }
-          if (flags === 3) {
+          if (status === 3) {
             signedHeap[u0_offset + index] = -signalAmplitude;
             signedHeap[vel_offset + index] = 0;
             signedHeap[force_offset + index] = 0;
@@ -127,7 +127,7 @@ function waveAlgorithm(width, height) {
       index = 0;
       for (i = 0; i < height; i++) {
         for (j = 0; j < width; j++) {
-          if (signedHeap[flags_offset + index] === 1) {
+          if (signedHeap[status_offset + index] === 1) {
             unsignedHeap[canvas_offset + index] = 0x00000000;
           } else {
             unsignedHeap[canvas_offset + index] = toRGB(signedHeap[u0_offset + index]);
@@ -143,12 +143,12 @@ function waveAlgorithm(width, height) {
       return new Int32Array(heap, 4 * force_offset, wh);
     },
     getFlagsArray: function() {
-      return new Int32Array(heap, 4 * flags_offset, wh);
+      return new Int32Array(heap, 4 * status_offset, wh);
     },
     getImageArray: function() {
       return new Uint8ClampedArray(heap, 4 * canvas_offset, 4 * wh);
     },
-    iterate: iterate,
+    singleFrame: singleFrame,
   };
 }
 
@@ -168,7 +168,7 @@ function wave(canvas) {
     if (lastX !== null && lastY !== null) {
       applyBrush(lastX, lastY);
     }
-    algorithm.iterate(Math.floor(0x3FFFFFFF * Math.sin(3 * (Date.now() - startTime) / 1000)), false, applyBrakes);
+    algorithm.singleFrame(Math.floor(0x3FFFFFFF * Math.sin(3 * (Date.now() - startTime) / 1000)), false, applyBrakes);
     if (imageArray === null) {
       imageArray = algorithm.getImageArray();
     }
@@ -225,7 +225,7 @@ function wave(canvas) {
   }
 
   let lastX = null, lastY = null;
-  let flagsArray = null;
+  let statusArray = null;
 
   function drawCircularWall() {
     const centerX = imageWidth / 2;
@@ -236,19 +236,19 @@ function wave(canvas) {
         let dist = Math.sqrt(((i - centerY) * (i - centerY)) + ((j - centerX) * (j - centerX)));
         if (dist > radius) {
           const targetIndex = i * imageWidth + j;
-          flagsArray[targetIndex] = 1;
+          statusArray[targetIndex] = 1;
         }
       }
     }
   }
 
   function initializeNoise() {
-    if (flagsArray === null) {
-      flagsArray = algorithm.getFlagsArray();
+    if (statusArray === null) {
+      statusArray = algorithm.getFlagsArray();
     }
-    for (let i = 0; i < flagsArray.length; i++) {
+    for (let i = 0; i < statusArray.length; i++) {
       if (Math.random() < 0.01) {
-        flagsArray[i] = (i %2 === 0) ? 2 : 3;
+        statusArray[i] = (i %2 === 0) ? 2 : 3;
       }
     }
 
@@ -258,13 +258,13 @@ function wave(canvas) {
       const amplitude = (Math.sin(6.283 * j / 50)
         + Math.sin(6.283 * j / 100)
         + Math.sin(6.283 * j / 200)) / 3;
-      algorithm.iterate(
+      algorithm.singleFrame(
         Math.floor(0x3FFFFFFF * amplitude), true, false);
     }
 
-    for (let i = 0; i < flagsArray.length; i++) {
-      if (flagsArray[i] === 2 || flagsArray[i] === 3) {
-        flagsArray[i] = 0;
+    for (let i = 0; i < statusArray.length; i++) {
+      if (statusArray[i] === 2 || statusArray[i] === 3) {
+        statusArray[i] = 0;
       }
     }
   }
