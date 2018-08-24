@@ -22,6 +22,7 @@ fetch('../wasm/main.wasm').then(response => response.arrayBuffer())
       instance.exports.init(width, height);
       const offset = instance.exports.getStartByteOffset();
       console.log('offset: ' + offset);
+      /*
       // Six arrays - image, u0, u1, vel, force, flags
       const linearMemory = new Uint32Array(instance.exports.memory.buffer, offset, 6 * width * height);
       const signedMemory = new Int32Array(instance.exports.memory.buffer, offset, 6 * width * height);
@@ -55,5 +56,6 @@ fetch('../wasm/main.wasm').then(response => response.arrayBuffer())
       for (let i = 75; i < 100; i++) {
         console.log(`${i}\t${signedMemory[i]}`);
       }
+      */
     }
   );

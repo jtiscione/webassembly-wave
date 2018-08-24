@@ -35,33 +35,12 @@ void init(w, h) {
   vel_offset = 3 * wh;
   force_offset = 4 * wh;
   flags_offset = 5 * wh;
-
-  /*
-  for (int i=0; i < h; i++) {
-    for (int j=0; j < w; j++) {
-      arr[i * w + j] = i * j;
-    }
-  }
-  */
 }
 
 WASM_EXPORT
 int* getStartByteOffset() {
   return &array[0];
 }
-/*
-WASM_EXPORT
-void add(int value) {
-  for (int i=0; i < SIZE; i++) {
-    data[i] = data[i] + value;
-  }
-}
-
-WASM_EXPORT
-int* getData() {
-    return &data[0];
-}
-*/
 
 int applyCap(x) {
   return x < -0x40000000 ? -0x40000000 : (x > 0x3FFFFFFF ? 0x3FFFFFFF : x);
