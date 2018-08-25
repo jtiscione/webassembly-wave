@@ -146,12 +146,6 @@ function jsWaveAlgorithm(width, height) {
     getImageArray: function() {
       return new Uint8ClampedArray(heap, 0, 4 * wh);
     },
-    getUArray: function() {
-      return new Int32Array(heap, 4 * u0_offfset, 4 * wh);
-    },
-    getVArray: function() {
-      return new Int32Array(heap, 4 * vel_offset, wh);
-    },
     getForceArray: function() {
       return new Int32Array(heap, 4 * force_offset, wh);
     },
@@ -161,6 +155,6 @@ function jsWaveAlgorithm(width, height) {
     getEntireArray: function() {
       return unsignedHeap;
     },
-    singleFrame: singleFrame,
+    singleFrame
   };
 }

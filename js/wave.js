@@ -250,8 +250,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
     }).then(wave);
 
     /*
-    // Use the main.wasm file
-    fetch('wasm/main.wasm').then(response => response.arrayBuffer())
+    // Use the waves.wasm file
+    fetch('wasm/waves.wasm').then(response => response.arrayBuffer())
       .then((bytes) => {
         WebAssembly.instantiate(arry.buffer, {
           env: {
