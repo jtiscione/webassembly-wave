@@ -6,19 +6,50 @@ function wave(canvas, fps, _algorithm) {
   let applyBrakes = false;
   const context = canvas.getContext('2d');
 
-  let startTime = Date.now();
-
   let imageArray = null;
+  let forceArray = null;
+  let statusArray = null;
 
   let timestamps = [];
-  let lastJitter = 0;
+  let lastFpsJitter = 0;
+
+  let animationCount = 0;
 
   function animate() {
     setTimeout(animate, 0);
-    if (lastX !== null && lastY !== null) {
-     applyBrush(lastX, lastY);
+
+    if (animationCount === 0) {
+      // Sprinkle noise generator pixels and set applyBrakes flag
+      const threshold = 0.001;
+      if (statusArray === null) {
+        statusArray = algorithm.getStatusArray();
+      }
+      for (let i = 0; i < statusArray.length; i++) {
+        if (Math.random() < threshold) {
+          statusArray[i] = (i %2 === 0) ? 2 : 3;
+        }
+      }
+      drawCircularWall();
+      applyBrakes = true;
     }
-    algorithm.singleFrame(Math.floor(0x3FFFFFFF * Math.sin(3 * (Date.now() - startTime) / 1000)), false, applyBrakes);
+
+    let amplitude = Math.floor(0x3FFFFFFF * Math.sin(6.283 * animationCount / 100));
+    if (animationCount === 100) {
+      // Clear noise generator pixels and clear applyBrakes flag
+      for (let i = 0; i < statusArray.length; i++) {
+        if (statusArray[i] === 2 || statusArray[i] === 3) {
+          statusArray[i] = 0;
+        }
+      }
+      applyBrakes = false;
+    }
+
+    if (lastX !== null && lastY !== null) {
+      applyBrush(lastX, lastY);
+    }
+
+    algorithm.singleFrame(amplitude, false, applyBrakes);
+
     if (imageArray === null) {
       imageArray = algorithm.getImageArray();
     }
@@ -27,13 +58,16 @@ function wave(canvas, fps, _algorithm) {
     context.putImageData(imgData, 0, 0);
     const now = Date.now();
     timestamps.push(now);
-    timestamps = timestamps.filter(e => (now - e) < 1000);
+    timestamps = timestamps.filter(function(e) {
+      return ((now - e) < 1000);
+    });
 
     const count = timestamps.length;
-    if (now - lastJitter > 400) {
-      lastJitter = now;
+    if (now - lastFpsJitter > 400) {
+      lastFpsJitter = now;
       fps.innerHTML = count;
     }
+    animationCount++;
   }
 
   function windowToCanvas(canvas, x, y) {
@@ -54,8 +88,6 @@ function wave(canvas, fps, _algorithm) {
       row.push(element);
     }
   }
-
-  let forceArray = null;
 
   function applyBrush(x, y) {
     if (forceArray === null) {
@@ -84,7 +116,6 @@ function wave(canvas, fps, _algorithm) {
   }
 
   let lastX = null, lastY = null;
-  let statusArray = null;
 
   function drawCircularWall() {
     const centerX = width / 2;
@@ -97,33 +128,6 @@ function wave(canvas, fps, _algorithm) {
           const targetIndex = i * width + j;
           statusArray[targetIndex] = 1;
         }
-      }
-    }
-  }
-
-  function initializeNoise() {
-    if (statusArray === null) {
-      statusArray = algorithm.getStatusArray();
-    }
-    for (let i = 0; i < statusArray.length; i++) {
-      if (Math.random() < 0.01) {
-        statusArray[i] = (i %2 === 0) ? 2 : 3;
-      }
-    }
-
-    drawCircularWall();
-
-    for (let j = 0; j < 100; j++) {
-      const amplitude = (Math.sin(6.283 * j / 50)
-        + Math.sin(6.283 * j / 100)
-        + Math.sin(6.283 * j / 200)) / 3;
-      algorithm.singleFrame(
-        Math.floor(0x3FFFFFFF * amplitude), true, false);
-    }
-
-    for (let i = 0; i < statusArray.length; i++) {
-      if (statusArray[i] === 2 || statusArray[i] === 3) {
-        statusArray[i] = 0;
       }
     }
   }
@@ -170,6 +174,14 @@ function wave(canvas, fps, _algorithm) {
     lastY = null;
   };
 
+  const noiseBtn = document.getElementById('noiseBtn');
+  if (noiseBtn) {
+    noiseBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      animationCount = 0;
+    });
+  }
+
   const clearBtn = document.getElementById('clearBtn');
   if (clearBtn) {
     clearBtn.addEventListener('click', function(e) {
@@ -178,7 +190,6 @@ function wave(canvas, fps, _algorithm) {
     });
   }
 
-  initializeNoise();
   animate();
 
   return {
