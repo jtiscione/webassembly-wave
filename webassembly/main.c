@@ -26,10 +26,6 @@ void init(w, h) {
   width = w;
   height = h;
   wh = w * h;
-
-  // int arr[6 * wh];
-  // array = arr;
-
   u0_offset = wh;
   u1_offset = 2 * wh;
   vel_offset = 3 * wh;

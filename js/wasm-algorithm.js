@@ -1,4 +1,4 @@
-function cWaveAlgorithm(wasm, width, height) {
+function wasmWaveAlgorithm(wasm, width, height) {
 
   const instance = wasm.instance;
 
@@ -24,14 +24,14 @@ function cWaveAlgorithm(wasm, width, height) {
         4 * wh);
     },
     // internal state, here for debugging
-    getU0Array: function() {
+    getUArray: function() {
       return new Int32Array(
         instance.exports.memory.buffer,
         startByteOffset + (4 * u0_offset),
         wh);
     },
     // internal state, here for debugging
-    getVelArray: function() {
+    getVArray: function() {
       return new Int32Array(
         instance.exports.memory.buffer,
         startByteOffset + (4 * vel_offset),

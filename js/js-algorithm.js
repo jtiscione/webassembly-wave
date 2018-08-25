@@ -1,4 +1,4 @@
-function waveAlgorithm(width, height) {
+function jsWaveAlgorithm(width, height) {
 
   const wh = width * height;
 
@@ -145,14 +145,20 @@ function waveAlgorithm(width, height) {
   }
 
   return {
+    getImageArray: function() {
+      return new Uint8ClampedArray(heap, 4 * canvas_offset, 4 * wh);
+    },
+    getUArray: function() {
+      return new Int32Array(heap, 4 * u0_offfset, 4 * wh);
+    },
+    getVArray: function() {
+      return new Int32Array(heap, 4 * vel_offset, wh);
+    },
     getForceArray: function() {
       return new Int32Array(heap, 4 * force_offset, wh);
     },
     getStatusArray: function() {
       return new Int32Array(heap, 4 * status_offset, wh);
-    },
-    getImageArray: function() {
-      return new Uint8ClampedArray(heap, 4 * canvas_offset, 4 * wh);
     },
     getEntireArray: function() {
       return unsignedHeap;

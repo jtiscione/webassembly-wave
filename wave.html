@@ -5,24 +5,37 @@
         <title>Wave Equation</title>
         <link rel="stylesheet" href="./wave.css">
         <script type="text/javascript" src="js/js-algorithm.js"></script>
-        <script type="text/javascript" src="js/c-algorithm.js"></script>
+        <script type="text/javascript" src="js/wasm-algorithm.js"></script>
         <script type="text/javascript" src="js/wave.js"></script>
     </head>
     <body>
     <div class="container">
         <div>
-            <p class="big">Wave equation:<span class="eq">&#8706;<sup>2</sup>u/&#8706;t<sup>2</sup> = c<sup>2</sup>(&#8706;<sup>2</sup>u/&#8706;x<sup>2</sup>+&#8706;<sup>2</sup>u/&#8706;y<sup>2</sup>)</span></p>
-            <p>Click and drag with your mouse.</p>
+            <p class="bigger">JAVASCRIPT VS. WEBASSEMBLY</p>
+            <p class="big">SPEED COMPARISON</p>
+            <p>
+                This is a simulation of the wave equation:
+                <span class="eq">&#8706;<sup>2</sup>u/&#8706;t<sup>2</sup> = c<sup>2</sup>(&#8706;<sup>2</sup>u/&#8706;x<sup>2</sup>+&#8706;<sup>2</sup>u/&#8706;y<sup>2</sup>).</span>
+            </p>
+            <p>
+                It uses two implementations of the exact same algorithm: one in JavaScript, and one in WebAssembly compiled from C.
+                This involves processing large arrays and doing integer math, but [almost] no floating point calculations or memory allocations.
+                The speed increase is marginal (about 20%) if you're replacing JavaScript that already looks like C.
+            </p>
+            <p>
+                Use the mouse to start waves.
+            </p>
             <div>
-                <a href="#" id="noiseBtn" class="clearBtn">NOISE</a>
-                <a href="#" id="clearBtn" class="clearBtn">CLEAR</a>
+                <a href="#" id="noiseBtn" class="btn">NOISE</a>
+                <a href="#" id="clearBtn" class="btn">CLEAR</a>
             </div>
             <div class="boxes">
                 <input type="radio" id="js-box" name="algorithm" checked />
-                <label for="js-box">JavaScript</label>
+                <label for="js-box">JAVASCRIPT</label>
                 <input type="radio" id="wasm-box" name="algorithm" />
-                <label for="wasm-box">WebAssembly</label>
+                <label for="wasm-box">WEBASSEMBLY</label>
             </div>
+            <div><span class="bigger">FRAME RATE</span></div>
             <div><span id="fps" class="huge">0</span></div>
             <div><span class="big">FPS</span></div>
         </div>

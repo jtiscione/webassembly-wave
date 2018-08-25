@@ -22,13 +22,12 @@ fetch('../wasm/main.wasm').then(response => response.arrayBuffer())
       instance.exports.init(width, height);
       const offset = instance.exports.getStartByteOffset();
       console.log('offset: ' + offset);
-      /*
       // Six arrays - image, u0, u1, vel, force, flags
       const linearMemory = new Uint32Array(instance.exports.memory.buffer, offset, 6 * width * height);
       const signedMemory = new Int32Array(instance.exports.memory.buffer, offset, 6 * width * height);
 
       linearMemory[137] = 2;   // Stick a transmitter pixel right in the middle
-      // signedMemory[37] = 1000;  // and stick the value in u1 so our first pass doesn't confuse us while debugging.
+      signedMemory[37] = 1000;  // and stick the value in u1 so our first pass doesn't confuse us while debugging.
 
       // See if it breaks
       const t0 = Date.now();
@@ -56,6 +55,5 @@ fetch('../wasm/main.wasm').then(response => response.arrayBuffer())
       for (let i = 75; i < 100; i++) {
         console.log(`${i}\t${signedMemory[i]}`);
       }
-      */
     }
   );

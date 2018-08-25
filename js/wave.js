@@ -1,18 +1,49 @@
-function wave(canvas, fps, _algorithm) {
+function wave(wasm) {
+
+  const canvas = document.getElementById('canvas');
+  const context = canvas.getContext('2d');
+  const fps = document.getElementById('fps');
+  const jsBox = document.getElementById('js-box');
+  const wasmBox = document.getElementById('wasm-box');
+  const noiseBtn = document.getElementById('noiseBtn');
+  const clearBtn = document.getElementById('clearBtn');
 
   let width = canvas.width;
   let height = canvas.height;
-  let algorithm = _algorithm;
-  let applyBrakes = false;
-  const context = canvas.getContext('2d');
 
+  let applyBrakes = false;
   let imageArray = null;
   let forceArray = null;
   let statusArray = null;
 
+  const jsAlgorithm = jsWaveAlgorithm(width, height);
+  let algorithm = jsAlgorithm;
+  let wasmAlgorithm = null;
+
+  if (wasm) {
+    wasmAlgorithm = wasmWaveAlgorithm(wasm, width, height);
+    algorithm = wasmAlgorithm;
+    wasmBox.checked = true;
+    const swap = function(replacement) {
+      replacement.getEntireArray().set(algorithm.getEntireArray());
+      algorithm = replacement;
+      forceArray = null;
+      statusArray = null;
+      imageArray = null;
+    };
+    jsBox.addEventListener('click', function(event) {
+      swap(jsAlgorithm);
+    });
+    wasmBox.addEventListener('click', function(event) {
+      swap(wasmAlgorithm);
+    });
+  } else {
+    jsBox.disabled = true;
+    wasmBox.disabled = true;
+  }
+
   let timestamps = [];
   let lastFpsJitter = 0;
-
   let animationCount = 0;
 
   function animate() {
@@ -33,7 +64,6 @@ function wave(canvas, fps, _algorithm) {
       applyBrakes = true;
     }
 
-    let amplitude = Math.floor(0x3FFFFFFF * Math.sin(6.283 * animationCount / 100));
     if (animationCount === 100) {
       // Clear noise generator pixels and clear applyBrakes flag
       for (let i = 0; i < statusArray.length; i++) {
@@ -44,10 +74,11 @@ function wave(canvas, fps, _algorithm) {
       applyBrakes = false;
     }
 
-    if (lastX !== null && lastY !== null) {
-      applyBrush(lastX, lastY);
+    if (lastMouseX !== null && lastMouseY !== null) {
+      applyBrush(lastMouseX, lastMouseY);
     }
 
+    let amplitude = Math.floor(0x3FFFFFFF * Math.sin(6.283 * animationCount / 100));
     algorithm.singleFrame(amplitude, false, applyBrakes);
 
     if (imageArray === null) {
@@ -110,12 +141,11 @@ function wave(canvas, fps, _algorithm) {
         const targetIndex = targetY * width + targetX;
         forceArray[targetIndex] += brushValue;
         forceArray[targetIndex] = applyCap(forceArray[targetIndex]);
-        // forceArray[targetIndex] = Math.max(forceArray[targetIndex], brushValue);
       }
     }
   }
 
-  let lastX = null, lastY = null;
+  let lastMouseX = null, lastMouseY = null;
 
   function drawCircularWall() {
     const centerX = width / 2;
@@ -135,25 +165,25 @@ function wave(canvas, fps, _algorithm) {
   canvas.onmousedown = function (e) {
     applyBrakes = false;
     const loc = windowToCanvas(canvas, e.clientX, e.clientY);
-    lastX = loc.x;
-    lastY = loc.y;
+    lastMouseX = loc.x;
+    lastMouseY = loc.y;
     applyBrush(loc.x, loc.y);
   };
 
   canvas.onmousemove = function (e) {
     const loc = windowToCanvas(canvas, e.clientX, e.clientY);
     const targetX = loc.x, targetY = loc.y;
-    if (lastX !== null && lastY !== null) {
+    if (lastMouseX !== null && lastMouseY !== null) {
       // draw a line from the last place we were to the current place
-      const r = Math.sqrt((loc.x - lastX) * (loc.x - lastX) + (loc.y - lastY) * (loc.y - lastY));
+      const r = Math.sqrt((loc.x - lastMouseX) * (loc.x - lastMouseX) + (loc.y - lastMouseY) * (loc.y - lastMouseY));
       for (let t = 0; t < r; t++) {
-        const currX = Math.round(lastX + (targetX - lastX) * (t / r));
-        const currY = Math.round(lastY + (targetY - lastY) * (t / r));
+        const currX = Math.round(lastMouseX + (targetX - lastMouseX) * (t / r));
+        const currY = Math.round(lastMouseY + (targetY - lastMouseY) * (t / r));
         applyBrush(currX, currY);
       }
       applyBrush(loc.x, loc.y);
-      lastX = loc.x;
-      lastY = loc.y;
+      lastMouseX = loc.x;
+      lastMouseY = loc.y;
     }
   };
 
@@ -164,17 +194,16 @@ function wave(canvas, fps, _algorithm) {
       applyBrakes = true;
       neverEntered = false;
     }
-    lastX = null;
-    lastY = null;
+    lastMouseX = null;
+    lastMouseY = null;
   };
 
   canvas.onmouseout = function(e) {
     applyBrakes = false;
-    lastX = null;
-    lastY = null;
+    lastMouseX = null;
+    lastMouseY = null;
   };
 
-  const noiseBtn = document.getElementById('noiseBtn');
   if (noiseBtn) {
     noiseBtn.addEventListener('click', function(e) {
       e.preventDefault();
@@ -182,7 +211,6 @@ function wave(canvas, fps, _algorithm) {
     });
   }
 
-  const clearBtn = document.getElementById('clearBtn');
   if (clearBtn) {
     clearBtn.addEventListener('click', function(e) {
       e.preventDefault();
@@ -191,16 +219,6 @@ function wave(canvas, fps, _algorithm) {
   }
 
   animate();
-
-  return {
-    swapAlgorithm: function(replacement) {
-      replacement.getEntireArray().set(algorithm.getEntireArray());
-      algorithm = replacement;
-      forceArray = null;
-      statusArray = null;
-      imageArray = null;
-    }
-  }
 }
 
 // https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly
@@ -217,14 +235,8 @@ function webAssemblySupported() {
 }
 
 document.addEventListener("DOMContentLoaded", function(event) {
-  const canvas = document.getElementById('canvas');
-  const fps = document.getElementById('fps');
-  const width = canvas.width;
-  const height = canvas.height;
   if (!webAssemblySupported()) {
-    document.getElementById('js-box').disabled = true;
-    document.getElementById('wasm-box').disabled = true;
-    wave(canvas, fps, waveAlgorithm(width, height));
+    wave(null);
   } else {
     // Use inlined string (https://rot47.net/base64encoder.html)
     const b64 = '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';
@@ -241,46 +253,21 @@ document.addEventListener("DOMContentLoaded", function(event) {
           initial: 512
         })
       }
-    }).then((wasm) => {
-      const wasmAlgorithm = cWaveAlgorithm(wasm, width, height);
-      const jsAlgorithm = waveAlgorithm(width, height);
-      const handle = wave(canvas, fps, jsAlgorithm);
-      document.getElementById('js-box').addEventListener('click', function(event) {
-        handle.swapAlgorithm(jsAlgorithm);
-        console.log('JAVASCRIPT');
-      });
-      document.getElementById('wasm-box').addEventListener('click', function(event) {
-        handle.swapAlgorithm(wasmAlgorithm);
-        console.log('WEBASSEMBLY');
-      });
-    });
-    // Use the main.wasm file
-    // Not using WebAssembly.instantiateStreaming() because of MIME type error (expects application/wasm)
+    }).then(wave);
+
     /*
+    // Use the main.wasm file
     fetch('wasm/main.wasm').then(response => response.arrayBuffer())
       .then((bytes) => {
-        return WebAssembly.instantiate(bytes, {
+        WebAssembly.instantiate(arry.buffer, {
           env: {
             memoryBase: 0,
             memory: new WebAssembly.Memory({
               initial: 512
             })
           }
-        });
-      })
-      .then((wasm) => {
-        const wasmAlgorithm = cWaveAlgorithm(wasm, width, height);
-        const jsAlgorithm = waveAlgorithm(width, height);
-        const handle = wave(document.getElementById('canvas'), jsAlgorithm);
-        document.getElementById('js-box').addEventListener('click', function(event) {
-          handle.swapAlgorithm(jsAlgorithm);
-          console.log('JAVASCRIPT');
-        });
-        document.getElementById('wasm-box').addEventListener('click', function(event) {
-          handle.swapAlgorithm(wasmAlgorithm);
-          console.log('WEBASSEMBLY');
-        });
+        }).then(wave);
       });
-   */
+    */
   }
 });
