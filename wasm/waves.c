@@ -55,6 +55,10 @@ unsigned int toRGB(signed32bitValue) {
   return rgba;
 }
 
+/*
+ * Applies the wave equation d2u/dt2 = c*c*(d2u/dx2+d2u/dy2)
+ * where all derivatives on the right are partial 2nd derivatives
+ */
 WASM_EXPORT
 void singleFrame(int signalAmplitude, int dampingBitShift) {
 

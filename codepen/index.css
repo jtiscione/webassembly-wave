@@ -1,20 +1,33 @@
 body {
     background: gray;
     margin: 0px;
+    font-family: Arial,sans-serif;
 }
 
 .container {
     text-align: center;
     padding: 10px;
     margin: auto;
-}
-
-.container p {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
     user-select: none;
+    background-image: linear-gradient(steelblue, gray);
 }
 
-.container .big {
+.huge {
+    font-size: 100pt;
+}
+
+.big {
     font-size: 1.5em;
+    padding: 0px;
+    margin: 0px;
+}
+
+.bigger {
+    font-size: 2em;
     padding: 0px;
     margin: 0px;
 }
@@ -23,7 +36,7 @@ body {
     font-style: italic;
 }
 
-.clearBtn {
+.btn {
     box-shadow: 0px 1px 0px 0px #141412;
     background:linear-gradient(to bottom, #eae0c2 5%, #ccc2a6 100%);
     background-color:#eae0c2;
@@ -39,10 +52,36 @@ body {
     text-decoration:none;
     text-shadow:0px 1px 0px #ffffff;
 }
-.clearBtn:hover {
+.btn:hover {
     background:linear-gradient(to bottom, #ccc2a6 5%, #eae0c2 100%);
 }
-.clearBtn:active {
+.btn:active {
     position:relative;
     top:1px;
+}
+
+.description {
+    text-align: left;
+}
+
+.boxes {
+    margin: 5px;
+}
+
+.boxes .lame {
+    margin: 20px;
+    color: darkred;
+}
+
+.boxes input {
+    margin: 20px auto;
+    background: #fcfff4;
+    background: linear-gradient(to bottom, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+    border-radius: 10px;
+    box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0, 0, 0, 0.5);
+    color: green;
+}
+
+.boxes label {
+    margin-right: 10px;
 }
