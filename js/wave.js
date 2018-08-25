@@ -187,13 +187,7 @@ function wave(wasm) {
     }
   };
 
-  let neverEntered = true;
-
   canvas.onmouseover = canvas.onmouseout = canvas.onmouseup = canvas.ontouchend = function (e) {
-    if (neverEntered) {
-      applyBrakes = true;
-      neverEntered = false;
-    }
     lastMouseX = null;
     lastMouseY = null;
   };

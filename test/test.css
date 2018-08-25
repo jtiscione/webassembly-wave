@@ -1,0 +1,22 @@
+.outer {
+    display: flex;
+    font-family: monospace;
+}
+
+.column {
+    flex: 0 1 0 auto;
+    margin-right: 5px;
+}
+
+.pixels {
+    display: grid;
+    width: 200px;
+    height: 200px;
+    grid-gap: 0;
+    grid-template-columns: 40px 40px 40px 40px 40px;
+}
+
+.pixel {
+    width: 40px;
+    height: 40px;
+}

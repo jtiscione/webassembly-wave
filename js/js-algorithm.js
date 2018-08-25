@@ -77,14 +77,14 @@ function jsWaveAlgorithm(width, height) {
             continue;
           }
           if (status === STATUS_POS_TRANSMITTER) {
-            signedHeap[u0_offset + index] = signalAmplitude;
+            signedHeap[u1_offset + index] = signalAmplitude;
             signedHeap[vel_offset + index] = 0;
             signedHeap[force_offset + index] = 0;
             index++;
             continue;
           }
           if (status === STATUS_NEG_TRANSMITTER) {
-            signedHeap[u0_offset + index] = -signalAmplitude;
+            signedHeap[u1_offset + index] = -signalAmplitude;
             signedHeap[vel_offset + index] = 0;
             signedHeap[force_offset + index] = 0;
             index++;

@@ -12,22 +12,22 @@ It contains two implementations of the same C code: one transpiled by hand to Ja
 This particular algorithm processes large arrays and performs a lot of integer math (but does no floating point calculations).
 Memory is shared between JS and WebAssembly with no copying, and almost all CPU time is spent in the algorithm itself.
 (The canvas API introduces a minor overhead of about 10%.)
-The speed increase is modest (about 20%) when the same code is run in a WebAssembly context as opposed to pure JavaScript.
+The speed increase is modest (about one third) when the same code is run in a WebAssembly context as opposed to a JavaScript context.
 
 ### Compiling program
 
-There are two options for generating the WebAssembly .wasm file:
+There are two options for generating the .wasm file:
 
-* Go to [WebAssembly Explorer](https://mbebenita.github.io/WasmExplorer/)
-or [WasmFiddle](https://mbebenita.github.io/WasmExplorer/)
-or [WebAssembly Studio](https://webassembly.studio/),
-paste the contents of `wasm/waves.c` in the editor, press "build", and download the `waves.wasm` file (and optionally `waves.wat`).
+* Compile `waves.c` online by pasting its contents into several sites:
+  * [WasmFiddle](https://mbebenita.github.io/WasmExplorer/)
+  * [WebAssembly Explorer](https://mbebenita.github.io/WasmExplorer/)
+  * [WebAssembly Studio](https://webassembly.studio/),
 * Compile `waves.c` with Emscripten: `emcc source.c -s WASM=1 -s SIDE_MODULE=1 -o target.wasm`
 
 ## Other stuff
 
 * Directory `codepen` is a version with the .wasm bundled inline as a base64 string.
-* Directory `test` has a test page that loads the .wasm module and runs a small test.
+* Directory `test` has a page that loads the .wasm module, tests it once, and and displays the results.
 
 ## Author
 

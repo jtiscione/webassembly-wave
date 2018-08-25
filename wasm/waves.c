@@ -91,14 +91,14 @@ void singleFrame(int signalAmplitude, int dampingBitShift) {
           continue;
         }
         if (status == STATUS_POS_TRANSMITTER) {
-          array[u0_offset + index] = signalAmplitude;
+          array[u1_offset + index] = signalAmplitude;
           array[vel_offset + index] = 0;
           array[force_offset + index] = 0;
           index++;
           continue;
         }
         if (status == STATUS_NEG_TRANSMITTER) {
-          array[u0_offset + index] = -signalAmplitude;
+          array[u1_offset + index] = -signalAmplitude;
           array[vel_offset + index] = 0;
           array[force_offset + index] = 0;
           index++;

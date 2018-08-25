@@ -21,8 +21,9 @@
             This particular algorithm processes large arrays and performs a lot of integer math (but does no floating point calculations).
             Memory is shared between JS and WebAssembly with no copying, and almost all CPU time is spent in the algorithm itself.
             (The canvas API introduces a minor overhead of about 10%.)
-            The speed increase is modest (about 20%) when the same code is run in a WebAssembly context as opposed to pure JavaScript.
+            The speed increase is modest (about one third) when the same code is run in a WebAssembly context as opposed to a JavaScript context.
         </p>
+        <p class="description"><a href="https://github.com/jtiscione/webassembly-wave">Source code</a></p>
         <div>
             <a href="#" id="noiseBtn" class="btn">NOISE</a>
             <a href="#" id="clearBtn" class="btn">CLEAR</a>

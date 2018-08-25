@@ -186,11 +186,11 @@
      (get_local $0)
     )
    )
-   (set_local $13
+   (set_local $15
     (i32.sub
-     (tee_local $11
+     (tee_local $13
       (i32.shl
-       (tee_local $8
+       (tee_local $9
         (i32.load offset=48
          (i32.const 0)
         )
@@ -210,36 +210,16 @@
      )
     )
    )
-   (set_local $12
+   (set_local $14
     (i32.add
      (get_local $24)
-     (get_local $11)
+     (get_local $13)
     )
    )
    (set_local $16
     (i32.shl
-     (tee_local $9
-      (i32.load offset=52
-       (i32.const 0)
-      )
-     )
-     (i32.const 2)
-    )
-   )
-   (set_local $15
-    (i32.shl
      (tee_local $6
       (i32.load offset=60
-       (i32.const 0)
-      )
-     )
-     (i32.const 2)
-    )
-   )
-   (set_local $14
-    (i32.shl
-     (tee_local $5
-      (i32.load offset=56
        (i32.const 0)
       )
      )
@@ -250,6 +230,26 @@
     (i32.add
      (get_local $3)
      (i32.const -1)
+    )
+   )
+   (set_local $12
+    (i32.shl
+     (tee_local $8
+      (i32.load offset=52
+       (i32.const 0)
+      )
+     )
+     (i32.const 2)
+    )
+   )
+   (set_local $11
+    (i32.shl
+     (tee_local $5
+      (i32.load offset=56
+       (i32.const 0)
+      )
+     )
+     (i32.const 2)
     )
    )
    (set_local $10
@@ -363,7 +363,7 @@
              (i32.add
               (i32.add
                (get_local $24)
-               (get_local $11)
+               (get_local $12)
               )
               (get_local $23)
              )
@@ -376,7 +376,7 @@
              (i32.add
               (i32.add
                (get_local $24)
-               (get_local $14)
+               (get_local $11)
               )
               (get_local $23)
              )
@@ -391,7 +391,7 @@
             (i32.add
              (i32.add
               (get_local $24)
-              (get_local $11)
+              (get_local $12)
              )
              (get_local $23)
             )
@@ -404,7 +404,7 @@
             (i32.add
              (i32.add
               (get_local $24)
-              (get_local $14)
+              (get_local $11)
              )
              (get_local $23)
             )
@@ -419,7 +419,7 @@
            (i32.add
             (i32.add
              (get_local $24)
-             (get_local $16)
+             (get_local $12)
             )
             (get_local $23)
            )
@@ -448,7 +448,7 @@
                                  (i32.add
                                   (i32.add
                                    (get_local $24)
-                                   (get_local $12)
+                                   (get_local $14)
                                   )
                                   (get_local $23)
                                  )
@@ -457,7 +457,7 @@
                                  (i32.add
                                   (i32.add
                                    (get_local $24)
-                                   (get_local $13)
+                                   (get_local $15)
                                   )
                                   (get_local $23)
                                  )
@@ -471,7 +471,7 @@
                                  (i32.add
                                   (i32.add
                                    (get_local $24)
-                                   (get_local $11)
+                                   (get_local $13)
                                   )
                                   (get_local $23)
                                  )
@@ -485,7 +485,7 @@
                              (i32.add
                               (i32.add
                                (get_local $24)
-                               (get_local $14)
+                               (get_local $11)
                               )
                               (get_local $23)
                              )
@@ -552,7 +552,7 @@
                    (i32.add
                     (i32.add
                      (get_local $24)
-                     (get_local $15)
+                     (get_local $16)
                     )
                     (get_local $23)
                    )
@@ -673,11 +673,11 @@
      (i32.const 1)
     )
    )
-   (set_local $13
+   (set_local $15
     (i32.sub
-     (tee_local $11
+     (tee_local $13
       (i32.shl
-       (get_local $9)
+       (get_local $8)
        (i32.const 2)
       )
      )
@@ -689,9 +689,9 @@
      )
     )
    )
-   (set_local $12
+   (set_local $14
     (i32.add
-     (get_local $11)
+     (get_local $13)
      (get_local $24)
     )
    )
@@ -707,7 +707,7 @@
      (i32.const 2)
     )
    )
-   (set_local $14
+   (set_local $12
     (i32.shl
      (get_local $5)
      (i32.const 2)
@@ -719,9 +719,9 @@
      (i32.const 2)
     )
    )
-   (set_local $15
+   (set_local $11
     (i32.shl
-     (get_local $8)
+     (get_local $9)
      (i32.const 2)
     )
    )
@@ -839,7 +839,7 @@
              (i32.add
               (i32.add
                (get_local $24)
-               (get_local $14)
+               (get_local $12)
               )
               (get_local $23)
              )
@@ -867,7 +867,7 @@
             (i32.add
              (i32.add
               (get_local $24)
-              (get_local $14)
+              (get_local $12)
              )
              (get_local $23)
             )
@@ -882,7 +882,7 @@
            (i32.add
             (i32.add
              (get_local $24)
-             (get_local $15)
+             (get_local $11)
             )
             (get_local $23)
            )
@@ -911,7 +911,7 @@
                                  (i32.add
                                   (i32.add
                                    (get_local $24)
-                                   (get_local $12)
+                                   (get_local $14)
                                   )
                                   (get_local $23)
                                  )
@@ -920,7 +920,7 @@
                                  (i32.add
                                   (i32.add
                                    (get_local $24)
-                                   (get_local $13)
+                                   (get_local $15)
                                   )
                                   (get_local $23)
                                  )
@@ -934,7 +934,7 @@
                                  (i32.add
                                   (i32.add
                                    (get_local $24)
-                                   (get_local $11)
+                                   (get_local $13)
                                   )
                                   (get_local $23)
                                  )
@@ -948,7 +948,7 @@
                              (i32.add
                               (i32.add
                                (get_local $24)
-                               (get_local $14)
+                               (get_local $12)
                               )
                               (get_local $23)
                              )
@@ -1160,7 +1160,7 @@
    (set_local $26
     (i32.add
      (i32.shl
-      (get_local $8)
+      (get_local $9)
       (i32.const 2)
      )
      (i32.const 80)
