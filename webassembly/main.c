@@ -17,8 +17,8 @@ int vel_offset = 0;
 int force_offset = 0;
 int status_offset = 0;
 
-// int *array;
-int array[6000000];
+// TODO: use imports.env.memory instead of a global
+int array[6000000]; // Room for a million pixels, visible to JS as an ArrayBuffer
 
 WASM_EXPORT
 void init(w, h) {
@@ -38,18 +38,21 @@ int* getStartByteOffset() {
   return &array[0];
 }
 
+// Full int32 range is -0x80000000 to 0x7FFFFFFF. Use half.
 int applyCap(x) {
   return x < -0x40000000 ? -0x40000000 : (x > 0x3FFFFFFF ? 0x3FFFFFFF : x);
 }
 
 unsigned int toRGB(signed32bitValue) {
+  // Map negative values to red, positive to blue-green, zero to black
   int val = signed32bitValue >> 22;
   unsigned int rgba = ALPHA;
   if (val > 0) {
     rgba = (val << 8) | (val << 16) | ALPHA;
   }
   if (val < 0) {
-    rgba = (-(val + 1)) | ALPHA;
+    val = val + 1;  // OR: val = max(val, -255)
+    rgba = -val | ALPHA;
   }
   return rgba;
 }

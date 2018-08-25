@@ -1,11 +1,16 @@
 function jsWaveAlgorithm(width, height) {
 
+
+  const ALPHA = 0xFF000000;
+
+  const STATUS_WALL = 1;
+  const STATUS_POS_TRANSMITTER = 2;
+  const STATUS_NEG_TRANSMITTER = 3;
+
+  const DRAG_BIT_SHIFT = 6;
+  const FORCE_DAMPING_BIT_SHIFT = 4;
+
   const wh = width * height;
-
-  const dragBitShift = 6;
-  const forceDampingBitShift = 4;
-
-  const canvas_offset = 0;
   let u0_offset = wh;
   let u1_offset = 2 * wh;
   const vel_offset = 3 * wh;
@@ -23,23 +28,18 @@ function jsWaveAlgorithm(width, height) {
   function applyCap(x) {
     return x < -0x40000000 ? -0x40000000 : (x > 0x3FFFFFFF ? 0x3FFFFFFF : x);
   }
+
   function toRGB(signed32bitValue) {
     // Map negative values to red, positive to blue-green, zero to black
     let val = (signed32bitValue >> 22);
-    // val now has a range from -256 to 255.
-    let rgba = 0;
-    let alpha = (255 << 24);
+    let rgba = ALPHA;
     if (val > 0) {
-      rgba = (val << 8) | (val << 16) | alpha; // blue-green
+      rgba = (val << 8) | (val << 16) | ALPHA; // blue-green
     } else if (val < 0) {
       val = val + 1;  // OR: val = Math.max(val, -255);
-      rgba = (-val) | alpha; // red
-    } else {
-      rgba = alpha;
+      rgba = -val | ALPHA; // red
     }
     return rgba;
-    // const gray = 128 + (signed32bitValue >> 23);
-    // return gray | (gray << 8) | (gray << 16) | (255 << 24);
   }
 
   /*
@@ -52,8 +52,7 @@ function jsWaveAlgorithm(width, height) {
 
     let uCen = 0, uNorth = 0, uSouth = 0, uEast = 0, uWest = 0;
 
-    const totalCycles = 2;
-    for (let cycle = 0; cycle < totalCycles; cycle++) {
+    for (let cycle = 0; cycle < 2; cycle++) {
       index = 0;
       for (i = 0; i < height; i++) {
         for (j = 0; j < width; j++) {
@@ -74,18 +73,18 @@ function jsWaveAlgorithm(width, height) {
             continue;
           }
           const status = signedHeap[status_offset + index];
-          if (status === 1) {
+          if (status === STATUS_WALL) {
             index++;
             continue;
           }
-          if (status === 2) {
+          if (status === STATUS_POS_TRANSMITTER) {
             signedHeap[u0_offset + index] = signalAmplitude;
             signedHeap[vel_offset + index] = 0;
             signedHeap[force_offset + index] = 0;
             index++;
             continue;
           }
-          if (status === 3) {
+          if (status === STATUS_NEG_TRANSMITTER) {
             signedHeap[u0_offset + index] = -signalAmplitude;
             signedHeap[vel_offset + index] = 0;
             signedHeap[force_offset + index] = 0;
@@ -111,11 +110,11 @@ function jsWaveAlgorithm(width, height) {
           let u1 = applyCap(force + applyCap(uCen + vel));
           signedHeap[u1_offset + index] = u1;
 
-          force -=(force >> forceDampingBitShift);
+          force -=(force >> FORCE_DAMPING_BIT_SHIFT);
           signedHeap[force_offset + index] = force;
 
           if (drag) {
-            vel -= (vel >> dragBitShift);
+            vel -= (vel >> DRAG_BIT_SHIFT);
           }
 
           signedHeap[vel_offset + index] = vel;
@@ -123,7 +122,6 @@ function jsWaveAlgorithm(width, height) {
           index++;
         }
       }
-
       const swap = u0_offset;
       u0_offset = u1_offset;
       u1_offset = swap;
@@ -134,9 +132,9 @@ function jsWaveAlgorithm(width, height) {
       for (i = 0; i < height; i++) {
         for (j = 0; j < width; j++) {
           if (signedHeap[status_offset + index] === 1) {
-            unsignedHeap[canvas_offset + index] = 0x00000000;
+            unsignedHeap[index] = 0x00000000;
           } else {
-            unsignedHeap[canvas_offset + index] = toRGB(signedHeap[u0_offset + index]);
+            unsignedHeap[index] = toRGB(signedHeap[u0_offset + index]);
           }
           index++;
         }
@@ -146,7 +144,7 @@ function jsWaveAlgorithm(width, height) {
 
   return {
     getImageArray: function() {
-      return new Uint8ClampedArray(heap, 4 * canvas_offset, 4 * wh);
+      return new Uint8ClampedArray(heap, 0, 4 * wh);
     },
     getUArray: function() {
       return new Int32Array(heap, 4 * u0_offfset, 4 * wh);

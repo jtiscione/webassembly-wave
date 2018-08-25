@@ -60,8 +60,17 @@ body {
     top:1px;
 }
 
+.description {
+    text-align: left;
+}
+
 .boxes {
     margin: 5px;
+}
+
+.boxes .lame {
+    margin: 20px;
+    color: darkred;
 }
 
 .boxes input {

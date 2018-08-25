@@ -1,7 +1,6 @@
 function wave(wasm) {
 
   const canvas = document.getElementById('canvas');
-  const context = canvas.getContext('2d');
   const fps = document.getElementById('fps');
   const jsBox = document.getElementById('js-box');
   const wasmBox = document.getElementById('wasm-box');
@@ -10,11 +9,12 @@ function wave(wasm) {
 
   let width = canvas.width;
   let height = canvas.height;
+  const context = canvas.getContext('2d');
 
-  let applyBrakes = false;
   let imageArray = null;
   let forceArray = null;
   let statusArray = null;
+  let applyBrakes = false;
 
   const jsAlgorithm = jsWaveAlgorithm(width, height);
   let algorithm = jsAlgorithm;
@@ -40,16 +40,21 @@ function wave(wasm) {
   } else {
     jsBox.disabled = true;
     wasmBox.disabled = true;
+    document.getElementById('radio').style.display='none';
+    document.getElementById('sorry').style.display='block';
   }
 
   let timestamps = [];
   let lastFpsJitter = 0;
   let animationCount = 0;
 
+  let lastMouseX = null, lastMouseY = null;
+
   function animate() {
     setTimeout(animate, 0);
 
     if (animationCount === 0) {
+      // First frame-
       // Sprinkle noise generator pixels and set applyBrakes flag
       const threshold = 0.001;
       if (statusArray === null) {
@@ -60,12 +65,24 @@ function wave(wasm) {
           statusArray[i] = (i %2 === 0) ? 2 : 3;
         }
       }
-      drawCircularWall();
+      // Draw a circular wall
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const radius = Math.min((width / 2), (height / 2));
+      for (let i = 0; i < height; i++) {
+        for (let j = 0; j < width; j++) {
+          let dist = Math.sqrt(((i - centerY) * (i - centerY)) + ((j - centerX) * (j - centerX)));
+          if (dist > radius) {
+            const targetIndex = i * width + j;
+            statusArray[targetIndex] = 1;
+          }
+        }
+      }
       applyBrakes = true;
     }
 
     if (animationCount === 100) {
-      // Clear noise generator pixels and clear applyBrakes flag
+      // Hundredth frame- clear noise generator pixels and clear applyBrakes flag
       for (let i = 0; i < statusArray.length; i++) {
         if (statusArray[i] === 2 || statusArray[i] === 3) {
           statusArray[i] = 0;
@@ -145,24 +162,7 @@ function wave(wasm) {
     }
   }
 
-  let lastMouseX = null, lastMouseY = null;
-
-  function drawCircularWall() {
-    const centerX = width / 2;
-    const centerY = height / 2;
-    const radius = Math.min((width / 2), (height / 2));
-    for (let i = 0; i < height; i++) {
-      for (let j = 0; j < width; j++) {
-        let dist = Math.sqrt(((i - centerY) * (i - centerY)) + ((j - centerX) * (j - centerX)));
-        if (dist > radius) {
-          const targetIndex = i * width + j;
-          statusArray[targetIndex] = 1;
-        }
-      }
-    }
-  }
-
-  canvas.onmousedown = function (e) {
+  canvas.onmousedown = canvas.ontouchstart = function (e) {
     applyBrakes = false;
     const loc = windowToCanvas(canvas, e.clientX, e.clientY);
     lastMouseX = loc.x;
@@ -170,7 +170,7 @@ function wave(wasm) {
     applyBrush(loc.x, loc.y);
   };
 
-  canvas.onmousemove = function (e) {
+  canvas.onmousemove = canvas.ontouchmove = function (e) {
     const loc = windowToCanvas(canvas, e.clientX, e.clientY);
     const targetX = loc.x, targetY = loc.y;
     if (lastMouseX !== null && lastMouseY !== null) {
@@ -189,17 +189,11 @@ function wave(wasm) {
 
   let neverEntered = true;
 
-  canvas.onmouseover = canvas.onmouseout = canvas.onmouseup = function (e) {
+  canvas.onmouseover = canvas.onmouseout = canvas.onmouseup = canvas.ontouchend = function (e) {
     if (neverEntered) {
       applyBrakes = true;
       neverEntered = false;
     }
-    lastMouseX = null;
-    lastMouseY = null;
-  };
-
-  canvas.onmouseout = function(e) {
-    applyBrakes = false;
     lastMouseX = null;
     lastMouseY = null;
   };
@@ -242,11 +236,11 @@ document.addEventListener("DOMContentLoaded", function(event) {
     const b64 = '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';
     const binaryString = window.atob(b64);
     const len = binaryString.length;
-    const arry = new Uint8Array(len);
+    const unsigned = new Uint8Array(len);
     for (let i = 0; i < len; i++)        {
-      arry[i] = binaryString.charCodeAt(i);
+      unsigned[i] = binaryString.charCodeAt(i);
     }
-    WebAssembly.instantiate(arry.buffer, {
+    WebAssembly.instantiate(unsigned.buffer, {
       env: {
         memoryBase: 0,
         memory: new WebAssembly.Memory({
