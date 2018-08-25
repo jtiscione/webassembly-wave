@@ -7,7 +7,6 @@ function jsWaveAlgorithm(width, height) {
   const STATUS_POS_TRANSMITTER = 2;
   const STATUS_NEG_TRANSMITTER = 3;
 
-  const DRAG_BIT_SHIFT = 6;
   const FORCE_DAMPING_BIT_SHIFT = 4;
 
   const wh = width * height;
@@ -46,7 +45,7 @@ function jsWaveAlgorithm(width, height) {
    * Applies the wave equation d2u/dt2 = c*c*(d2u/dx2+d2u/dy2)
    * where all derivatives on the right are partial 2nd derivatives
    */
-  function singleFrame(signalAmplitude, skipRGB = false, drag = false) {
+  function singleFrame(signalAmplitude, dampingBitShift = 0) {
 
     let index = 0, i = 0, j = 0;
 
@@ -109,16 +108,13 @@ function jsWaveAlgorithm(width, height) {
 
           let u1 = applyCap(force + applyCap(uCen + vel));
           signedHeap[u1_offset + index] = u1;
-
           force -=(force >> FORCE_DAMPING_BIT_SHIFT);
           signedHeap[force_offset + index] = force;
 
-          if (drag) {
-            vel -= (vel >> DRAG_BIT_SHIFT);
+          if (dampingBitShift) {
+            vel -= (vel >> dampingBitShift);
           }
-
           signedHeap[vel_offset + index] = vel;
-
           index++;
         }
       }
@@ -127,17 +123,15 @@ function jsWaveAlgorithm(width, height) {
       u1_offset = swap;
     }
 
-    if (!skipRGB) {
-      index = 0;
-      for (i = 0; i < height; i++) {
-        for (j = 0; j < width; j++) {
-          if (signedHeap[status_offset + index] === 1) {
-            unsignedHeap[index] = 0x00000000;
-          } else {
-            unsignedHeap[index] = toRGB(signedHeap[u0_offset + index]);
-          }
-          index++;
+    index = 0;
+    for (i = 0; i < height; i++) {
+      for (j = 0; j < width; j++) {
+        if (signedHeap[status_offset + index] === 1) {
+          unsignedHeap[index] = 0x00000000;
+        } else {
+          unsignedHeap[index] = toRGB(signedHeap[u0_offset + index]);
         }
+        index++;
       }
     }
   }

@@ -6,7 +6,6 @@ const int STATUS_WALL = 1;
 const int STATUS_POS_TRANSMITTER = 2;
 const int STATUS_NEG_TRANSMITTER = 3;
 
-const int DRAG_BIT_SHIFT = 6;
 const int FORCE_DAMPING_BIT_SHIFT = 4;
 
 int width = 0, height = 0, wh=0;
@@ -18,11 +17,10 @@ int force_offset = 0;
 int status_offset = 0;
 
 // TODO: use imports.env.memory instead of a global
-int array[6000000]; // Room for a million pixels, visible to JS as an ArrayBuffer
+int array[6000000]; // Room for 1000x1000 pixels, visible to JS as an ArrayBuffer
 
 WASM_EXPORT
 void init(w, h) {
-
   width = w;
   height = h;
   wh = w * h;
@@ -58,7 +56,7 @@ unsigned int toRGB(signed32bitValue) {
 }
 
 WASM_EXPORT
-void singleFrame(int signalAmplitude, int skipRGB, int drag) {
+void singleFrame(int signalAmplitude, int dampingBitShift) {
 
   int index = 0, i = 0, j = 0;
   int uCen = 0, uNorth = 0, uSouth = 0, uEast = 0, uWest = 0;
@@ -120,12 +118,11 @@ void singleFrame(int signalAmplitude, int skipRGB, int drag) {
 
         int u1 = applyCap(force + applyCap(uCen + vel));
         array[u1_offset + index] = u1;
-
         force -= (force >> FORCE_DAMPING_BIT_SHIFT);
         array[force_offset + index] = force;
 
-        if (drag > 0) {
-           vel -= (vel >> DRAG_BIT_SHIFT);
+        if (dampingBitShift > 0) {
+           vel -= (vel >> dampingBitShift);
         }
 
         array[vel_offset + index] = vel;
@@ -137,17 +134,15 @@ void singleFrame(int signalAmplitude, int skipRGB, int drag) {
     u0_offset = u1_offset;
     u1_offset = swap;
   }
-  if (skipRGB == 0) {
-    index = 0;
-    for (i = 0; i < height; i++) {
-      for (j = 0; j < width; j++) {
-        if (array[status_offset + index] == STATUS_WALL) {
-          array[canvas_offset + index] = 0x00000000;
-        } else {
-          array[canvas_offset + index] = toRGB(array[u0_offset + index]);
-        }
-        index++;
+  index = 0;
+  for (i = 0; i < height; i++) {
+    for (j = 0; j < width; j++) {
+      if (array[status_offset + index] == STATUS_WALL) {
+        array[canvas_offset + index] = 0x00000000;
+      } else {
+        array[canvas_offset + index] = toRGB(array[u0_offset + index]);
       }
+      index++;
     }
   }
 }

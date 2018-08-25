@@ -32,8 +32,8 @@ function wasmWaveAlgorithm(wasm, width, height) {
       return new Uint32Array(heap, startByteOffset, 6 * wh);
     },
     // The main hot spot function that needs to run in WebAssembly:
-    singleFrame: function(signalAmplitude, skipRGB = false, drag = false) {
-      instance.exports.singleFrame(signalAmplitude, skipRGB, drag);
+    singleFrame: function(signalAmplitude, drag = false) {
+      instance.exports.singleFrame(signalAmplitude, drag);
     },
   };
 }
