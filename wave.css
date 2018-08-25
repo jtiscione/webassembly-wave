@@ -8,6 +8,15 @@ body {
     text-align: center;
     padding: 10px;
     margin: auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+}
+
+.huge {
+    font-size: 100pt;
 }
 
 .container p {

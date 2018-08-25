@@ -1,4 +1,4 @@
-function wave(canvas, _algorithm) {
+function wave(canvas, fps, _algorithm) {
 
   let width = canvas.width;
   let height = canvas.height;
@@ -8,30 +8,34 @@ function wave(canvas, _algorithm) {
 
   let startTime = Date.now();
 
-  let msgCount = 0;
-
   let imageArray = null;
 
+  let timestamps = [];
+  let lastJitter = 0;
+
   function animate() {
+    setTimeout(animate, 0);
     if (lastX !== null && lastY !== null) {
      applyBrush(lastX, lastY);
     }
-    if (msgCount < 10) {
-      console.time('single pass');
-      algorithm.singleFrame(Math.floor(0x3FFFFFFF * Math.sin(3 * (Date.now() - startTime) / 1000)), false, applyBrakes);
-      console.timeEnd('single pass');
-    } else {
-      algorithm.singleFrame(Math.floor(0x3FFFFFFF * Math.sin(3 * (Date.now() - startTime) / 1000)), false, applyBrakes);
-    }
-    msgCount++;
+    algorithm.singleFrame(Math.floor(0x3FFFFFFF * Math.sin(3 * (Date.now() - startTime) / 1000)), false, applyBrakes);
     if (imageArray === null) {
       imageArray = algorithm.getImageArray();
     }
     const imgData = context.createImageData(width, height);
     imgData.data.set(imageArray);
     context.putImageData(imgData, 0, 0);
-    setTimeout(animate, 0); // 1 ms delay
+    const now = Date.now();
+    timestamps.push(now);
+    timestamps = timestamps.filter(e => (now - e) < 1000);
+
+    const count = timestamps.length;
+    if (now - lastJitter > 400) {
+      lastJitter = now;
+      fps.innerHTML = count;
+    }
   }
+
   function windowToCanvas(canvas, x, y) {
     const bbox = canvas.getBoundingClientRect();
     return {
@@ -184,7 +188,6 @@ function wave(canvas, _algorithm) {
       forceArray = null;
       statusArray = null;
       imageArray = null;
-      msgCount = 0;
     }
   }
 }
@@ -203,12 +206,14 @@ function webAssemblySupported() {
 }
 
 document.addEventListener("DOMContentLoaded", function(event) {
+  const canvas = document.getElementById('canvas');
+  const fps = document.getElementById('fps');
   const width = canvas.width;
   const height = canvas.height;
   if (!webAssemblySupported()) {
     document.getElementById('js-box').disabled = true;
     document.getElementById('wasm-box').disabled = true;
-    wave(document.getElementById('canvas'), waveAlgorithm(width, height));
+    wave(canvas, fps, waveAlgorithm(width, height));
   } else {
     // Use inlined string (https://rot47.net/base64encoder.html)
     const b64 = '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';
@@ -228,7 +233,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     }).then((wasm) => {
       const wasmAlgorithm = cWaveAlgorithm(wasm, width, height);
       const jsAlgorithm = waveAlgorithm(width, height);
-      const handle = wave(document.getElementById('canvas'), jsAlgorithm);
+      const handle = wave(canvas, fps, jsAlgorithm);
       document.getElementById('js-box').addEventListener('click', function(event) {
         handle.swapAlgorithm(jsAlgorithm);
         console.log('JAVASCRIPT');
