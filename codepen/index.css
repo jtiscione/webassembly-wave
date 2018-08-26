@@ -16,6 +16,10 @@ body {
     background-image: linear-gradient(steelblue, gray);
 }
 
+.container .eq {
+    font-style: italic;
+}
+
 .huge {
     font-size: 100pt;
 }
@@ -32,8 +36,8 @@ body {
     margin: 0px;
 }
 
-.container .eq {
-    font-style: italic;
+.buttons {
+    margin-top: 10px;
 }
 
 .btn {
