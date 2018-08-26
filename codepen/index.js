@@ -354,10 +354,13 @@ function wave(wasm) {
   canvas.ontouchstart = function (e) {
     e.preventDefault();
     applyBrakes = false;
-    const loc = windowToCanvas(canvas, e.targetTouches[0].clientX, e.targetTouches[0].clientY);
-    lastMouseX = loc.x;
-    lastMouseY = loc.y;
-    applyBrush(loc.x, loc.y);
+    for (let i = 0; i < e.targetTouches.length; i++) {
+      const touch = e.targetTouches[i];
+      const loc = windowToCanvas(canvas, touch.clientX, touch.clientY);
+      lastMouseX = loc.x;
+      lastMouseY = loc.y;
+      applyBrush(loc.x, loc.y);
+    }
   };
 
   canvas.onmousemove = function (e) {
@@ -380,19 +383,22 @@ function wave(wasm) {
 
   canvas.ontouchmove = function (e) {
     e.preventDefault();
-    const loc = windowToCanvas(canvas, e.targetTouches[0].clientX, e.targetTouches[0].clientY);
-    const targetX = loc.x, targetY = loc.y;
     if (lastMouseX !== null && lastMouseY !== null) {
-      // draw a line from the last place we were to the current place
-      const r = Math.sqrt((loc.x - lastMouseX) * (loc.x - lastMouseX) + (loc.y - lastMouseY) * (loc.y - lastMouseY));
-      for (let t = 0; t < r; t++) {
-        const currX = Math.round(lastMouseX + (targetX - lastMouseX) * (t / r));
-        const currY = Math.round(lastMouseY + (targetY - lastMouseY) * (t / r));
-        applyBrush(currX, currY);
+      for (let i = 0; i < e.targetTouches.length; i++) {
+        const touch = e.targetTouches[i];
+        const loc = windowToCanvas(canvas, touch.clientX, touch.clientY);
+        const targetX = loc.x, targetY = loc.y;
+        // draw a line from the last place we were to the current place
+        const r = Math.sqrt((loc.x - lastMouseX) * (loc.x - lastMouseX) + (loc.y - lastMouseY) * (loc.y - lastMouseY));
+        for (let t = 0; t < r; t++) {
+          const currX = Math.round(lastMouseX + (targetX - lastMouseX) * (t / r));
+          const currY = Math.round(lastMouseY + (targetY - lastMouseY) * (t / r));
+          applyBrush(currX, currY);
+        }
+        applyBrush(loc.x, loc.y);
+        lastMouseX = loc.x;
+        lastMouseY = loc.y;
       }
-      applyBrush(loc.x, loc.y);
-      lastMouseX = loc.x;
-      lastMouseY = loc.y;
     }
   };
 
