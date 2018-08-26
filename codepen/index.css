@@ -72,6 +72,11 @@ body {
     margin: 5px;
 }
 
+.boxes .radio {
+    overflow: hidden;
+    white-space: nowrap;
+}
+
 .boxes .lame {
     margin: 20px;
     color: darkred;
