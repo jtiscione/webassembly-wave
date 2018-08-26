@@ -21,13 +21,13 @@ There are two options for generating the .wasm file:
 * Compile `waves.c` online by pasting its contents into several sites:
   * [WasmFiddle](https://mbebenita.github.io/WasmExplorer/)
   * [WebAssembly Explorer](https://mbebenita.github.io/WasmExplorer/)
-  * [WebAssembly Studio](https://webassembly.studio/),
+  * [WebAssembly Studio](https://webassembly.studio/)
 * Compile `waves.c` with Emscripten: `emcc source.c -s WASM=1 -s SIDE_MODULE=1 -o target.wasm`
 
 ## Other stuff
 
 * Directory `codepen` is a version with the .wasm bundled inline as a base64 string.
-* Directory `test` has a page that loads the .wasm module, tests it once, and and displays the results.
+* Directory `test` has a page that loads the .wasm module, tests it on a 5x5 array, and and displays the results.
 
 ## Author
 
