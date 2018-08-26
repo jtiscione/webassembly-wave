@@ -16,6 +16,14 @@ body {
     background-image: linear-gradient(steelblue, gray);
 }
 
+@media only screen and (max-width: 1024px) {
+    .container {
+        flex-direction: column-reverse;
+        justify-content: flex-start;
+        align-items: center;
+    }
+}
+
 .container .eq {
     font-style: italic;
 }

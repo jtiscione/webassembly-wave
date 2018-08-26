@@ -141,7 +141,7 @@ function wave(wasm) {
     if (forceArray === null) {
       forceArray = algorithm.getForceArray();
     }
-    for (p = -brushMatrixRadius; p <= brushMatrixRadius; p++) {
+    for (let p = -brushMatrixRadius; p <= brushMatrixRadius; p++) {
       const targetY = y + p;
       if (targetY <= 0 || targetY >= height - 1) {
         continue;
@@ -162,7 +162,8 @@ function wave(wasm) {
     }
   }
 
-  canvas.onmousedown = canvas.ontouchstart = function (e) {
+  canvas.onmousedown = function (e) {
+    e.preventDefault();
     applyBrakes = false;
     const loc = windowToCanvas(canvas, e.clientX, e.clientY);
     lastMouseX = loc.x;
@@ -170,7 +171,17 @@ function wave(wasm) {
     applyBrush(loc.x, loc.y);
   };
 
-  canvas.onmousemove = canvas.ontouchmove = function (e) {
+  canvas.ontouchstart = function (e) {
+    e.preventDefault();
+    applyBrakes = false;
+    const loc = windowToCanvas(canvas, e.targetTouches[0].clientX, e.targetTouches[0].clientY);
+    lastMouseX = loc.x;
+    lastMouseY = loc.y;
+    applyBrush(loc.x, loc.y);
+  };
+
+  canvas.onmousemove = function (e) {
+    e.preventDefault();
     const loc = windowToCanvas(canvas, e.clientX, e.clientY);
     const targetX = loc.x, targetY = loc.y;
     if (lastMouseX !== null && lastMouseY !== null) {
@@ -187,7 +198,26 @@ function wave(wasm) {
     }
   };
 
+  canvas.ontouchmove = function (e) {
+    e.preventDefault();
+    const loc = windowToCanvas(canvas, e.targetTouches[0].clientX, e.targetTouches[0].clientY);
+    const targetX = loc.x, targetY = loc.y;
+    if (lastMouseX !== null && lastMouseY !== null) {
+      // draw a line from the last place we were to the current place
+      const r = Math.sqrt((loc.x - lastMouseX) * (loc.x - lastMouseX) + (loc.y - lastMouseY) * (loc.y - lastMouseY));
+      for (let t = 0; t < r; t++) {
+        const currX = Math.round(lastMouseX + (targetX - lastMouseX) * (t / r));
+        const currY = Math.round(lastMouseY + (targetY - lastMouseY) * (t / r));
+        applyBrush(currX, currY);
+      }
+      applyBrush(loc.x, loc.y);
+      lastMouseX = loc.x;
+      lastMouseY = loc.y;
+    }
+  };
+
   canvas.onmouseover = canvas.onmouseout = canvas.onmouseup = canvas.ontouchend = function (e) {
+    e.preventDefault();
     lastMouseX = null;
     lastMouseY = null;
   };
