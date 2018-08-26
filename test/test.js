@@ -26,14 +26,6 @@ fetch('../wasm/waves.wasm').then(response => response.arrayBuffer())
       const unsignedMemory = algorithm.getEntireArray();
       const signedMemory = new Int32Array(unsignedMemory.buffer, unsignedMemory.byteOffset);
 
-      // Set initial conditions: designate outer boundary as a wall
-      for (let i = 0; i < 5; i++) {
-        signedMemory[125 + i] = 1;
-        signedMemory[145 + i] = 1;
-        signedMemory[125 + (5 * i)] = 1;
-        signedMemory[129 + (5 * i)] = 1;
-      }
-
       // Plant large and small values in top left and bottom right corners of center 3x3 region
       signedMemory[31] = 0x3FFFFFFF;
       signedMemory[43] = -0x40000000;

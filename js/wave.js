@@ -82,7 +82,7 @@ function wave(wasm) {
     }
 
     if (animationCount === 100) {
-      // Hundredth frame- clear noise generator pixels and clear applyBrakes flag
+      // After 100 frames- clear noise generator pixels and applyBrakes flag
       for (let i = 0; i < statusArray.length; i++) {
         if (statusArray[i] === 2 || statusArray[i] === 3) {
           statusArray[i] = 0;

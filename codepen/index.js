@@ -1,10 +1,11 @@
 /*
- * This is the JavaScript version; returns an object with the same methods as the object returned by wasmWaveAlgorithm.
+ * This is the ordinary JavaScript implementation:
  */
 function jsWaveAlgorithm(width, height) {
 
   const ALPHA = 0xFF000000;
 
+  const STATUS_DEFAULT = 0;
   const STATUS_WALL = 1;
   const STATUS_POS_TRANSMITTER = 2;
   const STATUS_NEG_TRANSMITTER = 3;
@@ -24,6 +25,17 @@ function jsWaveAlgorithm(width, height) {
 
   const unsignedHeap = new Uint32Array(heap);
   const signedHeap = new Int32Array(heap);
+
+  // To avoid falling off edges, mark the pixels along the edge as being wall pixels.
+  // Walls implement a Dirichlet boundary condition by setting u=0.
+  for (let i = 0; i < height; i++) {
+    unsignedHeap[status_offset + i * width] = STATUS_WALL; // left edge
+    unsignedHeap[status_offset + (i * width) + (width - 1)] = STATUS_WALL; // right edge
+  }
+  for (let j = 0; j < width; j++) {
+    unsignedHeap[status_offset + j] = STATUS_WALL; // top edge
+    unsignedHeap[status_offset + (width * (height - 1)) + j] = STATUS_WALL; // bottom edge
+  }
 
   // Full int32 range is -0x80000000 to 0x7FFFFFFF. Use half.
   function applyCap(x) {
@@ -49,75 +61,50 @@ function jsWaveAlgorithm(width, height) {
    */
   function singleFrame(signalAmplitude, dampingBitShift = 0) {
 
-    let index = 0, i = 0, j = 0;
-
     let uCen = 0, uNorth = 0, uSouth = 0, uEast = 0, uWest = 0;
 
+    // Do two iterations- first writing into swap and then writing back into u0 region
     for (let cycle = 0; cycle < 2; cycle++) {
-      index = 0;
-      for (i = 0; i < height; i++) {
-        for (j = 0; j < width; j++) {
-          if (i === 0) {
-            index++;
-            continue;
-          }
-          if (i + 1 === height) {
-            index++;
-            continue;
-          }
-          if (j === 0) {
-            index++;
-            continue;
-          }
-          if (j + 1 === width) {
-            index++;
-            continue;
-          }
-          const status = signedHeap[status_offset + index];
-          if (status === STATUS_WALL) {
-            index++;
-            continue;
-          }
-          if (status === STATUS_POS_TRANSMITTER) {
-            signedHeap[u1_offset + index] = signalAmplitude;
-            signedHeap[vel_offset + index] = 0;
-            signedHeap[force_offset + index] = 0;
-            index++;
-            continue;
-          }
-          if (status === STATUS_NEG_TRANSMITTER) {
-            signedHeap[u1_offset + index] = -signalAmplitude;
-            signedHeap[vel_offset + index] = 0;
-            signedHeap[force_offset + index] = 0;
-            index++;
-            continue;
-          }
-          uCen = signedHeap   [u0_offset + index];
-          uNorth = signedHeap[u0_offset + index - width];
-          uSouth = signedHeap[u0_offset + index + width];
-          uWest = signedHeap[u0_offset + index - 1];
-          uEast = signedHeap[u0_offset + index + 1];
+      // First loop: look for noise generator pixels and set their values in u
+      for (let i = 0; i < wh; i++) {
+        const status = unsignedHeap[status_offset + i];
+        if (status === STATUS_POS_TRANSMITTER) {
+          signedHeap[u1_offset + i] = signalAmplitude;
+          signedHeap[vel_offset + i] = 0;
+          signedHeap[force_offset + i] = 0;
+        }
+        if (status === STATUS_NEG_TRANSMITTER) {
+          signedHeap[u1_offset + i] = -signalAmplitude;
+          signedHeap[vel_offset + i] = 0;
+          signedHeap[force_offset + i] = 0;
+        }
+      }
+      // Second loop: apply wave equation at all pixels
+      for (let i = 0; i < wh; i++) {
+        if (unsignedHeap[status_offset + i] === STATUS_DEFAULT) {
+          uCen = signedHeap   [u0_offset + i];
+          uNorth = signedHeap[u0_offset + i - width];
+          uSouth = signedHeap[u0_offset + i + width];
+          uWest = signedHeap[u0_offset + i - 1];
+          uEast = signedHeap[u0_offset + i + 1];
 
           const uxx = (((uWest + uEast) >> 1) - uCen);
           const uyy = (((uNorth + uSouth) >> 1) - uCen);
 
-          let vel = signedHeap[vel_offset + index];
+          let vel = signedHeap[vel_offset + i];
           vel = vel + (uxx >> 1);
           vel = vel + (uyy >> 1);
           vel = applyCap(vel);
 
-          let force = signedHeap[force_offset + index];
-
-          let u1 = applyCap(force + applyCap(uCen + vel));
-          signedHeap[u1_offset + index] = u1;
+          let force = signedHeap[force_offset + i];
+          signedHeap[u1_offset + i] =  applyCap(force + applyCap(uCen + vel));
           force -=(force >> FORCE_DAMPING_BIT_SHIFT);
-          signedHeap[force_offset + index] = force;
+          signedHeap[force_offset + i] = force;
 
           if (dampingBitShift) {
             vel -= (vel >> dampingBitShift);
           }
-          signedHeap[vel_offset + index] = vel;
-          index++;
+          signedHeap[vel_offset + i] = vel;
         }
       }
       const swap = u0_offset;
@@ -125,15 +112,12 @@ function jsWaveAlgorithm(width, height) {
       u1_offset = swap;
     }
 
-    index = 0;
-    for (i = 0; i < height; i++) {
-      for (j = 0; j < width; j++) {
-        if (signedHeap[status_offset + index] === 1) {
-          unsignedHeap[index] = 0x00000000;
-        } else {
-          unsignedHeap[index] = toRGB(signedHeap[u0_offset + index]);
-        }
-        index++;
+    // Final pass: calculate color values
+    for (let i = 0; i < wh; i++) {
+      if (signedHeap[status_offset + i] === STATUS_WALL) {
+        unsignedHeap[i] = 0x00000000;
+      } else {
+        unsignedHeap[i] = toRGB(signedHeap[u0_offset + i]);
       }
     }
   }
@@ -405,7 +389,7 @@ function wave(wasm) {
   animate();
 }
 
-// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly
+// copypasta: https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly
 function webAssemblySupported() {
   try {
     if (typeof WebAssembly === "object"
@@ -422,8 +406,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
   if (!webAssemblySupported()) {
     wave(null);
   } else {
-    // Use inlined string (https://rot47.net/base64encoder.html)
-    const b64 = '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';
+    // Smuggle WASM code into codepen as an inlined base-64 string literal. (https://rot47.net/base64encoder.html)
+    const b64 = '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';
     const binaryString = window.atob(b64);
     const len = binaryString.length;
     const unsigned = new Uint8Array(len);

@@ -2,19 +2,14 @@
 
 const unsigned int ALPHA = 0xFF000000;
 
+const int STATUS_DEFAULT = 0;
 const int STATUS_WALL = 1;
 const int STATUS_POS_TRANSMITTER = 2;
 const int STATUS_NEG_TRANSMITTER = 3;
 
 const int FORCE_DAMPING_BIT_SHIFT = 4;
 
-int width = 0, height = 0, wh=0;
-int canvas_offset = 0;
-int u0_offset = 0;
-int u1_offset = 0;
-int vel_offset = 0;
-int force_offset = 0;
-int status_offset = 0;
+int width, height, wh, u0_offset, u1_offset, vel_offset, force_offset, status_offset;
 
 // TODO: use imports.env.memory instead of a global
 int array[6000000]; // Room for 1000x1000 pixels, visible to JS as an ArrayBuffer
@@ -29,6 +24,18 @@ void init(w, h) {
   vel_offset = 3 * wh;
   force_offset = 4 * wh;
   status_offset = 5 * wh;
+
+  // To avoid falling off edges, mark the pixels along the edge as being wall pixels.
+  // Walls implement a Dirichlet boundary condition by setting u=0.
+  for (int i = 0; i < height; i++) {
+    array[status_offset + i * width] = STATUS_WALL; // left edge
+    array[status_offset + (i * width) + (width - 1)] = STATUS_WALL; // right edge
+  }
+  for (int j = 0; j < width; j++) {
+    array[status_offset + j] = STATUS_WALL; // top edge
+    array[status_offset + (width * (height - 1)) + j] = STATUS_WALL; // bottom edge
+  }
+
 }
 
 WASM_EXPORT
@@ -62,91 +69,63 @@ unsigned int toRGB(signed32bitValue) {
 WASM_EXPORT
 void singleFrame(int signalAmplitude, int dampingBitShift) {
 
-  int index = 0, i = 0, j = 0;
-  int uCen = 0, uNorth = 0, uSouth = 0, uEast = 0, uWest = 0;
+  int uCen, uNorth, uSouth, uEast, uWest;
 
+  // Do two iterations- first writing into swap and then writing back into u0 region
   for (int cycle = 0; cycle < 2; cycle++) {
-    index = 0;
-    for (i = 0; i < height; i++) {
-      for (j = 0; j < width; j++) {
-        if (i == 0) {
-          index++;
-          continue;
-        }
-        if (i + 1 == height) {
-          index++;
-          continue;
-        }
-        if (j == 0) {
-          index++;
-          continue;
-        }
-        if (j + 1 == width) {
-          index++;
-          continue;
-        }
-        int status = array[status_offset + index];
-        if (status == STATUS_WALL) {
-          index++;
-          continue;
-        }
-        if (status == STATUS_POS_TRANSMITTER) {
-          array[u1_offset + index] = signalAmplitude;
-          array[vel_offset + index] = 0;
-          array[force_offset + index] = 0;
-          index++;
-          continue;
-        }
-        if (status == STATUS_NEG_TRANSMITTER) {
-          array[u1_offset + index] = -signalAmplitude;
-          array[vel_offset + index] = 0;
-          array[force_offset + index] = 0;
-          index++;
-          continue;
-        }
-        uCen = array[u0_offset + index];
-        uNorth = array[u0_offset + index - width];
-        uSouth = array[u0_offset + index + width];
-        uWest = array[u0_offset + index - 1];
-        uEast = array[u0_offset + index + 1];
+    // First loop: look for noise generator pixels and set their values in u
+    for (int i = 0; i < wh; i++) {
+      int status = array[status_offset + i];
+      if (status == STATUS_POS_TRANSMITTER) {
+        array[u1_offset + i] = signalAmplitude;
+        array[vel_offset + i] = 0;
+        array[force_offset + i] = 0;
+      }
+      if (status == STATUS_NEG_TRANSMITTER) {
+        array[u1_offset + i] = -signalAmplitude;
+        array[vel_offset + i] = 0;
+        array[force_offset + i] = 0;
+      }
+    }
+    // Second loop: apply wave equation at all pixels
+    for (int i = 0; i < wh; i++) {
+      if (array[status_offset + i] == STATUS_DEFAULT) {
+        uCen = array[u0_offset + i];
+        uNorth = array[u0_offset + i - width];
+        uSouth = array[u0_offset + i + width];
+        uWest = array[u0_offset + i - 1];
+        uEast = array[u0_offset + i + 1];
 
         int uxx = (((uWest + uEast) >> 1) - uCen);
         int uyy = (((uNorth + uSouth) >> 1) - uCen);
 
-        int vel = array[vel_offset + index];
+        int vel = array[vel_offset + i];
         vel = vel + (uxx >> 1);
         vel = vel + (uyy >> 1);
         vel = applyCap(vel);
 
-        int force = array[force_offset + index];
-
-        int u1 = applyCap(force + applyCap(uCen + vel));
-        array[u1_offset + index] = u1;
+        int force = array[force_offset + i];
+        array[u1_offset + i] = applyCap(force + applyCap(uCen + vel));
         force -= (force >> FORCE_DAMPING_BIT_SHIFT);
-        array[force_offset + index] = force;
+        array[force_offset + i] = force;
 
         if (dampingBitShift > 0) {
            vel -= (vel >> dampingBitShift);
         }
-
-        array[vel_offset + index] = vel;
-
-        index++;
+        array[vel_offset + i] = vel;
       }
     }
     int swap = u0_offset;
     u0_offset = u1_offset;
     u1_offset = swap;
   }
-  index = 0;
-  for (i = 0; i < height; i++) {
-    for (j = 0; j < width; j++) {
-      if (array[status_offset + index] == STATUS_WALL) {
-        array[canvas_offset + index] = 0x00000000;
-      } else {
-        array[canvas_offset + index] = toRGB(array[u0_offset + index]);
-      }
-      index++;
+
+  // Final pass: calculate color values
+  for (int i = 0; i < wh; i++) {
+    if (array[status_offset + i] == STATUS_WALL) {
+      array[i] = 0x00000000;
+    } else {
+      array[i] = toRGB(array[u0_offset + i]);
     }
   }
 }

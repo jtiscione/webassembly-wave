@@ -8,6 +8,7 @@ function wasmWaveAlgorithm(wasm, width, height) {
   instance.exports.init(width, height);
 
   const startByteOffset = instance.exports.getStartByteOffset();
+  console.log('WebAssembly buffer offset', startByteOffset);
 
   // These are int32 offsets- multiply by 4 to get byte offsets.
   // const canvas_offset = 0;
