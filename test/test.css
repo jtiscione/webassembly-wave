@@ -1,6 +1,14 @@
 .outer {
     display: flex;
+    flex-direction: column;
     font-family: monospace;
+}
+
+.algorithm {
+    flex: 0 1 0 auto;
+    border-bottom: 1px solid black;
+    display: flex;
+    flex-direction: row;
 }
 
 .column {
@@ -11,9 +19,9 @@
 .pixels {
     display: grid;
     grid-gap: 1px;
-    width: 160px;
-    height: 160px;
-    grid-template-columns: 32px 32px 32px 32px 32px;
+    width: 130px;
+    height: 130px;
+    grid-template-columns: 26px 26px 26px 26px 26px;
     border: white 1px solid;
     background-color: gray;
 }
