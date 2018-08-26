@@ -1,5 +1,7 @@
+/*
+ *
+ */
 function jsWaveAlgorithm(width, height) {
-
 
   const ALPHA = 0xFF000000;
 

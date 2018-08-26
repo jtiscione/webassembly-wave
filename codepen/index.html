@@ -11,19 +11,6 @@
     <div>
         <p class="bigger">JAVASCRIPT VS. WEBASSEMBLY</p>
         <p class="big">PERFORMANCE COMPARISON</p>
-        <p class="description">
-            This is a simulation of the <a href="https://en.wikipedia.org/wiki/Wave_equation">wave equation</a>
-            <span class="eq">&#8706;<sup>2</sup>u/&#8706;t<sup>2</sup> = c<sup>2</sup>(&#8706;<sup>2</sup>u/&#8706;x<sup>2</sup>+&#8706;<sup>2</sup>u/&#8706;y<sup>2</sup>)</span>
-            across a 2D manifold with a boundary condition of u=0 along the unit circle. Use the mouse to create waves.
-        </p>
-        <p class="description">
-            It contains two implementations of the same C code: one transpiled by hand to JavaScript, and one compiled by Enscripten to WebAssembly.
-            This particular algorithm processes large arrays and performs a lot of integer math (but does no floating point calculations).
-            Memory is shared between JS and WebAssembly with no copying, and almost all CPU time is spent in the algorithm itself.
-            (The canvas API introduces a minor overhead of about 10%.)
-            The speed increase is modest (about one third) when the same code is run in a WebAssembly context as opposed to a JavaScript context.
-        </p>
-        <p class="description"><a href="https://github.com/jtiscione/webassembly-wave">Source code</a></p>
         <div>
             <a href="#" id="noiseBtn" class="btn">NOISE</a>
             <a href="#" id="clearBtn" class="btn">CLEAR</a>
@@ -42,6 +29,19 @@
         <div><span class="bigger">FRAME RATE</span></div>
         <div><span id="fps" class="huge">0</span></div>
         <div><span class="big">FPS</span></div>
+        <p class="description">
+            This is a simulation of the <a href="https://en.wikipedia.org/wiki/Wave_equation">wave equation</a>
+            <span class="eq">&#8706;<sup>2</sup>u/&#8706;t<sup>2</sup> = c<sup>2</sup>(&#8706;<sup>2</sup>u/&#8706;x<sup>2</sup>+&#8706;<sup>2</sup>u/&#8706;y<sup>2</sup>)</span>
+            across a 2D manifold with a boundary condition of u=0 along the unit circle. Use the mouse to create waves.
+        </p>
+        <p class="description">
+            It contains two implementations of the same C code: one transpiled by hand to JavaScript, and one compiled by Enscripten to WebAssembly.
+            This particular algorithm processes large arrays and performs a lot of integer math (but does no floating point calculations).
+            Memory is shared between JS and WebAssembly with no copying, and almost all CPU time is spent in the algorithm itself.
+            (The canvas API introduces a minor overhead of about 10%.)
+            The speed increase is modest (about one third) when the same code is run in a WebAssembly context as opposed to a JavaScript context.
+        </p>
+        <p class="description"><a href="https://github.com/jtiscione/webassembly-wave">Source code</a></p>
     </div>
     <div>
         <canvas id="canvas" width="600" height="600"></canvas>

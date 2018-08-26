@@ -6,12 +6,12 @@ body {
 
 .container {
     text-align: center;
-    padding: 10px;
+    padding: 30px;
     margin: auto;
     display: flex;
     flex-direction: row;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     user-select: none;
     background-image: linear-gradient(steelblue, gray);
 }

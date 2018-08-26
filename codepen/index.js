@@ -1,5 +1,7 @@
+/*
+ * This is the JavaScript version; returns an object with the same methods as the object returned by wasmWaveAlgorithm.
+ */
 function jsWaveAlgorithm(width, height) {
-
 
   const ALPHA = 0xFF000000;
 
@@ -162,7 +164,6 @@ function wasmWaveAlgorithm(wasm, width, height) {
   const startByteOffset = instance.exports.getStartByteOffset();
 
   // These are int32 offsets- multiply by 4 to get byte offsets.
-  // const canvas_offset = 0;
   const wh = width * height;
   const force_offset = 4 * wh;
   const status_offset = 5 * wh;
@@ -382,13 +383,7 @@ function wave(wasm) {
     }
   };
 
-  let neverEntered = true;
-
   canvas.onmouseover = canvas.onmouseout = canvas.onmouseup = canvas.ontouchend = function (e) {
-    if (neverEntered) {
-      applyBrakes = true;
-      neverEntered = false;
-    }
     lastMouseX = null;
     lastMouseY = null;
   };

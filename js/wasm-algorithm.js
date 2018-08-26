@@ -1,3 +1,6 @@
+/*
+ * This initializes the WebAssembly module instance and returns an object that encapsulates it.
+ */
 function wasmWaveAlgorithm(wasm, width, height) {
 
   const instance = wasm.instance;
