@@ -22,11 +22,19 @@ fetch('../wasm/waves.wasm').then(response => response.arrayBuffer())
     const signedMemory = new Int32Array(instance.exports.memory.buffer, offset, 6 * width * height);
 
     const outerDiv = document.getElementById('outer');
+
+    // Set initial conditions: designate outer boundary as a wall
+    for (let i=0; i < 5; i++) {
+      signedMemory[125 + i] = 1;
+      signedMemory[145 + i] = 1;
+      signedMemory[125 + (5 * i)] = 1;
+      signedMemory[129 + (5 * i)] = 1;
+    }
+    // Plant large and small values in top left and right corners
+    signedMemory[31] = 0x3FFFFFFF;
+    signedMemory[43] = -0x40000000;
+
     for (let run = 0; run < 8; run++) {
-
-      // Stick large and small values in center of u region (25-49)
-      signedMemory[37] = (run % 2 === 0) ? 0x3FFFFFFF : -0x40000000;
-
       const columnDiv = document.createElement('div');
       columnDiv.className = 'column';
       outerDiv.appendChild(columnDiv);
@@ -46,7 +54,8 @@ fetch('../wasm/waves.wasm').then(response => response.arrayBuffer())
         const red = rgba & 0xFF;
         const green = (rgba >> 8) & 0xFF;
         const blue = (rgba >> 16) & 0xFF;
-        pixelDiv.style.backgroundColor = `rgba(${red},${green},${blue},1.0)`;
+        const alpha = ((rgba >> 24) & 0xFF) / 255;
+        pixelDiv.style.backgroundColor = `rgba(${red},${green},${blue},${alpha})`;
         pixelsDiv.appendChild(pixelDiv);
       }
       let output = ('<br>RGBA:<br>');
