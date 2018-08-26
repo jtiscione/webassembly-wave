@@ -25,7 +25,7 @@ fetch('../wasm/waves.wasm').then(response => response.arrayBuffer())
     for (let run = 0; run < 8; run++) {
 
       // Stick large and small values in center of u region (25-49)
-      signedMemory[37] = (run % 2 === 0) ? 0x1FFFFFFF : -0x1FFFFFFF;
+      signedMemory[37] = (run % 2 === 0) ? 0x3FFFFFFF : -0x40000000;
 
       const columnDiv = document.createElement('div');
       columnDiv.className = 'column';
@@ -74,43 +74,3 @@ fetch('../wasm/waves.wasm').then(response => response.arrayBuffer())
       outputDiv.innerHTML = output;
     }
   });
-/*
-    algorithm.singleFrame(0x1FFFFFFF, 0);
-
-    const pixels = document.getElementById('pixels');
-    for (let i=0; i < 25; i++) {
-      const pixel = document.createElement('div');
-      const rgba = unsignedMemory[i];
-      const red = rgba & 0xFF;
-      const green = (rgba >> 8) & 0xFF;
-      const blue = (rgba >> 16) & 0xFF;
-      pixel.style.backgroundColor = `rgba(${red},${green},${blue},1.0)`;
-      pixels.appendChild(pixel);
-    }
-
-    output += ('<br>RGBA:<br>');
-    for (let i = 0; i < 24; i++) {
-      output += (`${i}\t${unsignedMemory[i].toString(16)}<br>`);
-    }
-    for (let i = 25; i < 150; i++) {
-      if (i === 25) {
-        output += '<br>u:<br>';
-      }
-      if (i === 50) {
-        output += '<br>swap:<br>';
-      }
-      if (i === 75) {
-        output += '<br>v:<br>';
-      }
-      if (i === 100) {
-        output += '<br>force:<br>';
-      }
-      if (i === 125) {
-        output += '<br>status:<br>';
-      }
-      output += (`${i}\t${signedMemory[i]}<br>`);
-    }
-    document.getElementById('output').innerHTML = output;
-  }
-);
-  */
