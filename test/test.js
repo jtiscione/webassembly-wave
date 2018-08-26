@@ -38,7 +38,7 @@ fetch('../wasm/waves.wasm').then(response => response.arrayBuffer())
       const outputDiv = document.createElement('div');
       columnDiv.appendChild(outputDiv);
 
-      algorithm.singleFrame(0x1FFFFFFF, 0);
+      algorithm.singleFrame(0, 0);
 
       for (let i = 0; i < 25; i++) {
         const pixelDiv = document.createElement('div');
