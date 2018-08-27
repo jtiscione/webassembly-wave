@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>WebAssembly - Wave Equation</title>
+    <style type="text/css">
+        body {
+            background: gray;
+            margin: 0px;
+            font-family: Arial,sans-serif;
+        }
+        .container {
+            text-align: center;
+            padding: 10px;
+            margin: auto;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: flex-start;
+            user-select: none;
+            background-image: linear-gradient(steelblue, gray);
+        }
+        @media only screen and (max-width: 1024px) {
+            .container {
+                flex-direction: column-reverse;
+                justify-content: flex-start;
+                align-items: center;
+            }
+        }
+        .container .eq {
+            font-style: italic;
+        }
+        .huge {
+            font-size: 100pt;
+        }
+        .big {
+            font-size: 1.5em;
+            padding: 0px;
+            margin: 0px;
+        }
+        .bigger {
+            font-size: 2em;
+            padding: 0px;
+            margin: 0px;
+        }
+        .buttons {
+            margin-top: 10px;
+        }
+        .btn {
+            box-shadow: 0px 1px 0px 0px #141412;
+            background:linear-gradient(to bottom, #eae0c2 5%, #ccc2a6 100%);
+            background-color:#eae0c2;
+            border-radius:15px;
+            border:2px solid #8a7648;
+            display:inline-block;
+            cursor:pointer;
+            color:#505739;
+            font-family:Arial;
+            font-size:14px;
+            font-weight:bold;
+            padding:5px 10px;
+            text-decoration:none;
+            text-shadow:0px 1px 0px #ffffff;
+        }
+        .btn:hover {
+            background:linear-gradient(to bottom, #ccc2a6 5%, #eae0c2 100%);
+        }
+        .btn:active {
+            position:relative;
+            top:1px;
+        }
+        .description {
+            text-align: left;
+        }
+        .boxes {
+            margin: 5px;
+        }
+        .boxes .radio {
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .boxes .lame {
+            margin: 20px;
+            color: darkred;
+        }
+        .boxes input {
+            margin: 20px auto;
+            background: #fcfff4;
+            background: linear-gradient(to bottom, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
+            border-radius: 10px;
+            box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0, 0, 0, 0.5);
+            color: green;
+        }
+        .boxes label {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div>
+        <p class="bigger">JAVASCRIPT VS. WEBASSEMBLY</p>
+        <p class="big">PERFORMANCE COMPARISON</p>
+        <div class="buttons">
+            <a href="#" id="noiseBtn" class="btn">NOISE</a>
+            <a href="#" id="clearBtn" class="btn">CLEAR</a>
+        </div>
+        <div class="boxes">
+            <div id="radio" class="radio">
+                <input type="radio" id="js-box" name="algorithm" checked />
+                <label for="js-box">JAVASCRIPT</label>
+                <input type="radio" id="wasm-box" name="algorithm" />
+                <label for="wasm-box">WEBASSEMBLY</label>
+            </div>
+            <div id="sorry" class="lame" style="display:none">
+                NO WEBASSEMBLY SUPPORT.
+            </div>
+        </div>
+        <div><span class="bigger">FRAME RATE</span></div>
+        <div><span id="fps" class="huge">0</span></div>
+        <div><span class="big">FPS</span></div>
+        <p class="description">
+            This is a simulation of the <a href="https://en.wikipedia.org/wiki/Wave_equation">wave equation</a>
+            <span class="eq">&#8706;<sup>2</sup>u/&#8706;t<sup>2</sup> = c<sup>2</sup>(&#8706;<sup>2</sup>u/&#8706;x<sup>2</sup>+&#8706;<sup>2</sup>u/&#8706;y<sup>2</sup>)</span>
+            across a circular 2D manifold. Use the mouse to create waves.
+        </p>
+        <p class="description">
+            It contains two implementations of the same C code: one transpiled by hand to JavaScript, and one compiled by Enscripten to WebAssembly.
+            This particular algorithm processes large arrays and performs a lot of integer math (but does no floating point calculations).
+            Memory is shared between JS and WebAssembly with no copying, and almost all CPU time is spent in the algorithm itself.
+            (The canvas API introduces a minor overhead of about 10%.)
+            There is a modest speedup when the same code is run in a WebAssembly context as opposed to a JavaScript context.
+        </p>
+        <p class="description"><a href="https://github.com/jtiscione/webassembly-wave">Github repository</a></p>
+    </div>
+    <div>
+        <canvas id="canvas" width="550" height="550"></canvas>
+    </div>
+</div>
+<script type="text/javascript" src="./main.js"></script>
+</body>
+</html>
