@@ -149,7 +149,7 @@ function wave(wasm) {
       function applyCap(x) {
         return x < -0x40000000 ? -0x40000000 : (x > 0x3FFFFFFF ? 0x3FFFFFFF : x);
       }
-      for (q = -brushMatrixRadius; q <= brushMatrixRadius; q++) {
+      for (let q = -brushMatrixRadius; q <= brushMatrixRadius; q++) {
         const targetX = x + q;
         if (targetX <= 0 || targetX >= width - 1) {
           continue;
@@ -265,12 +265,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     fetch('wasm/waves.wasm').then(response => response.arrayBuffer())
       .then((bytes) => {
         WebAssembly.instantiate(bytes, {
-          env: {
-            memoryBase: 0,
-            memory: new WebAssembly.Memory({
-              initial: 512
-            })
-          }
+          env: {}
         }).then(wave);
       });
   }
