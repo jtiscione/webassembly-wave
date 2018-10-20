@@ -450,13 +450,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
     for (let i = 0; i < len; i++)        {
       unsigned[i] = binaryString.charCodeAt(i);
     }
-    WebAssembly.instantiate(unsigned.buffer, {
-      env: {
-        memoryBase: 0,
-        memory: new WebAssembly.Memory({
-          initial: 512
-        })
-      }
-    }).then(wave);
+    WebAssembly.instantiate(unsigned.buffer, {}).then(wave);
   }
 });
