@@ -264,14 +264,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
   } else {
     fetch('wasm/waves.wasm').then(response => response.arrayBuffer())
       .then((bytes) => {
-        WebAssembly.instantiate(bytes, {
-          env: {
-            memoryBase: 0,
-            memory: new WebAssembly.Memory({
-              initial: 512
-            })
-          }
-        }).then(wave);
+        WebAssembly.instantiate(bytes, {}).then(wave);
       });
   }
 });

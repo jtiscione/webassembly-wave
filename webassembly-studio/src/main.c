@@ -9,21 +9,20 @@ const int STATUS_NEG_TRANSMITTER = 3;
 
 const int FORCE_DAMPING_BIT_SHIFT = 4;
 
-int width, height, wh, u0_offset, u1_offset, vel_offset, force_offset, status_offset;
-
-// TODO: use imports.env.memory instead of a global
-int array[6000000]; // Room for 1000x1000 pixels, visible to JS as an ArrayBuffer
+int byteOffset, intOffset, width, height, wh, u0_offset, u1_offset, vel_offset, force_offset, status_offset;
 
 WASM_EXPORT
-void init(w, h) {
+void init(int *array, int offset, int w, int h) {
+  byteOffset = offset;
+  intOffset = byteOffset / 4;
   width = w;
   height = h;
   wh = w * h;
-  u0_offset = wh;
-  u1_offset = 2 * wh;
-  vel_offset = 3 * wh;
-  force_offset = 4 * wh;
-  status_offset = 5 * wh;
+  u0_offset = intOffset + wh;
+  u1_offset = intOffset + 2 * wh;
+  vel_offset = intOffset + 3 * wh;
+  force_offset = intOffset + 4 * wh;
+  status_offset = intOffset + 5 * wh;
 
   // To avoid falling off edges, mark the pixels along the edge as being wall pixels.
   // Walls implement a Dirichlet boundary condition by setting u=0.
@@ -36,11 +35,6 @@ void init(w, h) {
     array[status_offset + (width * (height - 1)) + j] = STATUS_WALL; // bottom edge
   }
 
-}
-
-WASM_EXPORT
-int* getStartByteOffset() {
-  return &array[0];
 }
 
 // Full int32 range is -0x80000000 to 0x7FFFFFFF. Use half.
@@ -67,7 +61,7 @@ unsigned int toRGB(signed32bitValue) {
  * where all derivatives on the right are partial 2nd derivatives
  */
 WASM_EXPORT
-void singleFrame(int signalAmplitude, int dampingBitShift) {
+void singleFrame(int *array, int signalAmplitude, int dampingBitShift) {
 
   int uCen, uNorth, uSouth, uEast, uWest;
 
@@ -123,9 +117,9 @@ void singleFrame(int signalAmplitude, int dampingBitShift) {
   // Final pass: calculate color values
   for (int i = 0; i < wh; i++) {
     if (array[status_offset + i] == STATUS_WALL) {
-      array[i] = 0x00000000;
+      array[intOffset + i] = 0x00000000;
     } else {
-      array[i] = toRGB(array[u0_offset + i]);
+      array[intOffset + i] = toRGB(array[u0_offset + i]);
     }
   }
 }

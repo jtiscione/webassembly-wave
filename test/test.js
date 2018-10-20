@@ -1,13 +1,6 @@
 fetch('../wasm/waves.wasm').then(response => response.arrayBuffer())
   .then((bytes) => {
-    return WebAssembly.instantiate(bytes, {
-      env: {
-        memoryBase: 0,
-        memory: new WebAssembly.Memory({
-          initial: 512
-        }),
-      }
-    });
+    return WebAssembly.instantiate(bytes, {});
   })
   .then((result) => {
 
@@ -27,8 +20,8 @@ fetch('../wasm/waves.wasm').then(response => response.arrayBuffer())
       const signedMemory = new Int32Array(unsignedMemory.buffer, unsignedMemory.byteOffset);
 
       // Plant large and small values in top left and bottom right corners of center 3x3 region
-      signedMemory[31] = 0x3FFFFFFF;
-      signedMemory[43] = -0x40000000;
+      signedMemory[width * height + width + 1] = 0x3FFFFFFF;
+      signedMemory[2 * width * height - width - 2] = -0x40000000;
 
       for (let run = 0; run < 10; run++) {
         const columnDiv = document.createElement('div');
@@ -44,7 +37,7 @@ fetch('../wasm/waves.wasm').then(response => response.arrayBuffer())
 
         algorithm.singleFrame(0, 0);
 
-        for (let i = 0; i < 25; i++) {
+        for (let i = 0; i < width * height; i++) {
           const pixelDiv = document.createElement('div');
           const rgba = unsignedMemory[i];
           const red = rgba & 0xFF;
@@ -56,23 +49,23 @@ fetch('../wasm/waves.wasm').then(response => response.arrayBuffer())
         }
         let output = (run === 0 ? ['<b>JAVASCRIPT</b>', '<b>WEBASSEMBLY</b>'][algorithmIndex] : '&nbsp;');
         output += ('<br>RGBA<br>');
-        for (let i = 0; i < 24; i++) {
+        for (let i = 0; i < width * height; i++) {
           output += (`${i}\t${unsignedMemory[i].toString(16)}<br>`);
         }
-        for (let i = 25; i < 150; i++) {
-          if (i === 25) {
+        for (let i = width * height; i < 6 * width * height; i++) {
+          if (i === width * height) {
             output += '<br>u:<br>';
           }
-          if (i === 50) {
+          if (i === 2 * width * height) {
             output += '<br>swap:<br>';
           }
-          if (i === 75) {
+          if (i === 3 * width * height) {
             output += '<br>v:<br>';
           }
-          if (i === 100) {
+          if (i === 4 * width * height) {
             output += '<br>force:<br>';
           }
-          if (i === 125) {
+          if (i === 5 * width * height) {
             output += '<br>status:<br>';
           }
           output += (`${i}\t${signedMemory[i]}<br>`);
