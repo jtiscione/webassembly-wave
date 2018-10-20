@@ -9,10 +9,12 @@ const int STATUS_NEG_TRANSMITTER = 3;
 
 const int FORCE_DAMPING_BIT_SHIFT = 4;
 
+int* array;
 int byteOffset, intOffset, width, height, wh, u0_offset, u1_offset, vel_offset, force_offset, status_offset;
 
 WASM_EXPORT
-void init(int *array, int offset, int w, int h) {
+void init(int *arr, int offset, int w, int h) {
+  array = arr;
   byteOffset = offset;
   intOffset = byteOffset / 4;
   width = w;
@@ -61,7 +63,7 @@ unsigned int toRGB(signed32bitValue) {
  * where all derivatives on the right are partial 2nd derivatives
  */
 WASM_EXPORT
-void singleFrame(int *array, int signalAmplitude, int dampingBitShift) {
+void singleFrame(int signalAmplitude, int dampingBitShift) {
 
   int uCen, uNorth, uSouth, uEast, uWest;
 
