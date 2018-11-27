@@ -26,24 +26,37 @@ function jsWaveAlgorithm() {
     return rgba;
   }
 
-  let width = 0, height = 0, wh = 0, u_offset = 0, vel_offset = 0, force_offset = 0, status_offset = 0;
-  let heap = null, unsignedHeap = null;
+  let width = 0, height = 0, wh = 0;
+  let heap = null;
+
+  let image;
+  let force;
+  let status;
+  let u;
+  let vel;
 
   function init(w, h) {
+
     width = w;
     height = h;
     wh = width * height;
-    force_offset = wh;
-    status_offset = 2 * wh;
-    u_offset = 3 * wh;
-    vel_offset = 4 * wh;
+
+    const force_offset = wh;
+    const status_offset = 2 * wh;
+    const u_offset = 3 * wh;
+    const vel_offset = 4 * wh;
 
     // Need room for five Int32 arrays, each with imageWidth * imageHeight elements.
     heap = new ArrayBuffer(5 * 4 * wh);
-    unsignedHeap = new Uint32Array(heap);
+
+    image = new Int32Array(heap, 0, wh);
+    force = new Int32Array(heap, 4 * force_offset, wh);
+    status = new Int32Array(heap, 4 * status_offset, wh);
+    u = new Int32Array(heap, 4 * u_offset, wh);
+    vel = new Int32Array(heap, 4 * vel_offset, wh);
+
     // To avoid falling off edges, mark the pixels along the edge as being wall pixels.
     // Walls implement a Dirichlet boundary condition by setting u=0.
-    const status = new Int32Array(heap, 4 * status_offset, wh);
     for (let i = 0; i < height; i++) {
       status[i * width] = STATUS_WALL; // left edge
       status[(i * width) + (width - 1)] = STATUS_WALL; // right edge
@@ -59,12 +72,6 @@ function jsWaveAlgorithm() {
    * where all derivatives on the right are partial 2nd derivatives
    */
   function singleFrame(signalAmplitude, dampingBitShift = 0) {
-
-    const image = new Int32Array(heap, 0, wh);
-    const force = new Int32Array(heap, 4 * force_offset, wh);
-    const status = new Int32Array(heap, 4 * status_offset, wh);
-    const u = new Int32Array(heap, 4 * u_offset, wh);
-    const vel = new Int32Array(heap, 4 * vel_offset, wh);
 
     // First loop: look for noise generator pixels and set their values in u
     for (let i = 0; i < wh; i++) {
@@ -123,13 +130,13 @@ function jsWaveAlgorithm() {
       return new Uint8ClampedArray(heap, 0, 4 * wh);
     },
     getForceArray: function() {
-      return new Int32Array(heap, 4 * force_offset, wh);
+      return force;
     },
     getStatusArray: function() {
-      return new Int32Array(heap, 4 * status_offset, wh);
+      return status;
     },
     getEntireArray: function() {
-      return unsignedHeap;
+      return new Uint32Array(heap);
     },
     init,
     singleFrame
