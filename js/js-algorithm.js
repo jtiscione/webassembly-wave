@@ -26,65 +26,53 @@ function jsWaveAlgorithm() {
     return rgba;
   }
 
-  let width = 0, height = 0, wh = 0;
-  let heap = null;
-
-  let image;
-  let force;
-  let status;
-  let u;
-  let vel;
-
-  /*
-   * Applies the wave equation d2u/dt2 = c*c*(d2u/dx2+d2u/dy2)
-   * where all derivatives on the right are partial 2nd derivatives
-   */
-
   return {
     getImageArray() {
-      return new Uint8ClampedArray(heap, 0, 4 * wh);
+      return new Uint8ClampedArray(this.heap, 0, 4 * this.wh);
     },
     getForceArray() {
-      return force;
+      return this.force;
     },
     getStatusArray() {
-      return status;
+      return this.status;
     },
     getEntireArray() {
-      return new Uint32Array(heap);
+      return new Uint32Array(this.heap);
     },
-    init(w, h) {
+    init(width, height) {
 
-      width = w;
-      height = h;
-      wh = width * height;
-
-      const force_offset = wh;
-      const status_offset = 2 * wh;
-      const u_offset = 3 * wh;
-      const vel_offset = 4 * wh;
+      this.width = width;
+      this.height = height;
+      const wh = width * height;
+      this.wh = wh;
 
       // Need room for five Int32 arrays, each with imageWidth * imageHeight elements.
-      heap = new ArrayBuffer(5 * 4 * wh);
+      const heap = new ArrayBuffer(5 * 4 * wh);
 
-      image = new Int32Array(heap, 0, wh);
-      force = new Int32Array(heap, 4 * force_offset, wh);
-      status = new Int32Array(heap, 4 * status_offset, wh);
-      u = new Int32Array(heap, 4 * u_offset, wh);
-      vel = new Int32Array(heap, 4 * vel_offset, wh);
+
+      this.heap = heap;
+
+      this.image = new Int32Array(heap, 0, wh);
+      this.force = new Int32Array(heap, 4 * wh, wh);
+      this.status = new Int32Array(heap, 8 * wh, wh);
+      this.u = new Int32Array(heap, 12 * wh, wh);
+      this.vel = new Int32Array(heap, 16 * wh, wh);
 
       // To avoid falling off edges, mark the pixels along the edge as being wall pixels.
       // Walls implement a Dirichlet boundary condition by setting u=0.
       for (let i = 0; i < height; i++) {
-        status[i * width] = STATUS_WALL; // left edge
-        status[(i * width) + (width - 1)] = STATUS_WALL; // right edge
+        this.status[i * width] = STATUS_WALL; // left edge
+        this.status[(i * width) + (width - 1)] = STATUS_WALL; // right edge
       }
       for (let j = 0; j < width; j++) {
-        status[j] = STATUS_WALL; // top edge
-        status[(width * (height - 1)) + j] = STATUS_WALL; // bottom edge
+        this.status[j] = STATUS_WALL; // top edge
+        this.status[(width * (height - 1)) + j] = STATUS_WALL; // bottom edge
       }
     },
+
     singleFrame(signalAmplitude, dampingBitShift = 0) {
+
+      const { width, wh, image, force, status, u, vel } = this;
 
       // First loop: look for noise generator pixels and set their values in u
       for (let i = 0; i < wh; i++) {

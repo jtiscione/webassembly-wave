@@ -23,8 +23,8 @@ function wave(wasm) {
   if (wasm) {
     wasmAlgorithm = wasmWaveAlgorithm(wasm);
     wasmAlgorithm.init(width, height);
-    algorithm = wasmAlgorithm;
-    wasmBox.checked = true;
+    // algorithm = wasmAlgorithm;
+    // wasmBox.checked = true;
     const swap = function(replacement) {
       replacement.getEntireArray().set(algorithm.getEntireArray());
       algorithm = replacement;
