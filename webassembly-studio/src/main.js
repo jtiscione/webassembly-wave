@@ -1,8 +1,4 @@
-/*
- * This is the ordinary JavaScript implementation:
- */
-function jsWaveAlgorithm(width, height) {
-
+function jsWaveAlgorithm() {
   const ALPHA = 0xFF000000;
 
   const STATUS_DEFAULT = 0;
@@ -11,31 +7,6 @@ function jsWaveAlgorithm(width, height) {
   const STATUS_NEG_TRANSMITTER = 3;
 
   const FORCE_DAMPING_BIT_SHIFT = 4;
-
-  const wh = width * height;
-  let u0_offset = wh;
-  let u1_offset = 2 * wh;
-  const vel_offset = 3 * wh;
-  const force_offset = 4 * wh;
-  const status_offset = 5 * wh;
-
-  // Need room for six Int32 arrays, each with imageWidth * imageHeight elements.
-  const heapSize = 6 * 4 * wh;
-  const heap = new ArrayBuffer(heapSize);
-
-  const unsignedHeap = new Uint32Array(heap);
-  const signedHeap = new Int32Array(heap);
-
-  // To avoid falling off edges, mark the pixels along the edge as being wall pixels.
-  // Walls implement a Dirichlet boundary condition by setting u=0.
-  for (let i = 0; i < height; i++) {
-    unsignedHeap[status_offset + i * width] = STATUS_WALL; // left edge
-    unsignedHeap[status_offset + (i * width) + (width - 1)] = STATUS_WALL; // right edge
-  }
-  for (let j = 0; j < width; j++) {
-    unsignedHeap[status_offset + j] = STATUS_WALL; // top edge
-    unsignedHeap[status_offset + (width * (height - 1)) + j] = STATUS_WALL; // bottom edge
-  }
 
   // Full int32 range is -0x80000000 to 0x7FFFFFFF. Use half.
   function applyCap(x) {
@@ -55,69 +26,94 @@ function jsWaveAlgorithm(width, height) {
     return rgba;
   }
 
+  let width = 0, height = 0, wh = 0, u_offset = 0, vel_offset = 0, force_offset = 0, status_offset = 0;
+  let heap = null, unsignedHeap = null;
+
+  function init(w, h) {
+    width = w;
+    height = h;
+    wh = width * height;
+    force_offset = wh;
+    status_offset = 2 * wh;
+    u_offset = 3 * wh;
+    vel_offset = 4 * wh;
+
+    // Need room for five Int32 arrays, each with imageWidth * imageHeight elements.
+    heap = new ArrayBuffer(5 * 4 * wh);
+    unsignedHeap = new Uint32Array(heap);
+    // To avoid falling off edges, mark the pixels along the edge as being wall pixels.
+    // Walls implement a Dirichlet boundary condition by setting u=0.
+    const status = new Int32Array(heap, 4 * status_offset, wh);
+    for (let i = 0; i < height; i++) {
+      status[i * width] = STATUS_WALL; // left edge
+      status[(i * width) + (width - 1)] = STATUS_WALL; // right edge
+    }
+    for (let j = 0; j < width; j++) {
+      status[j] = STATUS_WALL; // top edge
+      status[(width * (height - 1)) + j] = STATUS_WALL; // bottom edge
+    }
+  }
+
   /*
    * Applies the wave equation d2u/dt2 = c*c*(d2u/dx2+d2u/dy2)
    * where all derivatives on the right are partial 2nd derivatives
    */
   function singleFrame(signalAmplitude, dampingBitShift = 0) {
 
-    let uCen = 0, uNorth = 0, uSouth = 0, uEast = 0, uWest = 0;
+    const image = new Int32Array(heap, 0, wh);
+    const force = new Int32Array(heap, 4 * force_offset, wh);
+    const status = new Int32Array(heap, 4 * status_offset, wh);
+    const u = new Int32Array(heap, 4 * u_offset, wh);
+    const vel = new Int32Array(heap, 4 * vel_offset, wh);
 
-    // Do two iterations- first writing into swap and then writing back into u0 region
-    for (let cycle = 0; cycle < 2; cycle++) {
-      // First loop: look for noise generator pixels and set their values in u
-      for (let i = 0; i < wh; i++) {
-        const status = unsignedHeap[status_offset + i];
-        if (status === STATUS_POS_TRANSMITTER) {
-          signedHeap[u1_offset + i] = signalAmplitude;
-          signedHeap[vel_offset + i] = 0;
-          signedHeap[force_offset + i] = 0;
-        }
-        if (status === STATUS_NEG_TRANSMITTER) {
-          signedHeap[u1_offset + i] = -signalAmplitude;
-          signedHeap[vel_offset + i] = 0;
-          signedHeap[force_offset + i] = 0;
-        }
+    // First loop: look for noise generator pixels and set their values in u
+    for (let i = 0; i < wh; i++) {
+      if (status[i] === STATUS_POS_TRANSMITTER) {
+        u[i] = signalAmplitude;
+        vel[i] = 0;
+        force[i] = 0;
       }
-      // Second loop: apply wave equation at all pixels
-      for (let i = 0; i < wh; i++) {
-        if (unsignedHeap[status_offset + i] === STATUS_DEFAULT) {
-          uCen = signedHeap   [u0_offset + i];
-          uNorth = signedHeap[u0_offset + i - width];
-          uSouth = signedHeap[u0_offset + i + width];
-          uWest = signedHeap[u0_offset + i - 1];
-          uEast = signedHeap[u0_offset + i + 1];
-
-          const uxx = (((uWest + uEast) >> 1) - uCen);
-          const uyy = (((uNorth + uSouth) >> 1) - uCen);
-
-          let vel = signedHeap[vel_offset + i];
-          vel = vel + (uxx >> 1);
-          vel = vel + (uyy >> 1);
-          vel = applyCap(vel);
-
-          let force = signedHeap[force_offset + i];
-          signedHeap[u1_offset + i] =  applyCap(force + applyCap(uCen + vel));
-          force -=(force >> FORCE_DAMPING_BIT_SHIFT);
-          signedHeap[force_offset + i] = force;
-
-          if (dampingBitShift) {
-            vel -= (vel >> dampingBitShift);
-          }
-          signedHeap[vel_offset + i] = vel;
-        }
+      if (status[i] === STATUS_NEG_TRANSMITTER) {
+        u[i] = -signalAmplitude;
+        vel[i] = 0;
+        force[i] = 0;
       }
-      const swap = u0_offset;
-      u0_offset = u1_offset;
-      u1_offset = swap;
+    }
+
+    // Second loop: apply wave equation at all pixels
+    for (let i=0; i < wh; i++) {
+      if (status[i] === 0) {
+        const uCen = u[i];
+        const uNorth = u[i - width];
+        const uSouth = u[i + width];
+        const uEast = u[i + 1];
+        const uWest = u[i - 1];
+        const uxx = (((uWest + uEast) >> 1) - uCen);
+        const uyy = (((uNorth + uSouth) >> 1) - uCen);
+        let v = vel[i] + (uxx >> 1) + (uyy >> 1);
+        if (dampingBitShift) {
+          v -= (v >> dampingBitShift);
+        }
+        vel[i] = applyCap(v);
+      }
+    }
+
+    // Apply forces from mouse
+    for (let i = 0; i < wh; i++) {
+      if (status[i] === 0) {
+        let f = force[i];
+        u[i] = applyCap(f + applyCap(u[i] + vel[i]));
+        f -= (f >> FORCE_DAMPING_BIT_SHIFT);
+        force[i] = f;
+      }
     }
 
     // Final pass: calculate color values
     for (let i = 0; i < wh; i++) {
-      if (signedHeap[status_offset + i] === STATUS_WALL) {
-        unsignedHeap[i] = 0x00000000;
+      if (status[i] === STATUS_WALL) {
+        image[i] = 0x00000000;
       } else {
-        unsignedHeap[i] = toRGB(signedHeap[u0_offset + i]);
+        image[i] = toRGB(u[i]);
       }
     }
   }
@@ -135,28 +131,18 @@ function jsWaveAlgorithm(width, height) {
     getEntireArray: function() {
       return unsignedHeap;
     },
+    init,
     singleFrame
   };
 }
 
-function wasmWaveAlgorithm(wasm, width, height) {
+function wasmWaveAlgorithm(wasm) {
 
-  const instance = wasm.instance;
-
-  const memory = instance.exports.memory;
-
-  const pages = 1 + ((6 * 4 * width * height) >> 16);
-  memory.grow(pages);
   const byteOffset = 65536; // Step above the first 64K to clear the stack
 
-  const heap = memory.buffer;
-
-  instance.exports.init(heap, byteOffset, width, height);
-
   // These are int32 offsets- multiply by 4 to get byte offsets.
-  const wh = width * height;
-  const force_offset = 4 * wh;
-  const status_offset = 5 * wh;
+  let width = 0, height = 0, wh = 0, force_offset = 0, status_offset = 0;
+  let heap = null;
 
   return {
     // The "output" from WASM
@@ -173,16 +159,35 @@ function wasmWaveAlgorithm(wasm, width, height) {
     },
     // For bulk copying, etc.
     getEntireArray: function() {
-      return new Uint32Array(heap, byteOffset, 6 * wh);
+      return new Uint32Array(heap, byteOffset, 5 * wh);
+    },
+    // The initialization function
+    init: function(w, h) {
+      width = w;
+      height = h;
+      wh = width * height;
+      force_offset = wh;
+      status_offset = 2 * wh;
+      u_offset = 3 * wh;
+      vel_offset = 4 * wh;
+      instance = wasm.instance;
+      memory = instance.exports.memory;
+      const pages = 1 + ((5 * 4 * width * height) >> 16);
+      memory.grow(pages);
+      heap = memory.buffer;
+      instance.exports.init(heap, byteOffset, width, height);
     },
     // The main hot spot function that needs to run in WebAssembly:
     singleFrame: function(signalAmplitude, drag = false) {
-      instance.exports.singleFrame(signalAmplitude, drag);
+      instance.exports.singleFrame(signalAmplitude, drag ? 5 : 0);
     },
   };
+
 }
 
+
 function wave(wasm) {
+
   const canvas = document.getElementById('canvas');
   const fps = document.getElementById('fps');
   const jsBox = document.getElementById('js-box');
@@ -199,12 +204,13 @@ function wave(wasm) {
   let statusArray = null;
   let applyBrakes = false;
 
-  const jsAlgorithm = jsWaveAlgorithm(width, height);
+  const jsAlgorithm = jsWaveAlgorithm();
+  jsAlgorithm.init(width, height);
   let algorithm = jsAlgorithm;
   let wasmAlgorithm = null;
-
   if (wasm) {
-    wasmAlgorithm = wasmWaveAlgorithm(wasm, width, height);
+    wasmAlgorithm = wasmWaveAlgorithm(wasm);
+    wasmAlgorithm.init(width, height);
     algorithm = wasmAlgorithm;
     wasmBox.checked = true;
     const swap = function(replacement) {
@@ -227,12 +233,12 @@ function wave(wasm) {
     document.getElementById('sorry').style.display='block';
   }
 
+
   let timestamps = [];
   let lastFpsJitter = 0;
   let animationCount = 0;
 
   let lastMouseX = null, lastMouseY = null;
-
   function animate() {
     setTimeout(animate, 0);
 
@@ -245,7 +251,7 @@ function wave(wasm) {
       }
       for (let i = 0; i < statusArray.length; i++) {
         if (Math.random() < threshold) {
-          statusArray[i] = (i %2 === 0) ? 2 : 3;
+          statusArray[i] = (i % 2 === 0) ? 2 : 3;
         }
       }
       // Draw a circular wall
@@ -279,7 +285,7 @@ function wave(wasm) {
     }
 
     let amplitude = Math.floor(0x3FFFFFFF * Math.sin(6.283 * animationCount / 100));
-    algorithm.singleFrame(amplitude, applyBrakes ? 5 : 0);
+    algorithm.singleFrame(amplitude, (applyBrakes ? 5 : 0));
 
     if (imageArray === null) {
       imageArray = algorithm.getImageArray();

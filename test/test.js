@@ -7,8 +7,11 @@ fetch('../wasm/waves.wasm').then(response => response.arrayBuffer())
     const width = 5;
     const height = 5;
 
-    const jsAlgorithm = jsWaveAlgorithm(width, height);
-    const wasmAlgorithm = wasmWaveAlgorithm(result, width, height);
+    const jsAlgorithm = jsWaveAlgorithm();
+    jsAlgorithm.init(width, height);
+
+    const wasmAlgorithm = wasmWaveAlgorithm(result);
+    wasmAlgorithm.init(width, height);
 
     const outerDiv = document.getElementById('outer');
 
@@ -52,21 +55,18 @@ fetch('../wasm/waves.wasm').then(response => response.arrayBuffer())
         for (let i = 0; i < width * height; i++) {
           output += (`${i}\t${unsignedMemory[i].toString(16)}<br>`);
         }
-        for (let i = width * height; i < 6 * width * height; i++) {
+        for (let i = width * height; i < 5 * width * height; i++) {
           if (i === width * height) {
-            output += '<br>u:<br>';
-          }
-          if (i === 2 * width * height) {
-            output += '<br>swap:<br>';
-          }
-          if (i === 3 * width * height) {
-            output += '<br>v:<br>';
-          }
-          if (i === 4 * width * height) {
             output += '<br>force:<br>';
           }
-          if (i === 5 * width * height) {
+          if (i === 2 * width * height) {
             output += '<br>status:<br>';
+          }
+          if (i === 3 * width * height) {
+            output += '<br>u:<br>';
+          }
+          if (i === 4 * width * height) {
+            output += '<br>vel:<br>';
           }
           output += (`${i}\t${signedMemory[i]}<br>`);
         }

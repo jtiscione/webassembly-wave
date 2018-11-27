@@ -16,12 +16,13 @@ function wave(wasm) {
   let statusArray = null;
   let applyBrakes = false;
 
-  const jsAlgorithm = jsWaveAlgorithm(width, height);
+  const jsAlgorithm = jsWaveAlgorithm();
+  jsAlgorithm.init(width, height);
   let algorithm = jsAlgorithm;
   let wasmAlgorithm = null;
-
   if (wasm) {
-    wasmAlgorithm = wasmWaveAlgorithm(wasm, width, height);
+    wasmAlgorithm = wasmWaveAlgorithm(wasm);
+    wasmAlgorithm.init(width, height);
     algorithm = wasmAlgorithm;
     wasmBox.checked = true;
     const swap = function(replacement) {
@@ -62,7 +63,7 @@ function wave(wasm) {
       }
       for (let i = 0; i < statusArray.length; i++) {
         if (Math.random() < threshold) {
-          statusArray[i] = (i %2 === 0) ? 2 : 3;
+          statusArray[i] = (i % 2 === 0) ? 2 : 3;
         }
       }
       // Draw a circular wall
@@ -82,7 +83,7 @@ function wave(wasm) {
     }
 
     if (animationCount === 100) {
-      // After 100 frames- clear noise generator pixels and applyBrakes flag
+      // Hundredth frame- clear noise generator pixels and clear applyBrakes flag
       for (let i = 0; i < statusArray.length; i++) {
         if (statusArray[i] === 2 || statusArray[i] === 3) {
           statusArray[i] = 0;
@@ -96,7 +97,7 @@ function wave(wasm) {
     }
 
     let amplitude = Math.floor(0x3FFFFFFF * Math.sin(6.283 * animationCount / 100));
-    algorithm.singleFrame(amplitude, applyBrakes ? 5 : 0);
+    algorithm.singleFrame(amplitude, (applyBrakes ? 5 : 0));
 
     if (imageArray === null) {
       imageArray = algorithm.getImageArray();

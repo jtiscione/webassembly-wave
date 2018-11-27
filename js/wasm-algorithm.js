@@ -1,25 +1,10 @@
-/*
- * This initializes the WebAssembly module instance and returns an object that encapsulates it.
- */
-function wasmWaveAlgorithm(wasm, width, height) {
+function wasmWaveAlgorithm(wasm) {
 
-  const instance = wasm.instance;
-
-  const memory = instance.exports.memory;
-
-  const pages = 1 + ((6 * 4 * width * height) >> 16);
-  memory.grow(pages);
   const byteOffset = 65536; // Step above the first 64K to clear the stack
 
-  const heap = memory.buffer;
-
-  instance.exports.init(heap, byteOffset, width, height);
-
   // These are int32 offsets- multiply by 4 to get byte offsets.
-  // const canvas_offset = 0;
-  const wh = width * height;
-  const force_offset = 4 * wh;
-  const status_offset = 5 * wh;
+  let width = 0, height = 0, wh = 0, force_offset = 0, status_offset = 0;
+  let heap = null;
 
   return {
     // The "output" from WASM
@@ -36,11 +21,28 @@ function wasmWaveAlgorithm(wasm, width, height) {
     },
     // For bulk copying, etc.
     getEntireArray: function() {
-      return new Uint32Array(heap, byteOffset, 6 * wh);
+      return new Uint32Array(heap, byteOffset, 5 * wh);
+    },
+    // The initialization function
+    init: function(w, h) {
+      width = w;
+      height = h;
+      wh = width * height;
+      force_offset = wh;
+      status_offset = 2 * wh;
+      u_offset = 3 * wh;
+      vel_offset = 4 * wh;
+      instance = wasm.instance;
+      memory = instance.exports.memory;
+      const pages = 1 + ((5 * 4 * width * height) >> 16);
+      memory.grow(pages);
+      heap = memory.buffer;
+      instance.exports.init(heap, byteOffset, width, height);
     },
     // The main hot spot function that needs to run in WebAssembly:
     singleFrame: function(signalAmplitude, drag = false) {
-      instance.exports.singleFrame(signalAmplitude, drag);
+      instance.exports.singleFrame(signalAmplitude, drag ? 5 : 0);
     },
   };
+
 }
