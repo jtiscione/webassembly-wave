@@ -35,111 +35,108 @@ function jsWaveAlgorithm() {
   let u;
   let vel;
 
-  function init(w, h) {
-
-    width = w;
-    height = h;
-    wh = width * height;
-
-    const force_offset = wh;
-    const status_offset = 2 * wh;
-    const u_offset = 3 * wh;
-    const vel_offset = 4 * wh;
-
-    // Need room for five Int32 arrays, each with imageWidth * imageHeight elements.
-    heap = new ArrayBuffer(5 * 4 * wh);
-
-    image = new Int32Array(heap, 0, wh);
-    force = new Int32Array(heap, 4 * force_offset, wh);
-    status = new Int32Array(heap, 4 * status_offset, wh);
-    u = new Int32Array(heap, 4 * u_offset, wh);
-    vel = new Int32Array(heap, 4 * vel_offset, wh);
-
-    // To avoid falling off edges, mark the pixels along the edge as being wall pixels.
-    // Walls implement a Dirichlet boundary condition by setting u=0.
-    for (let i = 0; i < height; i++) {
-      status[i * width] = STATUS_WALL; // left edge
-      status[(i * width) + (width - 1)] = STATUS_WALL; // right edge
-    }
-    for (let j = 0; j < width; j++) {
-      status[j] = STATUS_WALL; // top edge
-      status[(width * (height - 1)) + j] = STATUS_WALL; // bottom edge
-    }
-  }
-
   /*
    * Applies the wave equation d2u/dt2 = c*c*(d2u/dx2+d2u/dy2)
    * where all derivatives on the right are partial 2nd derivatives
    */
-  function singleFrame(signalAmplitude, dampingBitShift = 0) {
-
-    // First loop: look for noise generator pixels and set their values in u
-    for (let i = 0; i < wh; i++) {
-      if (status[i] === STATUS_POS_TRANSMITTER) {
-        u[i] = signalAmplitude;
-        vel[i] = 0;
-        force[i] = 0;
-      }
-      if (status[i] === STATUS_NEG_TRANSMITTER) {
-        u[i] = -signalAmplitude;
-        vel[i] = 0;
-        force[i] = 0;
-      }
-    }
-
-    // Second loop: apply wave equation at all pixels
-    for (let i=0; i < wh; i++) {
-      if (status[i] === STATUS_DEFAULT) {
-        const uCen = u[i];
-        const uNorth = u[i - width];
-        const uSouth = u[i + width];
-        const uEast = u[i + 1];
-        const uWest = u[i - 1];
-        const uxx = (((uWest + uEast) >> 1) - uCen);
-        const uyy = (((uNorth + uSouth) >> 1) - uCen);
-        let v = vel[i] + (uxx >> 1) + (uyy >> 1);
-        if (dampingBitShift) {
-          v -= (v >> dampingBitShift);
-        }
-        vel[i] = applyCap(v);
-      }
-    }
-
-    // Apply forces from mouse
-    for (let i = 0; i < wh; i++) {
-      if (status[i] === STATUS_DEFAULT) {
-        let f = force[i];
-        u[i] = applyCap(f + applyCap(u[i] + vel[i]));
-        f -= (f >> FORCE_DAMPING_BIT_SHIFT);
-        force[i] = f;
-      }
-    }
-
-    // Final pass: calculate color values
-    for (let i = 0; i < wh; i++) {
-      if (status[i] === STATUS_WALL) {
-        image[i] = 0x00000000;
-      } else {
-        image[i] = toRGB(u[i]);
-      }
-    }
-  }
 
   return {
-    getImageArray: function() {
+    getImageArray() {
       return new Uint8ClampedArray(heap, 0, 4 * wh);
     },
-    getForceArray: function() {
+    getForceArray() {
       return force;
     },
-    getStatusArray: function() {
+    getStatusArray() {
       return status;
     },
-    getEntireArray: function() {
+    getEntireArray() {
       return new Uint32Array(heap);
     },
-    init,
-    singleFrame
+    init(w, h) {
+
+      width = w;
+      height = h;
+      wh = width * height;
+
+      const force_offset = wh;
+      const status_offset = 2 * wh;
+      const u_offset = 3 * wh;
+      const vel_offset = 4 * wh;
+
+      // Need room for five Int32 arrays, each with imageWidth * imageHeight elements.
+      heap = new ArrayBuffer(5 * 4 * wh);
+
+      image = new Int32Array(heap, 0, wh);
+      force = new Int32Array(heap, 4 * force_offset, wh);
+      status = new Int32Array(heap, 4 * status_offset, wh);
+      u = new Int32Array(heap, 4 * u_offset, wh);
+      vel = new Int32Array(heap, 4 * vel_offset, wh);
+
+      // To avoid falling off edges, mark the pixels along the edge as being wall pixels.
+      // Walls implement a Dirichlet boundary condition by setting u=0.
+      for (let i = 0; i < height; i++) {
+        status[i * width] = STATUS_WALL; // left edge
+        status[(i * width) + (width - 1)] = STATUS_WALL; // right edge
+      }
+      for (let j = 0; j < width; j++) {
+        status[j] = STATUS_WALL; // top edge
+        status[(width * (height - 1)) + j] = STATUS_WALL; // bottom edge
+      }
+    },
+    singleFrame(signalAmplitude, dampingBitShift = 0) {
+
+      // First loop: look for noise generator pixels and set their values in u
+      for (let i = 0; i < wh; i++) {
+        if (status[i] === STATUS_POS_TRANSMITTER) {
+          u[i] = signalAmplitude;
+          vel[i] = 0;
+          force[i] = 0;
+        }
+        if (status[i] === STATUS_NEG_TRANSMITTER) {
+          u[i] = -signalAmplitude;
+          vel[i] = 0;
+          force[i] = 0;
+        }
+      }
+
+      // Second loop: apply wave equation at all pixels
+      for (let i = 0; i < wh; i++) {
+        if (status[i] === STATUS_DEFAULT) {
+          const uCen = u[i];
+          const uNorth = u[i - width];
+          const uSouth = u[i + width];
+          const uEast = u[i + 1];
+          const uWest = u[i - 1];
+          const uxx = (((uWest + uEast) >> 1) - uCen);
+          const uyy = (((uNorth + uSouth) >> 1) - uCen);
+          let v = vel[i] + (uxx >> 1) + (uyy >> 1);
+          if (dampingBitShift) {
+            v -= (v >> dampingBitShift);
+          }
+          vel[i] = applyCap(v);
+        }
+      }
+
+      // Apply forces from mouse
+      for (let i = 0; i < wh; i++) {
+        if (status[i] === STATUS_DEFAULT) {
+          let f = force[i];
+          u[i] = applyCap(f + applyCap(u[i] + vel[i]));
+          f -= (f >> FORCE_DAMPING_BIT_SHIFT);
+          force[i] = f;
+        }
+      }
+
+      // Final pass: calculate color values
+      for (let i = 0; i < wh; i++) {
+        if (status[i] === STATUS_WALL) {
+          image[i] = 0x00000000;
+        } else {
+          image[i] = toRGB(u[i]);
+        }
+      }
+    }
   };
 }
 
@@ -155,23 +152,23 @@ function wasmWaveAlgorithm(wasm) {
 
   return {
     // The "output" from WASM
-    getImageArray: function() {
+    getImageArray() {
       return new Uint8ClampedArray(heap, byteOffset, 4 * wh);
     },
     // Input to WASM: mouse movements cause writes to this array
-    getForceArray: function() {
+    getForceArray() {
       return force;
     },
     // Input to WASM: wall and transmitter statuses can be set programmatically
-    getStatusArray: function() {
+    getStatusArray() {
       return status;
     },
     // For bulk copying, etc.
-    getEntireArray: function() {
+    getEntireArray() {
       return new Uint32Array(heap, byteOffset, 5 * wh);
     },
     // The initialization function
-    init: function(w, h) {
+    init(w, h) {
       width = w;
       height = h;
       wh = width * height;
@@ -187,12 +184,13 @@ function wasmWaveAlgorithm(wasm) {
       instance.exports.init(heap, byteOffset, width, height);
     },
     // The main hot spot function that needs to run in WebAssembly:
-    singleFrame: function(signalAmplitude, drag = false) {
+    singleFrame(signalAmplitude, drag = false) {
       instance.exports.singleFrame(signalAmplitude, drag ? 5 : 0);
     },
   };
 
 }
+
 
 
 function wave(wasm) {

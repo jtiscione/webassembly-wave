@@ -10,23 +10,23 @@ function wasmWaveAlgorithm(wasm) {
 
   return {
     // The "output" from WASM
-    getImageArray: function() {
+    getImageArray() {
       return new Uint8ClampedArray(heap, byteOffset, 4 * wh);
     },
     // Input to WASM: mouse movements cause writes to this array
-    getForceArray: function() {
+    getForceArray() {
       return force;
     },
     // Input to WASM: wall and transmitter statuses can be set programmatically
-    getStatusArray: function() {
+    getStatusArray() {
       return status;
     },
     // For bulk copying, etc.
-    getEntireArray: function() {
+    getEntireArray() {
       return new Uint32Array(heap, byteOffset, 5 * wh);
     },
     // The initialization function
-    init: function(w, h) {
+    init(w, h) {
       width = w;
       height = h;
       wh = width * height;
@@ -42,7 +42,7 @@ function wasmWaveAlgorithm(wasm) {
       instance.exports.init(heap, byteOffset, width, height);
     },
     // The main hot spot function that needs to run in WebAssembly:
-    singleFrame: function(signalAmplitude, drag = false) {
+    singleFrame(signalAmplitude, drag = false) {
       instance.exports.singleFrame(signalAmplitude, drag ? 5 : 0);
     },
   };
