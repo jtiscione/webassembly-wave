@@ -3,7 +3,7 @@ function wasmWaveAlgorithm(wasm) {
   const byteOffset = 65536; // Step above the first 64K to clear the stack
 
   // These are int32 offsets- multiply by 4 to get byte offsets.
-  let width = 0, height = 0, wh = 0, force_offset = 0, status_offset = 0;
+  let width = 0, height = 0, wh = 0, force_offset = 0, status_offset = 0, u_offset = 0, vel_offset = 0;
   let heap = null;
 
   return {
@@ -33,7 +33,7 @@ function wasmWaveAlgorithm(wasm) {
       u_offset = 3 * wh;
       vel_offset = 4 * wh;
       instance = wasm.instance;
-      memory = instance.exports.memory;
+      const memory = instance.exports.memory;
       const pages = 1 + ((5 * 4 * width * height) >> 16);
       memory.grow(pages);
       heap = memory.buffer;
