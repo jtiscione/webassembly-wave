@@ -82,7 +82,7 @@ function jsWaveAlgorithm() {
 
     // Second loop: apply wave equation at all pixels
     for (let i=0; i < wh; i++) {
-      if (status[i] === 0) {
+      if (status[i] === STATUS_DEFAULT) {
         const uCen = u[i];
         const uNorth = u[i - width];
         const uSouth = u[i + width];
@@ -100,7 +100,7 @@ function jsWaveAlgorithm() {
 
     // Apply forces from mouse
     for (let i = 0; i < wh; i++) {
-      if (status[i] === 0) {
+      if (status[i] === STATUS_DEFAULT) {
         let f = force[i];
         u[i] = applyCap(f + applyCap(u[i] + vel[i]));
         f -= (f >> FORCE_DAMPING_BIT_SHIFT);
