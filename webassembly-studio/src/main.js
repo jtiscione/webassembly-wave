@@ -27,18 +27,7 @@ function jsWaveAlgorithm() {
   }
 
   return {
-    getImageArray() {
-      return new Uint8ClampedArray(this.heap, 0, 4 * this.wh);
-    },
-    getForceArray() {
-      return this.force;
-    },
-    getStatusArray() {
-      return this.status;
-    },
-    getEntireArray() {
-      return new Uint32Array(this.heap);
-    },
+
     init(width, height) {
 
       this.width = width;
@@ -48,8 +37,6 @@ function jsWaveAlgorithm() {
 
       // Need room for five Int32 arrays, each with imageWidth * imageHeight elements.
       const heap = new ArrayBuffer(5 * 4 * wh);
-
-
       this.heap = heap;
 
       this.image = new Int32Array(heap, 0, wh);
@@ -124,63 +111,73 @@ function jsWaveAlgorithm() {
           image[i] = toRGB(u[i]);
         }
       }
-    }
+    },
+
+    getImageArray() {
+      return new Uint8ClampedArray(this.heap, 0, 4 * this.wh);
+    },
+
+    getForceArray() {
+      return this.force;
+    },
+
+    getStatusArray() {
+      return this.status;
+    },
+
+    getEntireArray() {
+      return new Uint32Array(this.heap);
+    },
   };
 }
 
-
 function wasmWaveAlgorithm(wasm) {
-
-  const byteOffset = 65536; // Step above the first 64K to clear the stack
-
-  let width = 0, height = 0, wh = 0;
-  let heap = null;
-
-  let force;
-  let status;
-
   return {
-    // The "output" from WASM
-    getImageArray() {
-      return new Uint8ClampedArray(heap, byteOffset, 4 * wh);
-    },
-    // Input to WASM: mouse movements cause writes to this array
-    getForceArray() {
-      return force;
-    },
-    // Input to WASM: wall and transmitter statuses can be set programmatically
-    getStatusArray() {
-      return status;
-    },
-    // For bulk copying, etc.
-    getEntireArray() {
-      return new Uint32Array(heap, byteOffset, 5 * wh);
-    },
     // The initialization function
-    init(w, h) {
-      width = w;
-      height = h;
-      wh = width * height;
+    init(width, height) {
+
+      this.width = width;
+      this.height = height;
+      const wh = width * height;
+      this.wh = wh;
+
+      this.byteOffset = 65536; // Step above the first 64K to clear the stack
+
       instance = wasm.instance;
       const memory = instance.exports.memory;
       const pages = 1 + ((5 * 4 * width * height) >> 16);
       memory.grow(pages);
-      heap = memory.buffer;
 
-      force = new Int32Array(heap, byteOffset + (4 * wh), wh);
-      status = new Int32Array(heap, byteOffset + (8 * wh), wh);
+      const heap = memory.buffer;
+      this.heap = heap;
 
-      instance.exports.init(heap, byteOffset, width, height);
+      this.force = new Int32Array(heap, this.byteOffset + (4 * wh), wh);
+      this.status = new Int32Array(heap, this.byteOffset + (8 * wh), wh);
+
+      instance.exports.init(heap, this.byteOffset, width, height);
     },
-    // The main hot spot function that needs to run in WebAssembly:
+    // The main hot spot function:
     singleFrame(signalAmplitude, drag = false) {
       instance.exports.singleFrame(signalAmplitude, drag ? 5 : 0);
     },
+    // The "output" from WASM
+    getImageArray() {
+      return new Uint8ClampedArray(this.heap, this.byteOffset, 4 * this.wh);
+    },
+    // Input to WASM: mouse movements cause writes to this array
+    getForceArray() {
+      return this.force;
+    },
+    // Input to WASM: wall and transmitter statuses can be set programmatically
+    getStatusArray() {
+      return this.status;
+    },
+    // For bulk copying, etc.
+    getEntireArray() {
+      return new Uint32Array(this.heap, this.byteOffset, 5 * this.wh);
+    },
   };
-
 }
-
-
 
 function wave(wasm) {
 

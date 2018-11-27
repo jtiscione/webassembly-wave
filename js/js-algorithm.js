@@ -27,18 +27,7 @@ function jsWaveAlgorithm() {
   }
 
   return {
-    getImageArray() {
-      return new Uint8ClampedArray(this.heap, 0, 4 * this.wh);
-    },
-    getForceArray() {
-      return this.force;
-    },
-    getStatusArray() {
-      return this.status;
-    },
-    getEntireArray() {
-      return new Uint32Array(this.heap);
-    },
+
     init(width, height) {
 
       this.width = width;
@@ -48,8 +37,6 @@ function jsWaveAlgorithm() {
 
       // Need room for five Int32 arrays, each with imageWidth * imageHeight elements.
       const heap = new ArrayBuffer(5 * 4 * wh);
-
-
       this.heap = heap;
 
       this.image = new Int32Array(heap, 0, wh);
@@ -124,6 +111,22 @@ function jsWaveAlgorithm() {
           image[i] = toRGB(u[i]);
         }
       }
-    }
+    },
+
+    getImageArray() {
+      return new Uint8ClampedArray(this.heap, 0, 4 * this.wh);
+    },
+
+    getForceArray() {
+      return this.force;
+    },
+
+    getStatusArray() {
+      return this.status;
+    },
+
+    getEntireArray() {
+      return new Uint32Array(this.heap);
+    },
   };
 }
