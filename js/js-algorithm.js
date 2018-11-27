@@ -18,10 +18,10 @@ function jsWaveAlgorithm() {
     let val = (signed32bitValue >> 22);
     let rgba = ALPHA;
     if (val > 0) {
-      rgba = (val << 8) | (val << 16) | ALPHA; // blue-green
+      rgba = val | (val << 8) | ALPHA; // yellow
     } else if (val < 0) {
       val = val + 1;  // OR: val = Math.max(val, -255);
-      rgba = -val | ALPHA; // red
+      rgba = -val | ((-val) << 16) | ALPHA; // purple
     }
     return rgba;
   }
