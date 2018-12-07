@@ -95,10 +95,34 @@ export function step(): void {
 }
   `;
 
-async function build() {
-  const compilation = await walt.compile(source);
-  const buffer = compilation.buffer();
-  console.log('buffer: ' + buffer);
+async function build(wasmFilename) {
+  if (fs.existsSync(wasmFilename)) {
+    fs.unlinkSync(wasmFilename);
+  }
+  try {
+    const compilation = await walt.compile(source);
+    const buffer = compilation.buffer();
+    fs.writeFileSync(wasmFilename, new Uint8Array(buffer));
+    console.log('done.');
+  } catch(e) {
+    console.log(e);
+  }
 }
 
-build();
+build('./waves.wasm');
+/*
+const wasmFilename = './waves.wasm';
+
+try {
+  if (fs.existsSync(wasmFilename)) {
+    fs.unlinkSync(wasmFilename);
+  }
+  walt.compile(source).then((compilation) => {
+    const buffer = compilation.buffer();
+    fs.writeFileSync(wasmFilename, new Uint8Array(buffer));
+    console.log('done.');
+  });
+} catch(e) {
+  console.log(e);
+}
+*/
