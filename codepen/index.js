@@ -183,7 +183,7 @@ function wave(wasm) {
   const canvas = document.getElementById('canvas');
   const fps = document.getElementById('fps');
   const jsBox = document.getElementById('js-box');
-  const wasmBox = document.getElementById('wasm-box');
+  const wasmBox = document.getElementById('emscripten-box');
   const noiseBtn = document.getElementById('noiseBtn');
   const clearBtn = document.getElementById('clearBtn');
 

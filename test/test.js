@@ -1,4 +1,4 @@
-fetch('../wasm/waves.wasm').then(response => response.arrayBuffer())
+fetch('../emscripten/waves.wasm').then(response => response.arrayBuffer())
   .then((bytes) => {
     return WebAssembly.instantiate(bytes, {});
   })

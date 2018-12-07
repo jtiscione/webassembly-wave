@@ -1,4 +1,6 @@
-function wave(wasm) {
+function wave(modules) {
+
+  const wasm = modules.emscripten;
 
   const canvas = document.getElementById('canvas');
   const fps = document.getElementById('fps');
@@ -139,6 +141,9 @@ function wave(wasm) {
   }
 
   function applyBrush(x, y) {
+    function applyCap(x) {
+      return x < -0x40000000 ? -0x40000000 : (x > 0x3FFFFFFF ? 0x3FFFFFFF : x);
+    }
     if (forceArray === null) {
       forceArray = algorithm.getForceArray();
     }
@@ -146,9 +151,6 @@ function wave(wasm) {
       const targetY = y + p;
       if (targetY <= 0 || targetY >= height - 1) {
         continue;
-      }
-      function applyCap(x) {
-        return x < -0x40000000 ? -0x40000000 : (x > 0x3FFFFFFF ? 0x3FFFFFFF : x);
       }
       for (let q = -brushMatrixRadius; q <= brushMatrixRadius; q++) {
         const targetX = x + q;
@@ -263,9 +265,18 @@ document.addEventListener("DOMContentLoaded", function(event) {
   if (!webAssemblySupported()) {
     wave(null);
   } else {
-    fetch('wasm/waves.wasm').then(response => response.arrayBuffer())
+    let emscripten = null;
+    let walt = null;
+    fetch('emscripten/waves.wasm').then(response => response.arrayBuffer())
       .then((bytes) => {
-        WebAssembly.instantiate(bytes, {}).then(wave);
-      });
+        return WebAssembly.instantiate(bytes, {})
+      }).then((wasm) => {
+        emscripten = wasm;
+        return Promise.resolve(null);
+        // return WebAssembly.instantiate(walt.compile(waltSource).buffer(), {});
+      }).then((wasm) => {
+        walt = wasm;
+        return { emscripten, walt };
+      }).then(wave);
   }
 });

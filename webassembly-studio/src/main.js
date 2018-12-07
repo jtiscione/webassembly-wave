@@ -184,7 +184,7 @@ function wave(wasm) {
   const canvas = document.getElementById('canvas');
   const fps = document.getElementById('fps');
   const jsBox = document.getElementById('js-box');
-  const wasmBox = document.getElementById('wasm-box');
+  const wasmBox = document.getElementById('emscripten-box');
   const noiseBtn = document.getElementById('noiseBtn');
   const clearBtn = document.getElementById('clearBtn');
 
@@ -428,7 +428,7 @@ function wave(wasm) {
 }
 
 document.addEventListener("DOMContentLoaded", function(event) {
-  fetch('../out/main.wasm').then(response => response.arrayBuffer())
+  fetch('../out/main.emscripten').then(response => response.arrayBuffer())
     .then((bytes) => {
       WebAssembly.instantiate(bytes, {}).then(wave);
     });
