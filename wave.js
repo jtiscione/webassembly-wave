@@ -267,15 +267,19 @@ document.addEventListener("DOMContentLoaded", function(event) {
   } else {
     let emscripten = null;
     let walt = null;
-    fetch('emscripten/waves.wasm').then(response => response.arrayBuffer())
-      .then((bytes) => {
-        return WebAssembly.instantiate(bytes, {})
-      }).then((wasm) => {
+    fetch('emscripten/waves.wasm')
+      .then(response => response.arrayBuffer())
+      .then((bytes) =>  WebAssembly.instantiate(bytes, {}))
+      .then((wasm) => {
         emscripten = wasm;
-        return Promise.resolve(null);
-        // return WebAssembly.instantiate(walt.compile(waltSource).buffer(), {});
-      }).then((wasm) => {
+/*
+        return fetch('/walt/waves.wasm');
+      })
+      .then(response => response.arrayBuffer())
+      .then((bytes) => WebAssembly.instantiate(bytes, {}))
+      .then((wasm) => {
         walt = wasm;
+*/
         return { emscripten, walt };
       }).then(wave);
   }
