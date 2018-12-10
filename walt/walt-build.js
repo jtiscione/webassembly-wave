@@ -28,12 +28,13 @@ function applyCap(x: i32) : i32 {
 }
 
 function toRGB(x: i32) : i32 {
-  const val: i32 = x >> 22;
+  let val: i32 = x >> 22;
   let rgba: i32 = ALPHA;
   if (val > 0) {
-    rgba = (val << 8) | (val << 16) | ALPHA; // cyan
+    rgba = val | (val << 8) | (val << 16) | ALPHA; // gray
   } else if (val < 0) {
-    rgba = ((-(val + 1)) | ALPHA); //red
+    val = -(val + 1);
+    rgba = ((val << 8) | ALPHA); // green
   }
   return rgba;
 }
