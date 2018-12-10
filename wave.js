@@ -1,6 +1,6 @@
 function wave(modules) {
 
-  const wasm = modules.emscripten;
+  const wasm = modules.walt;
 
   const canvas = document.getElementById('canvas');
   const fps = document.getElementById('fps');
@@ -272,14 +272,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
       .then((bytes) =>  WebAssembly.instantiate(bytes, {}))
       .then((wasm) => {
         emscripten = wasm;
-/*
+
         return fetch('walt/waves.wasm');
       })
       .then(response => response.arrayBuffer())
       .then((bytes) => WebAssembly.instantiate(bytes, {}))
       .then((wasm) => {
         walt = wasm;
-*/
+
         return { emscripten, walt };
       }).then(wave);
   }

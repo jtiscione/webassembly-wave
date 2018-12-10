@@ -48,13 +48,13 @@ void init(int *arr, int offset, int w, int h) {
 
   // Draw walls along outer boundary
   for (int i=0; i < height; i++) {
-    status[i * width] = 1;
-    status[i * width + width - 1] = 1;
+    status[i * width] = STATUS_WALL;
+    status[i * width + width - 1] = STATUS_WALL;
   }
 
   for (int i=0; i < width; i++) {
-    status[i] = 1;
-    status[width * height - width + i] = 1;
+    status[i] = STATUS_WALL;
+    status[width * height - width + i] = STATUS_WALL;
   }
 }
 
@@ -85,7 +85,7 @@ void singleFrame(signalAmplitude, dampingBitShift) {
 
   // Second loop: apply wave equation at all pixels
   for (int i=0; i < wh; i++) {
-    if (status[i] == 0) {
+    if (status[i] == STATUS_DEFAULT) {
       int uCen = u[i];
       int uNorth = u[i - width];
       int uSouth = u[i + width];
@@ -103,7 +103,7 @@ void singleFrame(signalAmplitude, dampingBitShift) {
 
   // Apply forces from mouse
   for (int i = 0; i < wh; i++) {
-    if (status[i] == 0) {
+    if (status[i] == STATUS_DEFAULT) {
       int f = force[i];
       u[i] = applyCap(f + applyCap(u[i] + vel[i]));
       f -= (f >> FORCE_DAMPING_BIT_SHIFT);
@@ -113,7 +113,7 @@ void singleFrame(signalAmplitude, dampingBitShift) {
 
   // Final pass: calculate color values
   for (int i = 0; i < wh; i++) {
-    if (status[i] == 1) {
+    if (status[i] == STATUS_WALL) {
       image[i] = 0x00000000;
     } else {
       image[i] = toRGB(u[i]);

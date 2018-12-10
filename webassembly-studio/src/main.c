@@ -48,13 +48,13 @@ void init(int *arr, int offset, int w, int h) {
 
   // Draw walls along outer boundary
   for (int i=0; i < height; i++) {
-    status[i * width] = 1;
-    status[i * width + width - 1] = 1;
+    status[i * width] = STATUS_WALL;
+    status[i * width + width - 1] = STATUS_WALL;
   }
 
   for (int i=0; i < width; i++) {
-    status[i] = 1;
-    status[width * height - width + i] = 1;
+    status[i] = STATUS_WALL;
+    status[width * height - width + i] = STATUS_WALL;
   }
 }
 
@@ -113,7 +113,7 @@ void singleFrame(signalAmplitude, dampingBitShift) {
 
   // Final pass: calculate color values
   for (int i = 0; i < wh; i++) {
-    if (status[i] == 1) {
+    if (status[i] == STATUS_WALL) {
       image[i] = 0x00000000;
     } else {
       image[i] = toRGB(u[i]);
