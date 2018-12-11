@@ -61,7 +61,7 @@ export function init(ignored: i32, offset: i32, w: i32, h: i32): void {
   }
 }
 
-export function singleFrame(): void {
+export function singleFrame(signalAmplitude: i32, dampingBitShift: i32): void {
 
   const image: i32[] = heapStart;
   const force: i32[] = heapStart + 4 * wh;
@@ -71,6 +71,18 @@ export function singleFrame(): void {
 
   // Draw walls
   let i: i32 = 0;
+  for (i = 0; i < wh; i += 1) {
+    if (status[i] == STATUS_POS_TRANSMITTER) {
+      u[i] = signalAmplitude;
+      vel[i] = 0;
+      force[i] = 0;
+    }
+    if (status[i] == STATUS_NEG_TRANSMITTER) {
+      u[i] = -signalAmplitude;
+      vel[i] = 0;
+      force[i] = 0;
+    }
+  }
   for (i = 0; i < height; i += 1) {
     status[i * width] = 1;
     status[i * width + width - 1] = 1;
@@ -90,7 +102,11 @@ export function singleFrame(): void {
       const uWest: i32 = u[i - 1];
       const uxx: i32 = (((uWest + uEast) >> 1) - uCen);
       const uyy: i32 = (((uNorth + uSouth) >> 1) - uCen);
-      vel[i] = applyCap(vel[i] + (uxx >> 1) + (uyy >> 1));
+      let v: i32 = vel[i] + (uxx >> 1) + (uyy >> 1);
+      if (dampingBitShift) {
+        v -= (v >> dampingBitShift);
+      }
+      vel[i] = applyCap(v);
     }
   }
 
