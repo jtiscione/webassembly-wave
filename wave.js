@@ -1,11 +1,10 @@
 function wave(modules) {
 
-  const wasm = modules.walt;
-
   const canvas = document.getElementById('canvas');
   const fps = document.getElementById('fps');
   const jsBox = document.getElementById('js-box');
-  const wasmBox = document.getElementById('wasm-box');
+  const emscriptenBox = document.getElementById('emscripten-box');
+  const waltBox = document.getElementById('walt-box');
   const noiseBtn = document.getElementById('noiseBtn');
   const clearBtn = document.getElementById('clearBtn');
 
@@ -21,12 +20,21 @@ function wave(modules) {
   const jsAlgorithm = jsWaveAlgorithm();
   jsAlgorithm.init(width, height);
   let algorithm = jsAlgorithm;
-  let wasmAlgorithm = null;
-  if (wasm) {
-    wasmAlgorithm = wasmWaveAlgorithm(wasm);
-    wasmAlgorithm.init(width, height);
-    // algorithm = wasmAlgorithm;
-    // wasmBox.checked = true;
+  let emscriptenAlgorithm = null;
+  let waltAlgorithm = null;
+  if (modules) {
+    if (modules.emscripten) {
+      emscriptenAlgorithm = wasmWaveAlgorithm(modules.emscripten);
+      emscriptenAlgorithm.init(width, height);
+      // algorithm = emscriptenAlgorithm;
+      // emscriptenBox.checked = true;
+    }
+
+    if (modules.walt) {
+      waltAlgorithm = wasmWaveAlgorithm(modules.walt);
+      waltAlgorithm.init(width, height);
+    }
+
     const swap = function(replacement) {
       replacement.getEntireArray().set(algorithm.getEntireArray());
       algorithm = replacement;
@@ -37,12 +45,17 @@ function wave(modules) {
     jsBox.addEventListener('click', function(event) {
       swap(jsAlgorithm);
     });
-    wasmBox.addEventListener('click', function(event) {
-      swap(wasmAlgorithm);
+    emscriptenBox.addEventListener('click', function(event) {
+      swap(emscriptenAlgorithm);
     });
+    waltBox.addEventListener('click', function(event) {
+      swap(waltAlgorithm);
+    });
+
   } else {
     jsBox.disabled = true;
-    wasmBox.disabled = true;
+    emscriptenBox.disabled = true;
+    waltBox.disabled = true;
     document.getElementById('radio').style.display='none';
     document.getElementById('sorry').style.display='block';
   }

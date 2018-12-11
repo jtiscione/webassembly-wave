@@ -1,6 +1,7 @@
 function wasmWaveAlgorithm(wasm) {
 
   return {
+    module: wasm,
     // The initialization function
     init(width, height) {
 
@@ -11,7 +12,7 @@ function wasmWaveAlgorithm(wasm) {
 
       this.byteOffset = 65536; // Step above the first 64K to clear the stack
 
-      instance = wasm.instance;
+      const instance = wasm.instance;
       const memory = instance.exports.memory;
       const pages = 1 + ((5 * 4 * width * height) >> 16);
       memory.grow(pages);
@@ -26,7 +27,7 @@ function wasmWaveAlgorithm(wasm) {
     },
     // The main hot spot function:
     singleFrame(signalAmplitude, drag = false) {
-      instance.exports.singleFrame(signalAmplitude, drag ? 5 : 0);
+      this.module.instance.exports.singleFrame(signalAmplitude, drag ? 5 : 0);
     },
     // The "output" from WASM
     getImageArray() {
