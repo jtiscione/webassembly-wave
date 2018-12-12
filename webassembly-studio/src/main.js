@@ -18,10 +18,10 @@ function jsWaveAlgorithm() {
     let val = (signed32bitValue >> 22);
     let rgba = ALPHA;
     if (val > 0) {
-      rgba = (val << 8) | (val << 16) | ALPHA; // blue-green
+      rgba = val | (val << 8) | ALPHA; // yellow
     } else if (val < 0) {
       val = val + 1;  // OR: val = Math.max(val, -255);
-      rgba = -val | ALPHA; // red
+      rgba = -val | ((-val) << 16) | ALPHA; // purple
     }
     return rgba;
   }
@@ -133,6 +133,7 @@ function jsWaveAlgorithm() {
 
 function wasmWaveAlgorithm(wasm) {
   return {
+    module: wasm,
     // The initialization function
     init(width, height) {
 
@@ -143,7 +144,7 @@ function wasmWaveAlgorithm(wasm) {
 
       this.byteOffset = 65536; // Step above the first 64K to clear the stack
 
-      instance = wasm.instance;
+      const instance = wasm.instance;
       const memory = instance.exports.memory;
       const pages = 1 + ((5 * 4 * width * height) >> 16);
       memory.grow(pages);
@@ -158,7 +159,7 @@ function wasmWaveAlgorithm(wasm) {
     },
     // The main hot spot function:
     singleFrame(signalAmplitude, drag = false) {
-      instance.exports.singleFrame(signalAmplitude, drag ? 5 : 0);
+      this.module.instance.exports.singleFrame(signalAmplitude, drag ? 5 : 0);
     },
     // The "output" from WASM
     getImageArray() {
@@ -179,12 +180,12 @@ function wasmWaveAlgorithm(wasm) {
   };
 }
 
-function wave(wasm) {
+function wave(modules) {
 
   const canvas = document.getElementById('canvas');
   const fps = document.getElementById('fps');
   const jsBox = document.getElementById('js-box');
-  const wasmBox = document.getElementById('emscripten-box');
+  const emscriptenBox = document.getElementById('emscripten-box');
   const noiseBtn = document.getElementById('noiseBtn');
   const clearBtn = document.getElementById('clearBtn');
 
@@ -200,12 +201,15 @@ function wave(wasm) {
   const jsAlgorithm = jsWaveAlgorithm();
   jsAlgorithm.init(width, height);
   let algorithm = jsAlgorithm;
-  let wasmAlgorithm = null;
-  if (wasm) {
-    wasmAlgorithm = wasmWaveAlgorithm(wasm);
-    wasmAlgorithm.init(width, height);
-    algorithm = wasmAlgorithm;
-    wasmBox.checked = true;
+  let emscriptenAlgorithm = null;
+  if (modules) {
+    if (modules.emscripten) {
+      emscriptenAlgorithm = wasmWaveAlgorithm(modules.emscripten);
+      emscriptenAlgorithm.init(width, height);
+      // algorithm = emscriptenAlgorithm;
+      // emscriptenBox.checked = true;
+    }
+
     const swap = function(replacement) {
       replacement.getEntireArray().set(algorithm.getEntireArray());
       algorithm = replacement;
@@ -216,22 +220,22 @@ function wave(wasm) {
     jsBox.addEventListener('click', function(event) {
       swap(jsAlgorithm);
     });
-    wasmBox.addEventListener('click', function(event) {
-      swap(wasmAlgorithm);
+    emscriptenBox.addEventListener('click', function(event) {
+      swap(emscriptenAlgorithm);
     });
   } else {
     jsBox.disabled = true;
-    wasmBox.disabled = true;
+    emscriptenBox.disabled = true;
     document.getElementById('radio').style.display='none';
     document.getElementById('sorry').style.display='block';
   }
-
 
   let timestamps = [];
   let lastFpsJitter = 0;
   let animationCount = 0;
 
   let lastMouseX = null, lastMouseY = null;
+
   function animate() {
     setTimeout(animate, 0);
 
@@ -320,6 +324,9 @@ function wave(wasm) {
   }
 
   function applyBrush(x, y) {
+    function applyCap(x) {
+      return x < -0x40000000 ? -0x40000000 : (x > 0x3FFFFFFF ? 0x3FFFFFFF : x);
+    }
     if (forceArray === null) {
       forceArray = algorithm.getForceArray();
     }
@@ -327,9 +334,6 @@ function wave(wasm) {
       const targetY = y + p;
       if (targetY <= 0 || targetY >= height - 1) {
         continue;
-      }
-      function applyCap(x) {
-        return x < -0x40000000 ? -0x40000000 : (x > 0x3FFFFFFF ? 0x3FFFFFFF : x);
       }
       for (let q = -brushMatrixRadius; q <= brushMatrixRadius; q++) {
         const targetX = x + q;
@@ -428,7 +432,7 @@ function wave(wasm) {
 }
 
 document.addEventListener("DOMContentLoaded", function(event) {
-  fetch('../out/main.emscripten').then(response => response.arrayBuffer())
+  fetch('../out/main.wasm').then(response => response.arrayBuffer())
     .then((bytes) => {
       WebAssembly.instantiate(bytes, {}).then(wave);
     });
