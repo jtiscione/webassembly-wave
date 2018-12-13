@@ -185,7 +185,7 @@ function wave(modules) {
   const canvas = document.getElementById('canvas');
   const fps = document.getElementById('fps');
   const jsBox = document.getElementById('js-box');
-  const emscriptenBox = document.getElementById('emscripten-box');
+  const emscriptenBox = document.getElementById('wasm-box');
   const noiseBtn = document.getElementById('noiseBtn');
   const clearBtn = document.getElementById('clearBtn');
 
@@ -206,8 +206,6 @@ function wave(modules) {
     if (modules.emscripten) {
       emscriptenAlgorithm = wasmWaveAlgorithm(modules.emscripten);
       emscriptenAlgorithm.init(width, height);
-      // algorithm = emscriptenAlgorithm;
-      // emscriptenBox.checked = true;
     }
 
     const swap = function(replacement) {
@@ -217,9 +215,11 @@ function wave(modules) {
       statusArray = null;
       imageArray = null;
     };
+    console.log('jsBox', jsBox);
     jsBox.addEventListener('click', function(event) {
       swap(jsAlgorithm);
     });
+    console.log("emscriptenBox", emscriptenBox);
     emscriptenBox.addEventListener('click', function(event) {
       swap(emscriptenAlgorithm);
     });
