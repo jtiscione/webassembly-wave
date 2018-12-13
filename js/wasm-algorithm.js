@@ -7,8 +7,8 @@ function wasmWaveAlgorithm(wasm) {
 
       this.width = width;
       this.height = height;
-      const wh = width * height;
-      this.wh = wh;
+      const area = width * height;
+      this.area = area;
 
       this.byteOffset = 65536; // Step above the first 64K to clear the stack
 
@@ -20,8 +20,8 @@ function wasmWaveAlgorithm(wasm) {
       const heap = memory.buffer;
       this.heap = heap;
 
-      this.force = new Int32Array(heap, this.byteOffset + (4 * wh), wh);
-      this.status = new Int32Array(heap, this.byteOffset + (8 * wh), wh);
+      this.force = new Int32Array(heap, this.byteOffset + (4 * area), area);
+      this.status = new Int32Array(heap, this.byteOffset + (8 * area), area);
 
       instance.exports.init(heap, this.byteOffset, width, height);
     },
@@ -31,7 +31,7 @@ function wasmWaveAlgorithm(wasm) {
     },
     // The "output" from WASM
     getImageArray() {
-      return new Uint8ClampedArray(this.heap, this.byteOffset, 4 * this.wh);
+      return new Uint8ClampedArray(this.heap, this.byteOffset, 4 * this.area);
     },
     // Input to WASM: mouse movements cause writes to this array
     getForceArray() {
@@ -43,7 +43,7 @@ function wasmWaveAlgorithm(wasm) {
     },
     // For bulk copying, etc.
     getEntireArray() {
-      return new Uint32Array(this.heap, this.byteOffset, 5 * this.wh);
+      return new Uint32Array(this.heap, this.byteOffset, 5 * this.area);
     },
   };
 }

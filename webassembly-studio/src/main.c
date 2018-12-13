@@ -31,7 +31,7 @@ int* heap;
 int heapStart;
 int width;
 int height;
-int wh;
+int area;
 
 WASM_EXPORT
 void init(int *arr, int offset, int w, int h) {
@@ -39,12 +39,12 @@ void init(int *arr, int offset, int w, int h) {
   heapStart = offset;
   width = w;
   height = h;
-  wh = width * height;
+  area = width * height;
 
   int intOffset = heapStart >> 2;
   int* image = &heap[intOffset];
-  int* force = &heap[intOffset + wh];
-  int* status = &heap[intOffset + wh + wh];
+  int* force = &heap[intOffset + area];
+  int* status = &heap[intOffset + area + area];
 
   // Draw walls along outer boundary
   for (int i=0; i < height; i++) {
@@ -61,16 +61,16 @@ void init(int *arr, int offset, int w, int h) {
 WASM_EXPORT
 void step(signalAmplitude, dampingBitShift) {
 
-  int wh = width * height;
+  int area = width * height;
   int intOffset = heapStart >> 2;
   int* image = &heap[intOffset];
-  int* force = &heap[intOffset + wh];
-  int* status = &heap[intOffset + wh + wh];
-  int* u = &heap[intOffset + wh + wh + wh];
-  int* v = &heap[intOffset + wh + wh + wh + wh];
+  int* force = &heap[intOffset + area];
+  int* status = &heap[intOffset + area + area];
+  int* u = &heap[intOffset + area + area + area];
+  int* v = &heap[intOffset + area + area + area + area];
 
   // First loop: look for noise generator pixels and set their values in u
-  for (int i=0; i < wh; i++) {
+  for (int i=0; i < area; i++) {
     if (status[i] == STATUS_POS_TRANSMITTER) {
       u[i] = signalAmplitude;
       v[i] = 0;
@@ -84,7 +84,7 @@ void step(signalAmplitude, dampingBitShift) {
   }
 
   // Second loop: apply wave equation at all pixels
-  for (int i=0; i < wh; i++) {
+  for (int i=0; i < area; i++) {
     if (status[i] == STATUS_DEFAULT) {
       int uCen = u[i];
       int uNorth = u[i - width];
@@ -102,17 +102,17 @@ void step(signalAmplitude, dampingBitShift) {
   }
 
   // Apply forces from mouse
-  for (int i = 0; i < wh; i++) {
+  for (int i = 0; i < area; i++) {
     if (status[i] == STATUS_DEFAULT) {
       int f = force[i];
-      u[i] = applyCap(f + applyCap(u[i] + v[i]));
+      u[i] = applyCap(f + u[i] + v[i]);
       f -= (f >> FORCE_DAMPING_BIT_SHIFT);
       force[i] = f;
     }
   }
 
   // Final pass: calculate color values
-  for (int i = 0; i < wh; i++) {
+  for (int i = 0; i < area; i++) {
     if (status[i] == STATUS_WALL) {
       image[i] = 0x00000000;
     } else {

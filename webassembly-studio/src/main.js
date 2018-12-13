@@ -32,18 +32,18 @@ function jsWaveAlgorithm() {
 
       this.width = width;
       this.height = height;
-      const wh = width * height;
-      this.wh = wh;
+      const area = width * height;
+      this.area = area;
 
       // Need room for five Int32 arrays, each with imageWidth * imageHeight elements.
-      const heap = new ArrayBuffer(5 * 4 * wh);
+      const heap = new ArrayBuffer(5 * 4 * area);
       this.heap = heap;
 
-      this.image = new Int32Array(heap, 0, wh);
-      this.force = new Int32Array(heap, 4 * wh, wh);
-      this.status = new Int32Array(heap, 8 * wh, wh);
-      this.u = new Int32Array(heap, 12 * wh, wh);
-      this.v = new Int32Array(heap, 16 * wh, wh);
+      this.image = new Int32Array(heap, 0, area);
+      this.force = new Int32Array(heap, 4 * area, area);
+      this.status = new Int32Array(heap, 8 * area, area);
+      this.u = new Int32Array(heap, 12 * area, area);
+      this.v = new Int32Array(heap, 16 * area, area);
 
       // To avoid falling off edges, mark the pixels along the edge as being wall pixels.
       // Walls implement a Dirichlet boundary condition by setting u=0.
@@ -59,10 +59,10 @@ function jsWaveAlgorithm() {
 
     step(signalAmplitude, dampingBitShift = 0) {
 
-      const { width, wh, image, force, status, u, v } = this;
+      const { width, area, image, force, status, u, v } = this;
 
       // First loop: look for noise generator pixels and set their values in u
-      for (let i = 0; i < wh; i++) {
+      for (let i = 0; i < area; i++) {
         if (status[i] === STATUS_POS_TRANSMITTER) {
           u[i] = signalAmplitude;
           v[i] = 0;
@@ -76,7 +76,7 @@ function jsWaveAlgorithm() {
       }
 
       // Second loop: apply wave equation at all pixels
-      for (let i = 0; i < wh; i++) {
+      for (let i = 0; i < area; i++) {
         if (status[i] === STATUS_DEFAULT) {
           const uCen = u[i];
           const uNorth = u[i - width];
@@ -94,7 +94,7 @@ function jsWaveAlgorithm() {
       }
 
       // Apply forces from mouse
-      for (let i = 0; i < wh; i++) {
+      for (let i = 0; i < area; i++) {
         if (status[i] === STATUS_DEFAULT) {
           let f = force[i];
           u[i] = applyCap(f + applyCap(u[i] + v[i]));
@@ -104,7 +104,7 @@ function jsWaveAlgorithm() {
       }
 
       // Final pass: calculate color values
-      for (let i = 0; i < wh; i++) {
+      for (let i = 0; i < area; i++) {
         if (status[i] === STATUS_WALL) {
           image[i] = 0x00000000;
         } else {
@@ -114,7 +114,7 @@ function jsWaveAlgorithm() {
     },
 
     getImageArray() {
-      return new Uint8ClampedArray(this.heap, 0, 4 * this.wh);
+      return new Uint8ClampedArray(this.heap, 0, 4 * this.area);
     },
 
     getForceArray() {
@@ -139,8 +139,8 @@ function wasmWaveAlgorithm(wasm) {
 
       this.width = width;
       this.height = height;
-      const wh = width * height;
-      this.wh = wh;
+      const area = width * height;
+      this.area = area;
 
       this.byteOffset = 65536; // Step above the first 64K to clear the stack
 
@@ -152,8 +152,8 @@ function wasmWaveAlgorithm(wasm) {
       const heap = memory.buffer;
       this.heap = heap;
 
-      this.force = new Int32Array(heap, this.byteOffset + (4 * wh), wh);
-      this.status = new Int32Array(heap, this.byteOffset + (8 * wh), wh);
+      this.force = new Int32Array(heap, this.byteOffset + (4 * area), area);
+      this.status = new Int32Array(heap, this.byteOffset + (8 * area), area);
 
       instance.exports.init(heap, this.byteOffset, width, height);
     },
@@ -163,7 +163,7 @@ function wasmWaveAlgorithm(wasm) {
     },
     // The "output" from WASM
     getImageArray() {
-      return new Uint8ClampedArray(this.heap, this.byteOffset, 4 * this.wh);
+      return new Uint8ClampedArray(this.heap, this.byteOffset, 4 * this.area);
     },
     // Input to WASM: mouse movements cause writes to this array
     getForceArray() {
@@ -175,7 +175,7 @@ function wasmWaveAlgorithm(wasm) {
     },
     // For bulk copying, etc.
     getEntireArray() {
-      return new Uint32Array(this.heap, this.byteOffset, 5 * this.wh);
+      return new Uint32Array(this.heap, this.byteOffset, 5 * this.area);
     },
   };
 }

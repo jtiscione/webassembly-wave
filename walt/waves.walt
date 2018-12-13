@@ -33,14 +33,14 @@ function toRGB(x: i32) : i32 {
 let heapStart: i32 = 0;
 let width: i32 = 0;
 let height: i32 = 0;
-let wh: i32 = 0;
+let area: i32 = 0;
 
 export function init(ignored: i32, offset: i32, w: i32, h: i32): void {
   heapStart = offset;
   width = w;
   height = h;
-  wh = width * height;
-  const status: i32[] = heapStart + 8 * wh;
+  area = width * height;
+  const status: i32[] = heapStart + 8 * area;
   let i: i32 = 0;
   for (i = 0; i < height; i += 1) {
     status[i * width] = STATUS_WALL;
@@ -55,14 +55,14 @@ export function init(ignored: i32, offset: i32, w: i32, h: i32): void {
 export function step(signalAmplitude: i32, dampingBitShift: i32): void {
 
   const image: i32[] = heapStart;
-  const force: i32[] = heapStart + 4 * wh;
-  const status: i32[] = heapStart + 8 * wh;
-  const u: i32[] = heapStart + 12 * wh;
-  const v: i32[] = heapStart + 16 * wh;
+  const force: i32[] = heapStart + 4 * area;
+  const status: i32[] = heapStart + 8 * area;
+  const u: i32[] = heapStart + 12 * area;
+  const v: i32[] = heapStart + 16 * area;
 
   // Draw walls
   let i: i32 = 0;
-  for (i = 0; i < wh; i += 1) {
+  for (i = 0; i < area; i += 1) {
     if (status[i] == STATUS_POS_TRANSMITTER) {
       u[i] = signalAmplitude;
       v[i] = 0;
@@ -84,7 +84,7 @@ export function step(signalAmplitude: i32, dampingBitShift: i32): void {
   }
 
   // Calculate velocity change
-  for (i = 0; i < wh; i += 1) {
+  for (i = 0; i < area; i += 1) {
     if (status[i] == 0) {
       const uCen: i32 = u[i];
       const uNorth: i32 = u[i - width];
@@ -102,16 +102,16 @@ export function step(signalAmplitude: i32, dampingBitShift: i32): void {
   }
 
   // Apply forces
-  for (i = 0; i < wh; i += 1) {
+  for (i = 0; i < area; i += 1) {
     if (status[i] == 0) {
       const f: i32 = force[i];
-      u[i] = applyCap(f + applyCap(u[i] + v[i]));
+      u[i] = applyCap(f + u[i] + v[i]);
       force[i] = f >> 1;
     }
   }
 
   // Generate image
-  for (i = 0; i < wh; i += 1) {
+  for (i = 0; i < area; i += 1) {
     if (status[i] == 1) {
       image[i] = 0x00000000;
     } else {
