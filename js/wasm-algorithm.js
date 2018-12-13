@@ -26,8 +26,8 @@ function wasmWaveAlgorithm(wasm) {
       instance.exports.init(heap, this.byteOffset, width, height);
     },
     // The main hot spot function:
-    singleFrame(signalAmplitude, drag = false) {
-      this.module.instance.exports.singleFrame(signalAmplitude, drag ? 5 : 0);
+    step(signalAmplitude, drag = false) {
+      this.module.instance.exports.step(signalAmplitude, drag ? 5 : 0);
     },
     // The "output" from WASM
     getImageArray() {

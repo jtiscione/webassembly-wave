@@ -59,7 +59,7 @@ void init(int *arr, int offset, int w, int h) {
 }
 
 WASM_EXPORT
-void singleFrame(signalAmplitude, dampingBitShift) {
+void step(signalAmplitude, dampingBitShift) {
 
   int wh = width * height;
   int intOffset = heapStart >> 2;
@@ -67,18 +67,18 @@ void singleFrame(signalAmplitude, dampingBitShift) {
   int* force = &heap[intOffset + wh];
   int* status = &heap[intOffset + wh + wh];
   int* u = &heap[intOffset + wh + wh + wh];
-  int* vel = &heap[intOffset + wh + wh + wh + wh];
+  int* v = &heap[intOffset + wh + wh + wh + wh];
 
   // First loop: look for noise generator pixels and set their values in u
   for (int i=0; i < wh; i++) {
     if (status[i] == STATUS_POS_TRANSMITTER) {
       u[i] = signalAmplitude;
-      vel[i] = 0;
+      v[i] = 0;
       force[i] = 0;
     }
     if (status[i] == STATUS_NEG_TRANSMITTER) {
       u[i] = -signalAmplitude;
-      vel[i] = 0;
+      v[i] = 0;
       force[i] = 0;
     }
   }
@@ -93,11 +93,11 @@ void singleFrame(signalAmplitude, dampingBitShift) {
       int uWest = u[i - 1];
       int uxx = (((uWest + uEast) >> 1) - uCen);
       int uyy = (((uNorth + uSouth) >> 1) - uCen);
-      int v = vel[i] + (uxx >> 1) + (uyy >> 1);
+      int vel = v[i] + (uxx >> 1) + (uyy >> 1);
       if (dampingBitShift) {
-        v -= (v >> dampingBitShift);
+        vel -= (vel >> dampingBitShift);
       }
-      vel[i] = applyCap(v);
+      v[i] = applyCap(vel);
     }
   }
 
@@ -105,7 +105,7 @@ void singleFrame(signalAmplitude, dampingBitShift) {
   for (int i = 0; i < wh; i++) {
     if (status[i] == STATUS_DEFAULT) {
       int f = force[i];
-      u[i] = applyCap(f + applyCap(u[i] + vel[i]));
+      u[i] = applyCap(f + applyCap(u[i] + v[i]));
       f -= (f >> FORCE_DAMPING_BIT_SHIFT);
       force[i] = f;
     }

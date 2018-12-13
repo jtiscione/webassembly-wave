@@ -118,7 +118,7 @@
         br_if $L3
       end
     end)
-  (func $singleFrame (export "singleFrame") (type $t2) (param $p0 i32) (param $p1 i32)
+  (func $step (export "step") (type $t2) (param $p0 i32) (param $p1 i32)
     (local $l0 i32) (local $l1 i32) (local $l2 i32) (local $l3 i32) (local $l4 i32) (local $l5 i32) (local $l6 i32) (local $l7 i32) (local $l8 i32) (local $l9 i32) (local $l10 i32) (local $l11 i32) (local $l12 i32) (local $l13 i32) (local $l14 i32) (local $l15 i32) (local $l16 i32)
     block $B0
       i32.const 0

@@ -112,7 +112,7 @@ function wave(modules) {
     }
 
     let amplitude = Math.floor(0x3FFFFFFF * Math.sin(6.283 * animationCount / 100));
-    algorithm.singleFrame(amplitude, (applyBrakes ? 5 : 0));
+    algorithm.step(amplitude, (applyBrakes ? 5 : 0));
 
     if (imageArray === null) {
       imageArray = algorithm.getImageArray();

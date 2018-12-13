@@ -43,7 +43,7 @@ function jsWaveAlgorithm() {
       this.force = new Int32Array(heap, 4 * wh, wh);
       this.status = new Int32Array(heap, 8 * wh, wh);
       this.u = new Int32Array(heap, 12 * wh, wh);
-      this.vel = new Int32Array(heap, 16 * wh, wh);
+      this.v = new Int32Array(heap, 16 * wh, wh);
 
       // To avoid falling off edges, mark the pixels along the edge as being wall pixels.
       // Walls implement a Dirichlet boundary condition by setting u=0.
@@ -57,20 +57,20 @@ function jsWaveAlgorithm() {
       }
     },
 
-    singleFrame(signalAmplitude, dampingBitShift = 0) {
+    step(signalAmplitude, dampingBitShift = 0) {
 
-      const { width, wh, image, force, status, u, vel } = this;
+      const { width, wh, image, force, status, u, v } = this;
 
       // First loop: look for noise generator pixels and set their values in u
       for (let i = 0; i < wh; i++) {
         if (status[i] === STATUS_POS_TRANSMITTER) {
           u[i] = signalAmplitude;
-          vel[i] = 0;
+          v[i] = 0;
           force[i] = 0;
         }
         if (status[i] === STATUS_NEG_TRANSMITTER) {
           u[i] = -signalAmplitude;
-          vel[i] = 0;
+          v[i] = 0;
           force[i] = 0;
         }
       }
@@ -85,11 +85,11 @@ function jsWaveAlgorithm() {
           const uWest = u[i - 1];
           const uxx = (((uWest + uEast) >> 1) - uCen);
           const uyy = (((uNorth + uSouth) >> 1) - uCen);
-          let v = vel[i] + (uxx >> 1) + (uyy >> 1);
+          let vel = v[i] + (uxx >> 1) + (uyy >> 1);
           if (dampingBitShift) {
-            v -= (v >> dampingBitShift);
+            vel -= (vel >> dampingBitShift);
           }
-          vel[i] = applyCap(v);
+          v[i] = applyCap(vel);
         }
       }
 
@@ -97,7 +97,7 @@ function jsWaveAlgorithm() {
       for (let i = 0; i < wh; i++) {
         if (status[i] === STATUS_DEFAULT) {
           let f = force[i];
-          u[i] = applyCap(f + applyCap(u[i] + vel[i]));
+          u[i] = applyCap(f + applyCap(u[i] + v[i]));
           f -= (f >> FORCE_DAMPING_BIT_SHIFT);
           force[i] = f;
         }

@@ -1,8 +1,18 @@
-fetch('../emscripten/waves.wasm').then(response => response.arrayBuffer())
-  .then((bytes) => {
-    return WebAssembly.instantiate(bytes, {});
+let emscripten = null;
+let walt = null;
+
+fetch('../emscripten/waves.wasm')
+  .then(response => response.arrayBuffer())
+  .then(bytes =>  WebAssembly.instantiate(bytes, {}))
+  .then((wasm) => {
+    emscripten = wasm;
+    return fetch('../walt/waves.wasm');
   })
-  .then((result) => {
+  .then(response => response.arrayBuffer())
+  .then(bytes => WebAssembly.instantiate(bytes, {}))
+  .then((wasm) => {
+
+    walt = wasm;
 
     const width = 5;
     const height = 5;
@@ -10,12 +20,17 @@ fetch('../emscripten/waves.wasm').then(response => response.arrayBuffer())
     const jsAlgorithm = jsWaveAlgorithm();
     jsAlgorithm.init(width, height);
 
-    const wasmAlgorithm = wasmWaveAlgorithm(result);
-    wasmAlgorithm.init(width, height);
+    const emscriptenAlgorithm = wasmWaveAlgorithm(emscripten);
+    emscriptenAlgorithm.init(width, height);
+
+    const waltAlgorithm = wasmWaveAlgorithm(walt);
+    waltAlgorithm.init(width, height);
 
     const outerDiv = document.getElementById('outer');
 
-    [jsAlgorithm, wasmAlgorithm].forEach((algorithm, algorithmIndex) => {
+    const title = ['JAVASCRIPT', 'EMSCRIPTEN', 'WALT'];
+
+    [jsAlgorithm, emscriptenAlgorithm, waltAlgorithm].forEach((algorithm, algorithmIndex) => {
       const algorithmDiv = document.createElement('div');
       algorithmDiv.className = 'algorithm';
 
@@ -38,7 +53,7 @@ fetch('../emscripten/waves.wasm').then(response => response.arrayBuffer())
         const outputDiv = document.createElement('div');
         columnDiv.appendChild(outputDiv);
 
-        algorithm.singleFrame(0, 0);
+        algorithm.step(0, 0);
 
         for (let i = 0; i < width * height; i++) {
           const pixelDiv = document.createElement('div');
@@ -50,7 +65,7 @@ fetch('../emscripten/waves.wasm').then(response => response.arrayBuffer())
           pixelDiv.style.backgroundColor = `rgba(${red},${green},${blue},${alpha})`;
           pixelsDiv.appendChild(pixelDiv);
         }
-        let output = (run === 0 ? ['<b>JAVASCRIPT</b>', '<b>WEBASSEMBLY</b>'][algorithmIndex] : '&nbsp;');
+        let output = (run === 0 ? `<b>${title[algorithmIndex]}</b>` : '&nbsp;');
         output += ('<br>RGBA<br>');
         for (let i = 0; i < width * height; i++) {
           output += (`${i}\t${unsignedMemory[i].toString(16)}<br>`);
@@ -66,7 +81,7 @@ fetch('../emscripten/waves.wasm').then(response => response.arrayBuffer())
             output += '<br>u:<br>';
           }
           if (i === 4 * width * height) {
-            output += '<br>vel:<br>';
+            output += '<br>v:<br>';
           }
           output += (`${i}\t${signedMemory[i]}<br>`);
         }

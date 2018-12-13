@@ -61,25 +61,25 @@ export function init(ignored: i32, offset: i32, w: i32, h: i32): void {
   }
 }
 
-export function singleFrame(signalAmplitude: i32, dampingBitShift: i32): void {
+export function step(signalAmplitude: i32, dampingBitShift: i32): void {
 
   const image: i32[] = heapStart;
   const force: i32[] = heapStart + 4 * wh;
   const status: i32[] = heapStart + 8 * wh;
   const u: i32[] = heapStart + 12 * wh;
-  const vel: i32[] = heapStart + 16 * wh;
+  const v: i32[] = heapStart + 16 * wh;
 
   // Draw walls
   let i: i32 = 0;
   for (i = 0; i < wh; i += 1) {
     if (status[i] == STATUS_POS_TRANSMITTER) {
       u[i] = signalAmplitude;
-      vel[i] = 0;
+      v[i] = 0;
       force[i] = 0;
     }
     if (status[i] == STATUS_NEG_TRANSMITTER) {
       u[i] = -signalAmplitude;
-      vel[i] = 0;
+      v[i] = 0;
       force[i] = 0;
     }
   }
@@ -102,11 +102,11 @@ export function singleFrame(signalAmplitude: i32, dampingBitShift: i32): void {
       const uWest: i32 = u[i - 1];
       const uxx: i32 = (((uWest + uEast) >> 1) - uCen);
       const uyy: i32 = (((uNorth + uSouth) >> 1) - uCen);
-      let v: i32 = vel[i] + (uxx >> 1) + (uyy >> 1);
+      let vel: i32 = v[i] + (uxx >> 1) + (uyy >> 1);
       if (dampingBitShift) {
-        v -= (v >> dampingBitShift);
+        vel -= (vel >> dampingBitShift);
       }
-      vel[i] = applyCap(v);
+      v[i] = applyCap(vel);
     }
   }
 
@@ -114,7 +114,7 @@ export function singleFrame(signalAmplitude: i32, dampingBitShift: i32): void {
   for (i = 0; i < wh; i += 1) {
     if (status[i] == 0) {
       const f: i32 = force[i];
-      u[i] = applyCap(f + applyCap(u[i] + vel[i]));
+      u[i] = applyCap(f + applyCap(u[i] + v[i]));
       force[i] = f >> 1;
     }
   }
@@ -127,8 +127,7 @@ export function singleFrame(signalAmplitude: i32, dampingBitShift: i32): void {
       image[i] = toRGB(u[i]);
     }
   }
-}
-  `;
+}`;
 
 async function build(wasmFilename) {
   if (fs.existsSync(wasmFilename)) {
@@ -145,19 +144,3 @@ async function build(wasmFilename) {
 }
 
 build('./waves.wasm');
-/*
-const wasmFilename = './waves.wasm';
-
-try {
-  if (fs.existsSync(wasmFilename)) {
-    fs.unlinkSync(wasmFilename);
-  }
-  walt.compile(source).then((compilation) => {
-    const buffer = compilation.buffer();
-    fs.writeFileSync(wasmFilename, new Uint8Array(buffer));
-    console.log('done.');
-  });
-} catch(e) {
-  console.log(e);
-}
-*/
