@@ -5,6 +5,7 @@ function wave(modules) {
   const jsBox = document.getElementById('js-box');
   const emscriptenBox = document.getElementById('emscripten-box');
   const waltBox = document.getElementById('walt-box');
+  const assemblyBox = document.getElementById('assembly-box');
   const noiseBtn = document.getElementById('noiseBtn');
   const clearBtn = document.getElementById('clearBtn');
 
@@ -22,6 +23,7 @@ function wave(modules) {
   let algorithm = jsAlgorithm;
   let emscriptenAlgorithm = null;
   let waltAlgorithm = null;
+  let assemblyScriptAlgorithm = null;
   if (modules) {
     if (modules.emscripten) {
       emscriptenAlgorithm = wasmWaveAlgorithm(modules.emscripten);
@@ -33,6 +35,11 @@ function wave(modules) {
     if (modules.walt) {
       waltAlgorithm = wasmWaveAlgorithm(modules.walt);
       waltAlgorithm.init(width, height);
+    }
+
+    if (modules.assemblyScript) {
+      assemblyScriptAlgorithm = wasmWaveAlgorithm(modules.assemblyScript);
+      assemblyScriptAlgorithm.init(width, height);
     }
 
     const swap = function(replacement) {
@@ -51,11 +58,15 @@ function wave(modules) {
     waltBox.addEventListener('click', function(event) {
       swap(waltAlgorithm);
     });
+    assemblyBox.addEventListener('click', function(event) {
+      swap(assemblyScriptAlgorithm);
+    });
 
   } else {
     jsBox.disabled = true;
     emscriptenBox.disabled = true;
     waltBox.disabled = true;
+    assemblyBox.disabled = true;
     document.getElementById('radio').style.display='none';
     document.getElementById('sorry').style.display='block';
   }
@@ -280,6 +291,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
   } else {
     let emscripten = null;
     let walt = null;
+    let assemblyScript = null;
     fetch('emscripten/waves.wasm')
       .then(response => response.arrayBuffer())
       .then((bytes) =>  WebAssembly.instantiate(bytes, {}))
@@ -293,7 +305,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
       .then((wasm) => {
         walt = wasm;
 
-        return { emscripten, walt };
+        return fetch('as/build/optimized.wasm');
+      })
+      .then(response => response.arrayBuffer())
+      .then((bytes) => WebAssembly.instantiate(bytes, {}))
+      .then((wasm) => {
+        assemblyScript = wasm;
+
+        return { emscripten, walt, assemblyScript };
       }).then(wave);
   }
 });
