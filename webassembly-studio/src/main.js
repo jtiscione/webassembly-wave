@@ -432,8 +432,11 @@ function wave(modules) {
 }
 
 document.addEventListener("DOMContentLoaded", function(event) {
-  fetch('../out/main.wasm').then(response => response.arrayBuffer())
-    .then((bytes) => {
-      WebAssembly.instantiate(bytes, {}).then(wave);
-    });
+  let emscripten = null;
+  fetch('../out/main.wasm')
+    .then(response => response.arrayBuffer())
+    .then(bytes =>  WebAssembly.instantiate(bytes, {}))
+    .then(wasm => ({ emscripten: wasm }))
+    .then(wave)
+    .catch(console.log);
 });
