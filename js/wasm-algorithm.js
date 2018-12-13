@@ -10,11 +10,11 @@ function wasmWaveAlgorithm(wasm) {
       const area = width * height;
       this.area = area;
 
-      this.byteOffset = 65536; // Step above the first 64K to clear the stack
+      this.byteOffset = 8192; // Step above the first few kilobytes to clear the stack variables
 
       const instance = wasm.instance;
       const memory = instance.exports.memory;
-      const pages = 1 + ((5 * 4 * width * height) >> 16);
+      const pages = 2 + ((5 * 4 * width * height) >> 16);
       memory.grow(pages);
 
       const heap = memory.buffer;

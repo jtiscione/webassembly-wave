@@ -1,5 +1,6 @@
 let emscripten = null;
 let walt = null;
+let assemblyscript = null;
 
 fetch('../emscripten/waves.wasm')
   .then(response => response.arrayBuffer())
@@ -14,6 +15,14 @@ fetch('../emscripten/waves.wasm')
 
     walt = wasm;
 
+    return fetch('../as/build/optimized.wasm');
+  })
+  .then(response => response.arrayBuffer())
+  .then(bytes => WebAssembly.instantiate(bytes, {}))
+  .then((wasm) => {
+
+    assemblyscript = wasm;
+
     const width = 5;
     const height = 5;
 
@@ -26,11 +35,14 @@ fetch('../emscripten/waves.wasm')
     const waltAlgorithm = wasmWaveAlgorithm(walt);
     waltAlgorithm.init(width, height);
 
+    const assemblyScriptAlgorithm = wasmWaveAlgorithm(assemblyscript);
+    assemblyScriptAlgorithm.init(width, height);
+
     const outerDiv = document.getElementById('outer');
 
-    const title = ['JAVASCRIPT', 'EMSCRIPTEN', 'WALT'];
+    const title = ['JAVASCRIPT', 'EMSCRIPTEN', 'WALT', 'ASSEMBLYSCRIPT'];
 
-    [jsAlgorithm, emscriptenAlgorithm, waltAlgorithm].forEach((algorithm, algorithmIndex) => {
+    [jsAlgorithm, emscriptenAlgorithm, waltAlgorithm, assemblyScriptAlgorithm].forEach((algorithm, algorithmIndex) => {
       const algorithmDiv = document.createElement('div');
       algorithmDiv.className = 'algorithm';
 

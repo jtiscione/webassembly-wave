@@ -31,13 +31,23 @@ var height: i32 = 0;
 var area: i32 = 0;
 var HEAP_BASE:i32 = 0;
 
+var image:Pointer = null;
+var force:Pointer = null;
+var status:Pointer = null;
+var u:Pointer = null;
+var v:Pointer = null;
+
 export function init(ignored: i32, offset: i32, w: i32, h: i32): void {
     HEAP_BASE = offset;
     width = w;
     height = h;
     area = width * height;
-    var status = new Pointer(HEAP_BASE + 8 * area);
-
+    status = new Pointer(HEAP_BASE + 8 * area);
+    image  = new Pointer(HEAP_BASE);
+    force  = new Pointer(HEAP_BASE + 4  * area);
+    status = new Pointer(HEAP_BASE + 8  * area);
+    u      = new Pointer(HEAP_BASE + 12 * area);
+    v    = new Pointer(HEAP_BASE + 16 * area);
     for (let i = 0; i < height; ++i) {
         status[i * width] = 1;
         status[i * width + width - 1] = 1;
@@ -51,12 +61,6 @@ export function init(ignored: i32, offset: i32, w: i32, h: i32): void {
 
 export function step(signalAmplitude: i32, dampingBitShift: i32): void {
 
-    var image  = new Pointer(HEAP_BASE);
-    var force  = new Pointer(HEAP_BASE + 4  * area);
-    var status = new Pointer(HEAP_BASE + 8  * area);
-    var u      = new Pointer(HEAP_BASE + 12 * area);
-    var vel    = new Pointer(HEAP_BASE + 16 * area);
-
     for (let i = 0; i < area; ++i) {
         if (!status[i]) {
             let uCen   = u[i];
@@ -68,14 +72,14 @@ export function step(signalAmplitude: i32, dampingBitShift: i32): void {
             let uxx = (((uWest  + uEast)  >> 1) - uCen);
             let uyy = (((uNorth + uSouth) >> 1) - uCen);
 
-            vel[i] = applyCap(vel[i] + (uxx >> 1) + (uyy >> 1));
+            v[i] = applyCap(v[i] + (uxx >> 1) + (uyy >> 1));
         }
     }
 
     for (let i = 0; i < area; ++i) {
         if (!status[i]) {
             let f = force[i];
-            u[i] = applyCap(f + applyCap(u[i] + vel[i]));
+            u[i] = applyCap(f + applyCap(u[i] + v[i]));
             force[i] = f >> 1;
         }
     }
