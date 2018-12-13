@@ -75,7 +75,7 @@ export function step(signalAmplitude: i32, dampingBitShift: i32): void {
     for (let i = 0; i < area; ++i) {
         if (!status[i]) {
             let f = force[i];
-            u[i] = applyCap(f + u[i] + vel[i]);
+            u[i] = applyCap(f + applyCap(u[i] + vel[i]));
             force[i] = f >> 1;
         }
     }

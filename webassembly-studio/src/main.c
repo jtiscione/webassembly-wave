@@ -105,7 +105,7 @@ void step(signalAmplitude, dampingBitShift) {
   for (int i = 0; i < area; i++) {
     if (status[i] == STATUS_DEFAULT) {
       int f = force[i];
-      u[i] = applyCap(f + u[i] + v[i]);
+      u[i] = applyCap(f + applyCap(u[i] + v[i]));
       f -= (f >> FORCE_DAMPING_BIT_SHIFT);
       force[i] = f;
     }
