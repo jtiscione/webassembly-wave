@@ -23,7 +23,7 @@ class Pointer {
     var val = x >> 22;
     // if (val < 0) return ((-(val + 1))  | 0xFF000000); // red
     // return (((val << 8) | (val << 16)) | 0xFF000000); // cyan
-    return select(-(val + 1), (val << 8) | (val << 16), val < 0) | 0xFF000000;
+    return select(-(val + 1), (val | (val << 8) | (val << 16)), val < 0) | 0xFF000000;
 }
 
 var width: i32 = 0;
