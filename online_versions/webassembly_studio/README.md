@@ -1,6 +1,6 @@
 # WebAssembly - Wave
 
-https://webassembly.studio/?f=epfmesapals
+https://webassembly.studio/?f=peskbq9flj
 
 This is a simulation of the [wave equation](https://en.wikipedia.org/wiki/Wave_equation)
 <span class="eq">&#8706;<sup>2</sup>u/&#8706;t<sup>2</sup> = c<sup>2</sup>(&#8706;<sup>2</sup>u/&#8706;x<sup>2</sup>+&#8706;<sup>2</sup>u/&#8706;y<sup>2</sup>)</span>

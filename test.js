@@ -2,12 +2,12 @@ let emscripten = null;
 let walt = null;
 let assemblyscript = null;
 
-fetch('../emscripten/waves.wasm')
+fetch('emscripten/waves.wasm')
   .then(response => response.arrayBuffer())
   .then(bytes =>  WebAssembly.instantiate(bytes, {}))
   .then((wasm) => {
     emscripten = wasm;
-    return fetch('../walt/waves.wasm');
+    return fetch('walt/waves.wasm');
   })
   .then(response => response.arrayBuffer())
   .then(bytes => WebAssembly.instantiate(bytes, {}))
@@ -15,7 +15,7 @@ fetch('../emscripten/waves.wasm')
 
     walt = wasm;
 
-    return fetch('../as/build/optimized.wasm');
+    return fetch('as/build/optimized.wasm');
   })
   .then(response => response.arrayBuffer())
   .then(bytes => WebAssembly.instantiate(bytes, {}))
