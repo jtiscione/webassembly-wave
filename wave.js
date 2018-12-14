@@ -1,3 +1,8 @@
+const STATUS_DEFAULT = 0;
+const STATUS_WALL = 1;
+const STATUS_POS_TRANSMITTER = 2;
+const STATUS_NEG_TRANSMITTER = 3;
+
 function wave(modules) {
 
   const canvas = document.getElementById('canvas');
@@ -82,39 +87,14 @@ function wave(modules) {
 
     if (animationCount === 0) {
       // First frame-
-      // Sprinkle noise generator pixels and set applyBrakes flag
-      const threshold = 0.001;
-      if (statusArray === null) {
-        statusArray = algorithm.getStatusArray();
-      }
-      for (let i = 0; i < statusArray.length; i++) {
-        if (Math.random() < threshold) {
-          statusArray[i] = (i % 2 === 0) ? 2 : 3;
-        }
-      }
-      // Draw a circular wall
-      const centerX = width / 2;
-      const centerY = height / 2;
-      const radius = Math.min((width / 2), (height / 2));
-      for (let i = 0; i < height; i++) {
-        for (let j = 0; j < width; j++) {
-          let dist = Math.sqrt(((i - centerY) * (i - centerY)) + ((j - centerX) * (j - centerX)));
-          if (dist > radius) {
-            const targetIndex = i * width + j;
-            statusArray[targetIndex] = 1;
-          }
-        }
-      }
+      scatterTransmitterPoints(algorithm);
+      drawCircularWall(algorithm);
       applyBrakes = true;
     }
 
     if (animationCount === 100) {
       // Hundredth frame- clear noise generator pixels and clear applyBrakes flag
-      for (let i = 0; i < statusArray.length; i++) {
-        if (statusArray[i] === 2 || statusArray[i] === 3) {
-          statusArray[i] = 0;
-        }
-      }
+      clearTransmitterPoints(algorithm);
       applyBrakes = false;
     }
 
@@ -270,6 +250,44 @@ function wave(modules) {
   }
 
   animate();
+}
+
+function scatterTransmitterPoints(algorithm) {
+  const statusArray = algorithm.getStatusArray();
+  for (let i = 0; i < statusArray.length; i++) {
+    if (statusArray[i] === STATUS_DEFAULT) {
+      if (Math.random() < 0.001) {
+        statusArray[i] = (i % 2 === 0) ? 2 : 3;
+      }
+    }
+  }
+}
+
+function clearTransmitterPoints(algorithm) {
+  const statusArray = algorithm.getStatusArray();
+  for (let i=0; i < statusArray.length; i++) {
+    if (statusArray[i] === STATUS_POS_TRANSMITTER || statusArray[i] === STATUS_NEG_TRANSMITTER) {
+      statusArray[i] = STATUS_DEFAULT;
+    }
+  }
+}
+
+function drawCircularWall(algorithm) {
+  const { width, height } = algorithm;
+  const statusArray = algorithm.getStatusArray();
+  // Draw a circular wall
+  const centerX = algorithm.width / 2;
+  const centerY = algorithm.height / 2;
+  const radius = Math.min((width / 2), (height / 2));
+  for (let i = 0; i < height; i++) {
+    for (let j = 0; j < width; j++) {
+      let dist = Math.sqrt(((i - centerY) * (i - centerY)) + ((j - centerX) * (j - centerX)));
+      if (dist > radius) {
+        const targetIndex = i * width + j;
+        statusArray[targetIndex] = 1;
+      }
+    }
+  }
 }
 
 // https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly

@@ -22,6 +22,8 @@ function wasmWaveAlgorithm(wasm) {
 
       this.force = new Int32Array(heap, this.byteOffset + (4 * area), area);
       this.status = new Int32Array(heap, this.byteOffset + (8 * area), area);
+      this.u = new Int32Array(heap, this.byteOffset + (12 * area), area);
+      this.v = new Int32Array(heap, this.byteOffset + (16 * area), area);
 
       instance.exports.init(heap, this.byteOffset, width, height);
     },
@@ -40,6 +42,12 @@ function wasmWaveAlgorithm(wasm) {
     // Input to WASM: wall and transmitter statuses can be set programmatically
     getStatusArray() {
       return this.status;
+    },
+    getUArray() {
+      return this.u;
+    },
+    getVArray() {
+      return this.v;
     },
     // For bulk copying, etc.
     getEntireArray() {

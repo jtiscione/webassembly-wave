@@ -125,6 +125,14 @@ function jsWaveAlgorithm() {
       return this.status;
     },
 
+    getUArray() {
+      return this.u;
+    },
+
+    getVArray() {
+      return this.v;
+    },
+
     getEntireArray() {
       return new Uint32Array(this.heap);
     },
