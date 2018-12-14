@@ -1,14 +1,8 @@
 # Include your project-specific ignores in this file
 # Read about how to use .gitignore: https://help.github.com/articles/ignoring-files
 
-build
-dist
 .idea
-database.sqlite
 node_modules
-ncp-debug.log
-npm-debug.log
-
 #Mac stuff
 
 *.DS_Store
@@ -93,9 +87,6 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
-
-### WebStorm Patch ###
-# Comment Reason: https://github.com/joeblau/gitignore.io/issues/186#issuecomment-215987721
 
 # *.iml
 # modules.xml
