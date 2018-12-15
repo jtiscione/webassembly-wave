@@ -23,7 +23,7 @@ class Pointer {
   var val = x >> 22;
   // if (val < 0) return ((-(val + 1))  | 0xFF000000); // red
   // return (((val << 8) | (val << 16)) | 0xFF000000); // cyan
-  return select(-(val + 1), (val | (val << 8) | (val << 16)), val < 0) | 0xFF000000;
+  return select(-(val + 1) << 16, (val | (val << 8) | (val << 16)), val < 0) | 0xFF000000;
 }
 
 const STATUS_DEFAULT: i32 = 0;
@@ -66,7 +66,7 @@ export function init(ignored: i32, offset: i32, w: i32, h: i32): void {
 }
 
 export function step(signalAmplitude: i32, dampingBitShift: i32): void {
-  
+
   // First loop: look for noise generator pixels and set their values in u
   for (let i = 0; i < area; i++) {
     if (status[i] === STATUS_POS_TRANSMITTER) {
@@ -80,7 +80,7 @@ export function step(signalAmplitude: i32, dampingBitShift: i32): void {
       force[i] = 0;
     }
   }
-  
+
   for (let i = 0; i < area; ++i) {
     if (status[i] === STATUS_DEFAULT) {
       let uCen   = u[i];

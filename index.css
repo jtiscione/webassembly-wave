@@ -102,3 +102,7 @@ body {
 .boxes label {
     margin-right: 10px;
 }
+
+ul {
+    text-align: left;
+}

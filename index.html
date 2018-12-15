@@ -41,11 +41,12 @@
                 across a circular 2D manifold. Use the mouse to create waves.
             </p>
             <p class="description">
-                It contains two implementations of the same C code: one transpiled by hand to JavaScript, and one compiled by Enscripten to WebAssembly.
-                This particular algorithm processes large arrays and performs a lot of integer math (but does no floating point calculations).
-                Memory is shared between JS and WebAssembly with no copying, and almost all CPU time is spent in the algorithm itself.
-                (The canvas API introduces a minor overhead of about 10%.)
-                There is a modest speedup when the same code is run in a WebAssembly context as opposed to a JavaScript context.
+                This compares a standard Javascript implementation against three different WebAssembly modules:
+                <ul>
+                    <li>C code compiled by Enscripten</li>
+                    <li>JS-like code compiled by <a href="https://github.com/ballercat/walt">Walt</a></li>
+                    <li>TypeScript-like code compiled by <a href="http://assemblyscript.org">AssemblyScript</a></li>
+                </ul>
             </p>
             <p class="description"><a href="https://github.com/jtiscione/webassembly-wave">Github repository</a></p>
         </div>
