@@ -26,19 +26,16 @@ There are two options for generating the .wasm file:
 * C: In directory `emscripten` compile `waves.c` with Emscripten: `emcc source.c -s WASM=1 -s SIDE_MODULE=1 -o waves.wasm`
 * Walt: In directory `walt` run `npm install` and `npm run build` to compile `waves.walt` to a `waves.wasm` file.
 * AssemblyScript: In directory `as` run `npm install` and `npm run asbuild` to compile `index.ts` to wasm files.
-    
+
 ## Other stuff
 
 * [test.html](test.html) loads the JS and .wasm modules, tests them on a 5x5 grid, and and displays the results.
 
 * Directory `online_versions` has copies of older versions on online IDEs.
-    * `webassembly_studio` has a version comparing JS and C
-    * `codepen` has .wasm bundled inline as a base64 string.
-
-## See also
-  * [WasmFiddle](https://mbebenita.github.io/WasmExplorer/)
-  * [WebAssembly Explorer](https://mbebenita.github.io/WasmExplorer/)
-  * [WebAssembly Studio](https://webassembly.studio/)
+    * `webassembly_studio` has a version comparing JS and C,
+      available at [WebAssembly Studio](https://webassembly.studio/?f=peskbq9flj)
+    * `codepen` has an older version with .wasm bundled inline as a base64 string.
+      (Codepen isn't as useful for benchmarking since it mangles JS but not WebAssembly.)
 
 ## Author
 
