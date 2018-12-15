@@ -383,6 +383,8 @@
      i32.const 1
      i32.add
      i32.sub
+     i32.const 16
+     i32.shl
      get_local $0
      get_local $0
      i32.const 8
