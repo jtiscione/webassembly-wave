@@ -106,7 +106,7 @@ export function step(signalAmplitude: i32, dampingBitShift: i32): void {
     if (status[i] == 0) {
       const f: i32 = force[i];
       u[i] = applyCap(f + applyCap(u[i] + v[i]));
-      force[i] = f >> 1;
+      force[i] -= (f >> FORCE_DAMPING_BIT_SHIFT);
     }
   }
 

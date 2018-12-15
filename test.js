@@ -27,16 +27,12 @@ fetch('emscripten/waves.wasm')
     const height = 5;
 
     const jsAlgorithm = jsWaveAlgorithm();
-    jsAlgorithm.init(width, height);
 
     const emscriptenAlgorithm = wasmWaveAlgorithm(emscripten);
-    emscriptenAlgorithm.init(width, height);
 
     const waltAlgorithm = wasmWaveAlgorithm(walt);
-    waltAlgorithm.init(width, height);
 
     const assemblyScriptAlgorithm = wasmWaveAlgorithm(assemblyscript);
-    assemblyScriptAlgorithm.init(width, height);
 
     const outerDiv = document.getElementById('outer');
 
@@ -46,6 +42,7 @@ fetch('emscripten/waves.wasm')
       const algorithmDiv = document.createElement('div');
       algorithmDiv.className = 'algorithm';
 
+      algorithm.init(width, height);
       const unsignedMemory = algorithm.getEntireArray();
       const signedMemory = new Int32Array(unsignedMemory.buffer, unsignedMemory.byteOffset);
 

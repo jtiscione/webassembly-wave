@@ -407,9 +407,13 @@
      call $assembly/index/Pointer#set
      get_global $assembly/index/force
      get_local $2
+     get_global $assembly/index/force
+     get_local $2
+     call $assembly/index/Pointer#get
      get_local $10
      get_global $assembly/index/FORCE_DAMPING_BIT_SHIFT
      i32.shr_s
+     i32.sub
      call $assembly/index/Pointer#set
     end
     get_local $2

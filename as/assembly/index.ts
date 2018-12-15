@@ -105,7 +105,7 @@ export function step(signalAmplitude: i32, dampingBitShift: i32): void {
       let f = force[i];
       let capped = applyCap(u[i] + v[i]);
       u[i] = applyCap(f + capped);
-      force[i] = f >> FORCE_DAMPING_BIT_SHIFT;
+      force[i] -= (f >> FORCE_DAMPING_BIT_SHIFT);
     }
   }
 

@@ -340,9 +340,13 @@
      call $assembly/index/Pointer#set
      get_global $assembly/index/force
      get_local $2
+     get_global $assembly/index/force
+     get_local $2
+     call $assembly/index/Pointer#get
      get_local $0
      i32.const 4
      i32.shr_s
+     i32.sub
      call $assembly/index/Pointer#set
     end
     get_local $2
