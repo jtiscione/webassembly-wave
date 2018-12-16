@@ -1,4 +1,9 @@
+/// <reference path="../node_modules/assemblyscript/index.d.ts" />
+
 class Pointer {
+  // just need for making tslint happy
+  [key: number]: number;
+
   constructor(offset: usize = 0) {
     return changetype<Pointer>(offset);
   }
@@ -37,18 +42,17 @@ let width:  i32 = 0;
 let height: i32 = 0;
 let area:   i32 = 0;
 
-let image:  Pointer = null;
-let force:  Pointer = null;
-let status: Pointer = null;
-let u: Pointer = null;
-let v: Pointer = null;
+let image:  Pointer;
+let force:  Pointer;
+let status: Pointer;
+let u:      Pointer;
+let v:      Pointer;
 
-export function init(ignored: i32, offset: i32, w: i32, h: i32): void {
+export function init(_ignored: i32, offset: i32, w: i32, h: i32): void {
 
   width  = w;
   height = h;
   area   = width * height;
-  status = new Pointer(offset + 8 * area);
   image  = new Pointer(offset);
   force  = new Pointer(offset + 4  * area);
   status = new Pointer(offset + 8  * area);

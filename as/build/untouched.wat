@@ -49,14 +49,6 @@
   set_global $assembly/index/area
   i32.const 0
   get_local $1
-  i32.const 8
-  get_global $assembly/index/area
-  i32.mul
-  i32.add
-  call $assembly/index/Pointer#constructor
-  set_global $assembly/index/status
-  i32.const 0
-  get_local $1
   call $assembly/index/Pointer#constructor
   set_global $assembly/index/image
   i32.const 0
