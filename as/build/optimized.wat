@@ -27,12 +27,6 @@
   get_global $assembly/index/height
   i32.mul
   set_global $assembly/index/area
-  get_global $assembly/index/area
-  i32.const 3
-  i32.shl
-  get_local $1
-  i32.add
-  set_global $assembly/index/status
   get_local $1
   set_global $assembly/index/image
   get_global $assembly/index/area
