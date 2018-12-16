@@ -191,6 +191,8 @@
      get_global $assembly/index/status
      get_local $2
      call $assembly/index/Pointer#get
+     set_local $3
+     get_local $3
      get_global $assembly/index/STATUS_POS_TRANSMITTER
      i32.eq
      if
@@ -207,9 +209,7 @@
       i32.const 0
       call $assembly/index/Pointer#set
      end
-     get_global $assembly/index/status
-     get_local $2
-     call $assembly/index/Pointer#get
+     get_local $3
      get_global $assembly/index/STATUS_NEG_TRANSMITTER
      i32.eq
      if
@@ -309,15 +309,17 @@
      i32.shr_s
      i32.add
      set_local $10
+     get_local $10
+     get_local $10
      get_local $1
-     if
-      get_local $10
-      get_local $10
-      get_local $1
-      i32.shr_s
-      i32.sub
-      set_local $10
-     end
+     i32.shr_s
+     i32.const 0
+     get_local $1
+     i32.const 0
+     i32.ne
+     select
+     i32.sub
+     set_local $10
      get_global $assembly/index/v
      get_local $2
      block $assembly/index/applyCap|inlined.0 (result i32)
@@ -353,139 +355,123 @@
     i32.lt_s
     i32.eqz
     br_if $break|2
-    get_global $assembly/index/status
-    get_local $2
-    call $assembly/index/Pointer#get
-    get_global $assembly/index/STATUS_DEFAULT
-    i32.eq
-    if
-     get_global $assembly/index/force
+    block
+     get_global $assembly/index/status
      get_local $2
      call $assembly/index/Pointer#get
      set_local $10
-     block $assembly/index/applyCap|inlined.1 (result i32)
+     get_local $10
+     get_global $assembly/index/STATUS_DEFAULT
+     i32.eq
+     if
+      get_global $assembly/index/force
+      get_local $2
+      call $assembly/index/Pointer#get
+      set_local $9
+      block $assembly/index/applyCap|inlined.1 (result i32)
+       get_global $assembly/index/u
+       get_local $2
+       call $assembly/index/Pointer#get
+       get_global $assembly/index/v
+       get_local $2
+       call $assembly/index/Pointer#get
+       i32.add
+       set_local $8
+       i32.const -1073741824
+       i32.const 1073741823
+       get_local $8
+       get_local $8
+       i32.const 1073741823
+       i32.gt_s
+       select
+       get_local $8
+       i32.const -1073741824
+       i32.lt_s
+       select
+      end
+      set_local $8
       get_global $assembly/index/u
       get_local $2
-      call $assembly/index/Pointer#get
-      get_global $assembly/index/v
+      block $assembly/index/applyCap|inlined.2 (result i32)
+       get_local $9
+       get_local $8
+       i32.add
+       set_local $7
+       i32.const -1073741824
+       i32.const 1073741823
+       get_local $7
+       get_local $7
+       i32.const 1073741823
+       i32.gt_s
+       select
+       get_local $7
+       i32.const -1073741824
+       i32.lt_s
+       select
+      end
+      call $assembly/index/Pointer#set
+      get_global $assembly/index/force
+      get_local $2
+      get_global $assembly/index/force
       get_local $2
       call $assembly/index/Pointer#get
-      i32.add
-      set_local $9
-      i32.const -1073741824
-      i32.const 1073741823
       get_local $9
-      get_local $9
-      i32.const 1073741823
-      i32.gt_s
-      select
-      get_local $9
-      i32.const -1073741824
-      i32.lt_s
-      select
+      get_global $assembly/index/FORCE_DAMPING_BIT_SHIFT
+      i32.shr_s
+      i32.sub
+      call $assembly/index/Pointer#set
      end
-     set_local $9
-     get_global $assembly/index/u
-     get_local $2
-     block $assembly/index/applyCap|inlined.2 (result i32)
-      get_local $10
-      get_local $9
-      i32.add
-      set_local $8
-      i32.const -1073741824
-      i32.const 1073741823
-      get_local $8
-      get_local $8
-      i32.const 1073741823
-      i32.gt_s
-      select
-      get_local $8
-      i32.const -1073741824
-      i32.lt_s
-      select
-     end
-     call $assembly/index/Pointer#set
-     get_global $assembly/index/force
-     get_local $2
-     get_global $assembly/index/force
-     get_local $2
-     call $assembly/index/Pointer#get
      get_local $10
-     get_global $assembly/index/FORCE_DAMPING_BIT_SHIFT
-     i32.shr_s
-     i32.sub
-     call $assembly/index/Pointer#set
+     get_global $assembly/index/STATUS_WALL
+     i32.eq
+     if
+      get_global $assembly/index/image
+      get_local $2
+      i32.const 0
+      call $assembly/index/Pointer#set
+     else      
+      get_global $assembly/index/image
+      get_local $2
+      block $assembly/index/toRGB|inlined.0 (result i32)
+       get_global $assembly/index/u
+       get_local $2
+       call $assembly/index/Pointer#get
+       set_local $8
+       get_local $8
+       i32.const 22
+       i32.shr_s
+       set_local $9
+       i32.const 0
+       get_local $9
+       i32.const 1
+       i32.add
+       i32.sub
+       i32.const 16
+       i32.shl
+       get_local $9
+       get_local $9
+       i32.const 8
+       i32.shl
+       i32.or
+       get_local $9
+       i32.const 16
+       i32.shl
+       i32.or
+       get_local $9
+       i32.const 0
+       i32.lt_s
+       select
+       i32.const -16777216
+       i32.or
+      end
+      call $assembly/index/Pointer#set
+     end
     end
     get_local $2
     i32.const 1
     i32.add
     set_local $2
     br $repeat|2
-    unreachable
-   end
-   unreachable
-  end
-  block $break|3
-   i32.const 0
-   set_local $2
-   loop $repeat|3
-    get_local $2
-    get_global $assembly/index/area
-    i32.lt_s
-    i32.eqz
-    br_if $break|3
-    get_global $assembly/index/status
-    get_local $2
-    call $assembly/index/Pointer#get
-    get_global $assembly/index/STATUS_WALL
-    i32.eq
-    if
-     get_global $assembly/index/image
-     get_local $2
-     i32.const 0
-     call $assembly/index/Pointer#set
-    else     
-     get_global $assembly/index/image
-     get_local $2
-     block $assembly/index/toRGB|inlined.0 (result i32)
-      get_global $assembly/index/u
-      get_local $2
-      call $assembly/index/Pointer#get
-      set_local $9
-      get_local $9
-      i32.const 22
-      i32.shr_s
-      set_local $10
-      i32.const 0
-      get_local $10
-      i32.const 1
-      i32.add
-      i32.sub
-      i32.const 16
-      i32.shl
-      get_local $10
-      get_local $10
-      i32.const 8
-      i32.shl
-      i32.or
-      get_local $10
-      i32.const 16
-      i32.shl
-      i32.or
-      get_local $10
-      i32.const 0
-      i32.lt_s
-      select
-      i32.const -16777216
-      i32.or
-     end
-     call $assembly/index/Pointer#set
-    end
-    get_local $2
-    i32.const 1
-    i32.add
-    set_local $2
-    br $repeat|3
     unreachable
    end
    unreachable
