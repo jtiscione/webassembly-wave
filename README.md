@@ -23,7 +23,7 @@ Memory is visible to bot JS and WebAssembly and almost all CPU time is spent in 
 
 There are two options for generating the .wasm file:
 
-* C: In directory `emscripten` compile `waves.c` with Emscripten: `emcc source.c -s WASM=1 -s SIDE_MODULE=1 -o waves.wasm`
+* C: In directory `emscripten` compile `waves.c` with Emscripten: `emcc waves.c -O3 -s WASM=1 -s SIDE_MODULE=1 -o waves.wasm`
 * Walt: In directory `walt` run `npm install` and `npm run build` to compile `waves.walt` to a `waves.wasm` file.
 * AssemblyScript: In directory `as` run `npm install` and `npm run asbuild` to compile `index.ts` to wasm files.
 
