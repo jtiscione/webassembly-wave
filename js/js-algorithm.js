@@ -39,19 +39,19 @@ function jsWaveAlgorithm() {
       const heap = new ArrayBuffer(5 * 4 * area);
       this.heap = heap;
 
-      this.image = new Int32Array(heap, 0, area);
-      this.force = new Int32Array(heap, 4 * area, area);
+      this.image  = new Int32Array(heap, 0, area);
+      this.force  = new Int32Array(heap, 4 * area, area);
       this.status = new Int32Array(heap, 8 * area, area);
-      this.u = new Int32Array(heap, 12 * area, area);
-      this.v = new Int32Array(heap, 16 * area, area);
+      this.u      = new Int32Array(heap, 12 * area, area);
+      this.v      = new Int32Array(heap, 16 * area, area);
 
       // To avoid falling off edges, mark the pixels along the edge as being wall pixels.
       // Walls implement a Dirichlet boundary condition by setting u=0.
-      for (let i = 0; i < height; i++) {
+      for (let i = 0; i < height; ++i) {
         this.status[i * width] = STATUS_WALL; // left edge
         this.status[(i * width) + (width - 1)] = STATUS_WALL; // right edge
       }
-      for (let j = 0; j < width; j++) {
+      for (let j = 0; j < width; ++j) {
         this.status[j] = STATUS_WALL; // top edge
         this.status[(width * (height - 1)) + j] = STATUS_WALL; // bottom edge
       }
@@ -62,13 +62,14 @@ function jsWaveAlgorithm() {
       const { width, area, image, force, status, u, v } = this;
 
       // First loop: look for noise generator pixels and set their values in u
-      for (let i = 0; i < area; i++) {
-        if (status[i] === STATUS_POS_TRANSMITTER) {
+      for (let i = 0; i < area; ++i) {
+        let stat = status[i];
+        if (stat === STATUS_POS_TRANSMITTER) {
           u[i] = signalAmplitude;
           v[i] = 0;
           force[i] = 0;
         }
-        if (status[i] === STATUS_NEG_TRANSMITTER) {
+        if (stat === STATUS_NEG_TRANSMITTER) {
           u[i] = -signalAmplitude;
           v[i] = 0;
           force[i] = 0;
@@ -76,15 +77,15 @@ function jsWaveAlgorithm() {
       }
 
       // Second loop: apply wave equation at all pixels
-      for (let i = 0; i < area; i++) {
+      for (let i = 0; i < area; ++i) {
         if (status[i] === STATUS_DEFAULT) {
-          const uCen = u[i];
+          const uCen   = u[i];
           const uNorth = u[i - width];
           const uSouth = u[i + width];
-          const uEast = u[i + 1];
-          const uWest = u[i - 1];
-          const uxx = (((uWest + uEast) >> 1) - uCen);
-          const uyy = (((uNorth + uSouth) >> 1) - uCen);
+          const uEast  = u[i + 1];
+          const uWest  = u[i - 1];
+          const uxx = ((uWest  + uEast)  >> 1) - uCen;
+          const uyy = ((uNorth + uSouth) >> 1) - uCen;
           let vel = v[i] + (uxx >> 1) + (uyy >> 1);
           if (dampingBitShift) {
             vel -= (vel >> dampingBitShift);
@@ -94,18 +95,15 @@ function jsWaveAlgorithm() {
       }
 
       // Apply forces from mouse
-      for (let i = 0; i < area; i++) {
-        if (status[i] === STATUS_DEFAULT) {
+      for (let i = 0; i < area; ++i) {
+        let stat = status[i];
+        if (stat === STATUS_DEFAULT) {
           let f = force[i];
           u[i] = applyCap(f + applyCap(u[i] + v[i]));
           f -= (f >> FORCE_DAMPING_BIT_SHIFT);
           force[i] = f;
         }
-      }
-
-      // Final pass: calculate color values
-      for (let i = 0; i < area; i++) {
-        if (status[i] === STATUS_WALL) {
+        if (stat === STATUS_WALL) {
           image[i] = 0x00000000;
         } else {
           image[i] = toRGB(u[i]);
