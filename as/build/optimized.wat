@@ -124,67 +124,85 @@
   (local $2 i32)
   (local $3 i32)
   (local $4 i32)
+  (local $5 i32)
+  (local $6 i32)
+  (local $7 i32)
+  (local $8 i32)
+  (local $9 i32)
+  (local $10 i32)
+  get_global $assembly/index/area
+  set_local $7
+  get_global $assembly/index/status
+  set_local $8
+  get_global $assembly/index/u
+  set_local $3
+  get_global $assembly/index/v
+  set_local $5
+  get_global $assembly/index/force
+  set_local $6
+  get_global $assembly/index/image
+  set_local $10
   loop $repeat|0
    get_local $2
-   get_global $assembly/index/area
+   get_local $7
    i32.lt_s
    if
-    get_global $assembly/index/status
     get_local $2
     i32.const 2
     i32.shl
+    get_local $8
     i32.add
     i32.load
-    tee_local $3
+    tee_local $4
     i32.const 2
     i32.eq
     if
-     get_global $assembly/index/u
      get_local $2
      i32.const 2
      i32.shl
+     get_local $3
      i32.add
      get_local $0
      i32.store
-     get_global $assembly/index/v
      get_local $2
      i32.const 2
      i32.shl
+     get_local $5
      i32.add
      i32.const 0
      i32.store
-     get_global $assembly/index/force
      get_local $2
      i32.const 2
      i32.shl
+     get_local $6
      i32.add
      i32.const 0
      i32.store
     end
-    get_local $3
+    get_local $4
     i32.const 3
     i32.eq
     if
-     get_global $assembly/index/u
      get_local $2
      i32.const 2
      i32.shl
+     get_local $3
      i32.add
      i32.const 0
      get_local $0
      i32.sub
      i32.store
-     get_global $assembly/index/v
      get_local $2
      i32.const 2
      i32.shl
+     get_local $5
      i32.add
      i32.const 0
      i32.store
-     get_global $assembly/index/force
      get_local $2
      i32.const 2
      i32.shl
+     get_local $6
      i32.add
      i32.const 0
      i32.store
@@ -200,99 +218,99 @@
   set_local $2
   loop $repeat|1
    get_local $2
-   get_global $assembly/index/area
+   get_local $7
    i32.lt_s
    if
-    get_global $assembly/index/status
     get_local $2
     i32.const 2
     i32.shl
+    get_local $8
     i32.add
     i32.load
     i32.eqz
     if
-     get_global $assembly/index/v
      get_local $2
      i32.const 2
      i32.shl
+     get_local $5
      i32.add
      i32.const -1073741824
      i32.const 1073741823
-     get_global $assembly/index/v
      get_local $2
      i32.const 2
      i32.shl
+     get_local $5
      i32.add
      i32.load
-     get_global $assembly/index/u
      get_local $2
      i32.const 1
      i32.add
      i32.const 2
      i32.shl
+     get_local $3
      i32.add
      i32.load
-     get_global $assembly/index/u
      get_local $2
      i32.const 1
      i32.sub
      i32.const 2
      i32.shl
+     get_local $3
      i32.add
      i32.load
      i32.add
      i32.const 1
      i32.shr_s
-     get_global $assembly/index/u
      get_local $2
      i32.const 2
      i32.shl
+     get_local $3
      i32.add
      i32.load
-     tee_local $3
-     i32.sub
      tee_local $4
+     i32.sub
+     tee_local $9
      i32.const 1
      i32.shr_s
      i32.add
-     get_global $assembly/index/u
      get_local $2
      get_global $assembly/index/width
      i32.sub
      i32.const 2
      i32.shl
+     get_local $3
      i32.add
      i32.load
-     get_global $assembly/index/u
      get_global $assembly/index/width
      get_local $2
      i32.add
      i32.const 2
      i32.shl
+     get_local $3
      i32.add
      i32.load
      i32.add
      i32.const 1
      i32.shr_s
-     get_local $3
+     get_local $4
      i32.sub
      i32.const 1
      i32.shr_s
      i32.add
-     tee_local $3
-     get_local $3
+     tee_local $4
+     get_local $4
      get_local $1
      i32.shr_s
      i32.const 0
      get_local $1
      select
      i32.sub
-     tee_local $3
-     get_local $3
+     tee_local $4
+     get_local $4
      i32.const 1073741823
      i32.gt_s
      select
-     get_local $3
+     get_local $4
      i32.const -1073741824
      i32.lt_s
      select
@@ -309,53 +327,53 @@
   set_local $2
   loop $repeat|2
    get_local $2
-   get_global $assembly/index/area
+   get_local $7
    i32.lt_s
    if
-    get_global $assembly/index/status
     get_local $2
     i32.const 2
     i32.shl
+    get_local $8
     i32.add
     i32.load
-    tee_local $3
+    tee_local $4
     i32.eqz
     if
-     get_global $assembly/index/u
      get_local $2
      i32.const 2
      i32.shl
+     get_local $3
      i32.add
      i32.const -1073741824
      i32.const 1073741823
-     get_global $assembly/index/force
      get_local $2
      i32.const 2
      i32.shl
+     get_local $6
      i32.add
      i32.load
      tee_local $0
      i32.const -1073741824
      i32.const 1073741823
-     get_global $assembly/index/u
      get_local $2
      i32.const 2
      i32.shl
+     get_local $3
      i32.add
      i32.load
-     get_global $assembly/index/v
      get_local $2
      i32.const 2
      i32.shl
+     get_local $5
      i32.add
      i32.load
      i32.add
-     tee_local $4
-     get_local $4
+     tee_local $9
+     get_local $9
      i32.const 1073741823
      i32.gt_s
      select
-     get_local $4
+     get_local $9
      i32.const -1073741824
      i32.lt_s
      select
@@ -370,15 +388,15 @@
      i32.lt_s
      select
      i32.store
-     get_global $assembly/index/force
      get_local $2
      i32.const 2
      i32.shl
+     get_local $6
      i32.add
-     get_global $assembly/index/force
      get_local $2
      i32.const 2
      i32.shl
+     get_local $6
      i32.add
      i32.load
      get_local $0
@@ -387,28 +405,28 @@
      i32.sub
      i32.store
     end
-    get_local $3
+    get_local $4
     i32.const 1
     i32.eq
     if
-     get_global $assembly/index/image
      get_local $2
      i32.const 2
      i32.shl
+     get_local $10
      i32.add
      i32.const 0
      i32.store
     else     
-     get_global $assembly/index/image
      get_local $2
      i32.const 2
      i32.shl
+     get_local $10
      i32.add
      i32.const 0
-     get_global $assembly/index/u
      get_local $2
      i32.const 2
      i32.shl
+     get_local $3
      i32.add
      i32.load
      i32.const 22

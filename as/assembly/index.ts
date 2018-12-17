@@ -72,50 +72,52 @@ export function init(_ignored: i32, offset: i32, w: i32, h: i32): void {
 
 export function step(signalAmplitude: i32, dampingBitShift: i32): void {
 
+  let _area = area, _status = status, _u = u, _v = v, _force = force, _image = image;
+
   // First loop: look for noise generator pixels and set their values in u
-  for (let i = 0; i < area; ++i) {
-    let s = status[i];
+  for (let i = 0; i < _area; ++i) {
+    let s = _status[i];
     if (s === STATUS_POS_TRANSMITTER) {
-      u[i] = signalAmplitude;
-      v[i] = 0;
-      force[i] = 0;
+      _u[i] = signalAmplitude;
+      _v[i] = 0;
+      _force[i] = 0;
     }
     if (s === STATUS_NEG_TRANSMITTER) {
-      u[i] = -signalAmplitude;
-      v[i] = 0;
-      force[i] = 0;
+      _u[i] = -signalAmplitude;
+      _v[i] = 0;
+      _force[i] = 0;
     }
   }
 
-  for (let i = 0; i < area; ++i) {
-    if (status[i] === STATUS_DEFAULT) {
-      let uCen   = u[i];
-      let uNorth = u[i - width];
-      let uSouth = u[i + width];
-      let uEast  = u[i + 1];
-      let uWest  = u[i - 1];
+  for (let i = 0; i < _area; ++i) {
+    if (_status[i] === STATUS_DEFAULT) {
+      let uCen   = _u[i];
+      let uNorth = _u[i - width];
+      let uSouth = _u[i + width];
+      let uEast  = _u[i + 1];
+      let uWest  = _u[i - 1];
 
       let uxx = (((uWest  + uEast)  >> 1) - uCen);
       let uyy = (((uNorth + uSouth) >> 1) - uCen);
 
-      let vel = v[i] + (uxx >> 1) + (uyy >> 1);
+      let vel = _v[i] + (uxx >> 1) + (uyy >> 1);
       vel -= select(vel >> dampingBitShift, 0, dampingBitShift != 0);
-      v[i] = applyCap(vel);
+      _v[i] = applyCap(vel);
     }
   }
 
-  for (let i = 0; i < area; ++i) {
-    let stat = status[i];
+  for (let i = 0; i < _area; ++i) {
+    let stat = _status[i];
     if (stat === STATUS_DEFAULT) {
-      let f = force[i];
-      let capped = applyCap(u[i] + v[i]);
-      u[i] = applyCap(f + capped);
-      force[i] -= (f >> FORCE_DAMPING_BIT_SHIFT);
+      let f = _force[i];
+      let capped = applyCap(_u[i] + _v[i]);
+      _u[i] = applyCap(f + capped);
+      _force[i] -= (f >> FORCE_DAMPING_BIT_SHIFT);
     }
     if (stat === STATUS_WALL) {
-      image[i] = 0x00000000;
+      _image[i] = 0x00000000;
     } else {
-      image[i] = toRGB(u[i]);
+      _image[i] = toRGB(_u[i]);
     }
   }
 }
