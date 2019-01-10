@@ -58,12 +58,12 @@ export function init(_ignored: i32, offset: i32, w: i32, h: i32): void {
   v      = new Pointer(offset + 16 * area);
 
   for (let i = 0; i < height; ++i) {
-    status[i * width] = 1;
+    status[i * width] = STATUS_WALL;
     status[i * width + width - 1] = STATUS_WALL;
   }
 
   for (let i = 0; i < width; ++i) {
-    status[i] = 1;
+    status[i] = STATUS_WALL;
     status[area - width + i] = STATUS_WALL;
   }
 }

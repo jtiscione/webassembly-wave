@@ -97,7 +97,7 @@
      get_local $4
      get_global $assembly/index/width
      i32.mul
-     i32.const 1
+     get_global $assembly/index/STATUS_WALL
      call $assembly/index/Pointer#set
      get_global $assembly/index/status
      get_local $4
@@ -131,7 +131,7 @@
     block
      get_global $assembly/index/status
      get_local $4
-     i32.const 1
+     get_global $assembly/index/STATUS_WALL
      call $assembly/index/Pointer#set
      get_global $assembly/index/status
      get_global $assembly/index/area
