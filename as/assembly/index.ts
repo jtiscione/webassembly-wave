@@ -104,7 +104,7 @@ export function step(signalAmplitude: i32, dampingBitShift: i32): void {
       let uyy = (((uNorth + uSouth) >> 1) - uCen);
 
       let vel = _v[i] + (uxx >> 1) + (uyy >> 1);
-      vel -= select(vel >> dampingBitShift, 0, dampingBitShift != 0);
+      if (dampingBitShift) vel -= vel >> dampingBitShift;
       _v[i] = applyCap(vel);
     }
   }
@@ -115,7 +115,7 @@ export function step(signalAmplitude: i32, dampingBitShift: i32): void {
       let f = _force[i];
       let capped = applyCap(_u[i] + _v[i]);
       _u[i] = applyCap(f + capped);
-      _force[i] -= (f >> FORCE_DAMPING_BIT_SHIFT);
+      _force[i] = f - (f >> FORCE_DAMPING_BIT_SHIFT);
     }
     if (stat === STATUS_WALL) {
       _image[i] = 0x00000000;

@@ -322,17 +322,15 @@
      i32.shr_s
      i32.add
      set_local $17
-     get_local $17
-     get_local $17
      get_local $1
-     i32.shr_s
-     i32.const 0
-     get_local $1
-     i32.const 0
-     i32.ne
-     select
-     i32.sub
-     set_local $17
+     if
+      get_local $17
+      get_local $17
+      get_local $1
+      i32.shr_s
+      i32.sub
+      set_local $17
+     end
      get_local $5
      get_local $9
      block $assembly/index/applyCap|inlined.0 (result i32)
@@ -437,9 +435,7 @@
       call $assembly/index/Pointer#set
       get_local $6
       get_local $9
-      get_local $6
-      get_local $9
-      call $assembly/index/Pointer#get
+      get_local $16
       get_local $16
       get_global $assembly/index/FORCE_DAMPING_BIT_SHIFT
       i32.shr_s
