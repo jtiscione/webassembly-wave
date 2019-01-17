@@ -19,16 +19,14 @@ class Pointer {
 
 // Full int32 range is -0x80000000 to 0x7FFFFFFF. Use half.
 @inline function applyCap(x: i32): i32 {
-  // return x < -0x40000000 ? -0x40000000 : (x > 0x3FFFFFFF ? 0x3FFFFFFF : x);
-  return select(-0x40000000, select(0x3FFFFFFF, x, x > 0x3FFFFFFF), x < -0x40000000);
+  return x < -0x40000000 ? -0x40000000 : (x > 0x3FFFFFFF ? 0x3FFFFFFF : x);
 }
 
 @inline function toRGB(x: i32): i32 {
   // Map negative values to red, positive to blue-green, zero to black
   var val = x >> 22;
-  // if (val < 0) return ((-(val + 1))  | 0xFF000000); // red
-  // return (((val << 8) | (val << 16)) | 0xFF000000); // cyan
-  return select(-(val + 1) << 16, (val | (val << 8) | (val << 16)), val < 0) | 0xFF000000;
+  if (val < 0) return ((-(val + 1))  | 0xFF000000); // red
+  return (((val << 8) | (val << 16)) | 0xFF000000); // cyan
 }
 
 const STATUS_DEFAULT: i32 = 0;
@@ -60,19 +58,24 @@ export function init(_ignored: i32, offset: i32, w: i32, h: i32): void {
   v      = new Pointer(offset + 16 * area);
 
   for (let i = 0; i < height; ++i) {
-    status[i * width] = 1;
+    status[i * width] = STATUS_WALL;
     status[i * width + width - 1] = STATUS_WALL;
   }
 
   for (let i = 0; i < width; ++i) {
-    status[i] = 1;
+    status[i] = STATUS_WALL;
     status[area - width + i] = STATUS_WALL;
   }
 }
 
 export function step(signalAmplitude: i32, dampingBitShift: i32): void {
-
-  let _area = area, _status = status, _u = u, _v = v, _force = force, _image = image;
+  let _area = area,
+    _status = status,
+    _u = u,
+    _v = v,
+    _force = force,
+    _image = image,
+    _width = width;
 
   // First loop: look for noise generator pixels and set their values in u
   for (let i = 0; i < _area; ++i) {
@@ -92,8 +95,8 @@ export function step(signalAmplitude: i32, dampingBitShift: i32): void {
   for (let i = 0; i < _area; ++i) {
     if (_status[i] === STATUS_DEFAULT) {
       let uCen   = _u[i];
-      let uNorth = _u[i - width];
-      let uSouth = _u[i + width];
+      let uNorth = _u[i - _width];
+      let uSouth = _u[i + _width];
       let uEast  = _u[i + 1];
       let uWest  = _u[i - 1];
 
@@ -101,7 +104,7 @@ export function step(signalAmplitude: i32, dampingBitShift: i32): void {
       let uyy = (((uNorth + uSouth) >> 1) - uCen);
 
       let vel = _v[i] + (uxx >> 1) + (uyy >> 1);
-      vel -= select(vel >> dampingBitShift, 0, dampingBitShift != 0);
+      if (dampingBitShift) vel -= vel >> dampingBitShift;
       _v[i] = applyCap(vel);
     }
   }
@@ -112,7 +115,7 @@ export function step(signalAmplitude: i32, dampingBitShift: i32): void {
       let f = _force[i];
       let capped = applyCap(_u[i] + _v[i]);
       _u[i] = applyCap(f + capped);
-      _force[i] -= (f >> FORCE_DAMPING_BIT_SHIFT);
+      _force[i] = f - (f >> FORCE_DAMPING_BIT_SHIFT);
     }
     if (stat === STATUS_WALL) {
       _image[i] = 0x00000000;

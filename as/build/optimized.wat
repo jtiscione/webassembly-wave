@@ -18,7 +18,6 @@
  (export "init" (func $assembly/index/init))
  (export "step" (func $assembly/index/step))
  (func $assembly/index/init (; 0 ;) (type $iiiiv) (param $0 i32) (param $1 i32) (param $2 i32) (param $3 i32)
-  (local $4 i32)
   get_local $2
   set_global $assembly/index/width
   get_local $3
@@ -53,14 +52,16 @@
   get_local $1
   i32.add
   set_global $assembly/index/v
+  i32.const 0
+  set_local $0
   loop $repeat|0
-   get_local $4
+   get_local $0
    get_global $assembly/index/height
    i32.lt_s
    if
     get_global $assembly/index/status
     get_global $assembly/index/width
-    get_local $4
+    get_local $0
     i32.mul
     i32.const 2
     i32.shl
@@ -69,8 +70,9 @@
     i32.store
     get_global $assembly/index/status
     get_global $assembly/index/width
-    get_global $assembly/index/width
-    get_local $4
+    tee_local $1
+    get_local $0
+    get_local $1
     i32.mul
     i32.add
     i32.const 1
@@ -80,22 +82,22 @@
     i32.add
     i32.const 1
     i32.store
-    get_local $4
+    get_local $0
     i32.const 1
     i32.add
-    set_local $4
+    set_local $0
     br $repeat|0
    end
   end
   i32.const 0
-  set_local $4
+  set_local $0
   loop $repeat|1
-   get_local $4
+   get_local $0
    get_global $assembly/index/width
    i32.lt_s
    if
     get_global $assembly/index/status
-    get_local $4
+    get_local $0
     i32.const 2
     i32.shl
     i32.add
@@ -105,17 +107,17 @@
     get_global $assembly/index/area
     get_global $assembly/index/width
     i32.sub
-    get_local $4
+    get_local $0
     i32.add
     i32.const 2
     i32.shl
     i32.add
     i32.const 1
     i32.store
-    get_local $4
+    get_local $0
     i32.const 1
     i32.add
-    set_local $4
+    set_local $0
     br $repeat|1
    end
   end
@@ -135,12 +137,14 @@
   get_global $assembly/index/status
   set_local $8
   get_global $assembly/index/u
-  set_local $3
+  set_local $4
   get_global $assembly/index/v
   set_local $5
   get_global $assembly/index/force
   set_local $6
   get_global $assembly/index/image
+  set_local $9
+  get_global $assembly/index/width
   set_local $10
   loop $repeat|0
    get_local $2
@@ -153,14 +157,14 @@
     get_local $8
     i32.add
     i32.load
-    tee_local $4
+    tee_local $3
     i32.const 2
     i32.eq
     if
      get_local $2
      i32.const 2
      i32.shl
-     get_local $3
+     get_local $4
      i32.add
      get_local $0
      i32.store
@@ -179,14 +183,14 @@
      i32.const 0
      i32.store
     end
-    get_local $4
+    get_local $3
     i32.const 3
     i32.eq
     if
      get_local $2
      i32.const 2
      i32.shl
-     get_local $3
+     get_local $4
      i32.add
      i32.const 0
      get_local $0
@@ -234,8 +238,6 @@
      i32.shl
      get_local $5
      i32.add
-     i32.const -1073741824
-     i32.const 1073741823
      get_local $2
      i32.const 2
      i32.shl
@@ -247,73 +249,76 @@
      i32.add
      i32.const 2
      i32.shl
-     get_local $3
-     i32.add
-     i32.load
-     get_local $2
-     i32.const 1
-     i32.sub
-     i32.const 2
-     i32.shl
-     get_local $3
-     i32.add
-     i32.load
-     i32.add
-     i32.const 1
-     i32.shr_s
-     get_local $2
-     i32.const 2
-     i32.shl
-     get_local $3
-     i32.add
-     i32.load
-     tee_local $4
-     i32.sub
-     tee_local $9
-     i32.const 1
-     i32.shr_s
-     i32.add
-     get_local $2
-     get_global $assembly/index/width
-     i32.sub
-     i32.const 2
-     i32.shl
-     get_local $3
-     i32.add
-     i32.load
-     get_global $assembly/index/width
-     get_local $2
-     i32.add
-     i32.const 2
-     i32.shl
-     get_local $3
-     i32.add
-     i32.load
-     i32.add
-     i32.const 1
-     i32.shr_s
      get_local $4
+     i32.add
+     i32.load
+     get_local $2
+     i32.const 1
+     i32.sub
+     i32.const 2
+     i32.shl
+     get_local $4
+     i32.add
+     i32.load
+     i32.add
+     i32.const 1
+     i32.shr_s
+     get_local $2
+     i32.const 2
+     i32.shl
+     get_local $4
+     i32.add
+     i32.load
+     tee_local $3
      i32.sub
      i32.const 1
      i32.shr_s
      i32.add
-     tee_local $4
+     get_local $2
+     get_local $10
+     i32.sub
+     i32.const 2
+     i32.shl
      get_local $4
+     i32.add
+     i32.load
+     get_local $2
+     get_local $10
+     i32.add
+     i32.const 2
+     i32.shl
+     get_local $4
+     i32.add
+     i32.load
+     i32.add
+     i32.const 1
+     i32.shr_s
+     get_local $3
+     i32.sub
+     i32.const 1
+     i32.shr_s
+     i32.add
+     tee_local $3
+     get_local $3
      get_local $1
      i32.shr_s
-     i32.const 0
+     i32.sub
+     get_local $3
      get_local $1
      select
-     i32.sub
-     tee_local $4
-     get_local $4
-     i32.const 1073741823
-     i32.gt_s
-     select
-     get_local $4
+     tee_local $3
      i32.const -1073741824
      i32.lt_s
-     select
+     if (result i32)
+      i32.const -1073741824
+     else      
+      i32.const 1073741823
+      get_local $3
+      get_local $3
+      i32.const 1073741823
+      i32.gt_s
+      select
+     end
      i32.store
     end
     get_local $2
@@ -336,29 +341,25 @@
     get_local $8
     i32.add
     i32.load
-    tee_local $4
+    tee_local $3
     i32.eqz
     if
-     get_local $2
-     i32.const 2
-     i32.shl
-     get_local $3
-     i32.add
-     i32.const -1073741824
-     i32.const 1073741823
      get_local $2
      i32.const 2
      i32.shl
      get_local $6
      i32.add
      i32.load
-     tee_local $0
-     i32.const -1073741824
-     i32.const 1073741823
+     set_local $1
      get_local $2
      i32.const 2
      i32.shl
-     get_local $3
+     get_local $4
+     i32.add
+     get_local $2
+     i32.const 2
+     i32.shl
+     get_local $4
      i32.add
      i32.load
      get_local $2
@@ -368,51 +369,55 @@
      i32.add
      i32.load
      i32.add
-     tee_local $9
-     get_local $9
-     i32.const 1073741823
-     i32.gt_s
-     select
-     get_local $9
+     tee_local $0
      i32.const -1073741824
      i32.lt_s
-     select
+     if (result i32)
+      i32.const -1073741824
+     else      
+      i32.const 1073741823
+      get_local $0
+      get_local $0
+      i32.const 1073741823
+      i32.gt_s
+      select
+     end
+     get_local $1
      i32.add
-     tee_local $1
-     get_local $1
-     i32.const 1073741823
-     i32.gt_s
-     select
-     get_local $1
+     tee_local $0
      i32.const -1073741824
      i32.lt_s
-     select
+     if (result i32)
+      i32.const -1073741824
+     else      
+      i32.const 1073741823
+      get_local $0
+      get_local $0
+      i32.const 1073741823
+      i32.gt_s
+      select
+     end
      i32.store
      get_local $2
      i32.const 2
      i32.shl
      get_local $6
      i32.add
-     get_local $2
-     i32.const 2
-     i32.shl
-     get_local $6
-     i32.add
-     i32.load
-     get_local $0
+     get_local $1
+     get_local $1
      i32.const 4
      i32.shr_s
      i32.sub
      i32.store
     end
-    get_local $4
+    get_local $3
     i32.const 1
     i32.eq
     if
      get_local $2
      i32.const 2
      i32.shl
-     get_local $10
+     get_local $9
      i32.add
      i32.const 0
      i32.store
@@ -420,38 +425,40 @@
      get_local $2
      i32.const 2
      i32.shl
-     get_local $10
+     get_local $9
      i32.add
-     i32.const 0
-     get_local $2
-     i32.const 2
-     i32.shl
-     get_local $3
-     i32.add
-     i32.load
-     i32.const 22
-     i32.shr_s
-     tee_local $0
-     i32.const 1
-     i32.add
-     i32.sub
-     i32.const 16
-     i32.shl
-     get_local $0
-     i32.const 8
-     i32.shl
-     get_local $0
-     i32.or
-     get_local $0
-     i32.const 16
-     i32.shl
-     i32.or
-     get_local $0
-     i32.const 0
-     i32.lt_s
-     select
-     i32.const -16777216
-     i32.or
+     block $assembly/index/toRGB|inlined.0 (result i32)
+      get_local $2
+      i32.const 2
+      i32.shl
+      get_local $4
+      i32.add
+      i32.load
+      i32.const 22
+      i32.shr_s
+      tee_local $1
+      i32.const 0
+      i32.lt_s
+      if
+       i32.const 0
+       get_local $1
+       i32.const 1
+       i32.add
+       i32.sub
+       i32.const -16777216
+       i32.or
+       br $assembly/index/toRGB|inlined.0
+      end
+      get_local $1
+      i32.const 8
+      i32.shl
+      get_local $1
+      i32.const 16
+      i32.shl
+      i32.or
+      i32.const -16777216
+      i32.or
+     end
      i32.store
     end
     get_local $2
