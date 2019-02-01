@@ -1,12 +1,35 @@
+let clang = null;
 let emscripten = null;
 let walt = null;
 let assemblyscript = null;
+let emscriptenImportsObject = {
+  env: {
+    __memory_base: 0,
+    __table_base: 0,
+    memory: new WebAssembly.Memory({
+      initial: 256,
+    }),
+    table: new WebAssembly.Table({
+      initial: 0,
+      element: 'anyfunc',
+    })
+  }
+};
 
-fetch('emscripten/waves.wasm')
+fetch('clang/main.wasm')
   .then(response => response.arrayBuffer())
-  .then(bytes =>  WebAssembly.instantiate(bytes, {}))
+  .then((bytes) =>  WebAssembly.instantiate(bytes, {}))
+  .then((wasm) => {
+    clang = wasm;
+
+    return fetch('emscripten/emscripten.wasm');
+  })
+  .then(response => response.arrayBuffer())
+  .then(bytes =>  WebAssembly.instantiate(bytes, emscriptenImportsObject))
   .then((wasm) => {
     emscripten = wasm;
+    emscripten.importsObject = emscriptenImportsObject;
+
     return fetch('walt/waves.wasm');
   })
   .then(response => response.arrayBuffer())
@@ -28,6 +51,8 @@ fetch('emscripten/waves.wasm')
 
     const jsAlgorithm = jsWaveAlgorithm();
 
+    const clangAlgorithm = wasmWaveAlgorithm(clang);
+
     const emscriptenAlgorithm = wasmWaveAlgorithm(emscripten);
 
     const waltAlgorithm = wasmWaveAlgorithm(walt);
@@ -36,9 +61,9 @@ fetch('emscripten/waves.wasm')
 
     const outerDiv = document.getElementById('outer');
 
-    const title = ['JAVASCRIPT', 'EMSCRIPTEN', 'WALT', 'ASSEMBLYSCRIPT'];
+    const title = ['JAVASCRIPT', 'CLANG', 'EMSCRIPTEN', 'WALT', 'ASSEMBLYSCRIPT'];
 
-    [jsAlgorithm, emscriptenAlgorithm, waltAlgorithm, assemblyScriptAlgorithm].forEach((algorithm, algorithmIndex) => {
+    [jsAlgorithm, clangAlgorithm, emscriptenAlgorithm, waltAlgorithm, assemblyScriptAlgorithm].forEach((algorithm, algorithmIndex) => {
       const algorithmDiv = document.createElement('div');
       algorithmDiv.className = 'algorithm';
 

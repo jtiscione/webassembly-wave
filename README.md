@@ -9,9 +9,10 @@ This is a simulation of the [wave equation](https://en.wikipedia.org/wiki/Wave_e
 <span class="eq">&#8706;<sup>2</sup>u/&#8706;t<sup>2</sup> = c<sup>2</sup>(&#8706;<sup>2</sup>u/&#8706;x<sup>2</sup>+&#8706;<sup>2</sup>u/&#8706;y<sup>2</sup>)</span>
 across a 2D manifold with a boundary condition of u=0 along the unit circle. Use the mouse to create waves.
 
-It contains 4 implementations of the same code:
+It contains 5 implementations of the same code:
 * Standard JavaScript
-* C compiled by Enscripten to WebAssembly
+* C code compiled by Clang/Binaryen (WebAssembly Studio)
+* C code compiled by Enscripten
 * JS-like code compiled by [Walt](https://github.com/ballercat/walt) to WebAssembly
 * TypeScript-like code compiled by [AssemblyScript](assemblyscript.org) to WebAssembly
 
@@ -23,7 +24,7 @@ Memory is visible to bot JS and WebAssembly and almost all CPU time is spent in 
 
 There are two options for generating the .wasm file:
 
-* C: In directory `emscripten` compile `waves.c` with Emscripten: `emcc waves.c -O3 -s WASM=1 -s SIDE_MODULE=1 -o waves.wasm`
+* C: In directory `emscripten` compile `emscripten.c` with Emscripten: `emcc emscripten.c -Os -s WASM=1 -s SIDE_MODULE=1 -o emscripten.wasm`
 * Walt: In directory `walt` run `npm install` and `npm run build` to compile `waves.walt` to a `waves.wasm` file.
 * AssemblyScript: In directory `as` run `npm install` and `npm run asbuild` to compile `index.ts` to wasm files.
 

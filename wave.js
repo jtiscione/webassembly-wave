@@ -8,6 +8,7 @@ function wave(modules) {
   const canvas = document.getElementById('canvas');
   const fps = document.getElementById('fps');
   const jsBox = document.getElementById('js-box');
+  const clangBox = document.getElementById('clang-box');
   const emscriptenBox = document.getElementById('emscripten-box');
   const waltBox = document.getElementById('walt-box');
   const assemblyBox = document.getElementById('assembly-box');
@@ -26,15 +27,20 @@ function wave(modules) {
   const jsAlgorithm = jsWaveAlgorithm();
   jsAlgorithm.init(width, height);
   let algorithm = jsAlgorithm;
+  let clangAlgorithm = null;
   let emscriptenAlgorithm = null;
   let waltAlgorithm = null;
   let assemblyScriptAlgorithm = null;
   if (modules) {
+
+    if (modules.clang) {
+      clangAlgorithm = wasmWaveAlgorithm(modules.clang);
+      clangAlgorithm.init(width, height);
+    }
+
     if (modules.emscripten) {
       emscriptenAlgorithm = wasmWaveAlgorithm(modules.emscripten);
       emscriptenAlgorithm.init(width, height);
-      // algorithm = emscriptenAlgorithm;
-      // emscriptenBox.checked = true;
     }
 
     if (modules.walt) {
@@ -57,6 +63,9 @@ function wave(modules) {
     jsBox.addEventListener('click', function(event) {
       swap(jsAlgorithm);
     });
+    clangBox.addEventListener('click', function(event) {
+      swap(clangAlgorithm);
+    });
     emscriptenBox.addEventListener('click', function(event) {
       swap(emscriptenAlgorithm);
     });
@@ -69,6 +78,7 @@ function wave(modules) {
 
   } else {
     jsBox.disabled = true;
+    clangBox.disabled = true;
     emscriptenBox.disabled = true;
     waltBox.disabled = true;
     assemblyBox.disabled = true;
@@ -307,14 +317,40 @@ document.addEventListener("DOMContentLoaded", function(event) {
   if (!webAssemblySupported()) {
     wave(null);
   } else {
+
     let emscripten = null;
+    let clang = null;
     let walt = null;
     let assemblyScript = null;
-    fetch('emscripten/waves.wasm')
+
+    // Emscripten doesn't support exporting memory, only importing
+    let emscriptenImportsObject = {
+      env: {
+        __memory_base: 0,
+        __table_base: 0,
+        memory: new WebAssembly.Memory({
+          initial: 512,
+        }),
+        table: new WebAssembly.Table({
+          initial: 0,
+          element: 'anyfunc',
+        })
+      }
+    };
+
+    fetch('clang/main.wasm')
       .then(response => response.arrayBuffer())
       .then((bytes) =>  WebAssembly.instantiate(bytes, {}))
       .then((wasm) => {
+        clang = wasm;
+
+        return fetch('emscripten/emscripten.wasm');
+      })
+      .then(response => response.arrayBuffer())
+      .then((bytes) =>  WebAssembly.instantiate(bytes, emscriptenImportsObject))
+      .then((wasm) => {
         emscripten = wasm;
+        emscripten.importsObject = emscriptenImportsObject;
 
         return fetch('walt/waves.wasm');
       })
@@ -330,7 +366,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
       .then((wasm) => {
         assemblyScript = wasm;
 
-        return { emscripten, walt, assemblyScript };
+        return { clang, emscripten, walt, assemblyScript };
       }).then(wave);
   }
 });

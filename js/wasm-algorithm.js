@@ -9,11 +9,9 @@ function wasmWaveAlgorithm(wasm) {
       this.height = height;
       const area = width * height;
       this.area = area;
-
-      this.byteOffset = 8192; // Step above the first few kilobytes to clear the stack variables
-
       const instance = wasm.instance;
-      const memory = instance.exports.memory;
+      const memory = wasm.importsObject ? wasm.importsObject.env.memory : instance.exports.memory;
+      this.byteOffset = wasm.importsObject ? instance.exports._getByteOffset() : 9192;
       const pages = 2 + ((5 * 4 * width * height) >> 16);
       memory.grow(pages);
 
@@ -25,11 +23,19 @@ function wasmWaveAlgorithm(wasm) {
       this.u = new Int32Array(heap, this.byteOffset + (12 * area), area);
       this.v = new Int32Array(heap, this.byteOffset + (16 * area), area);
 
-      instance.exports.init(heap, this.byteOffset, width, height);
+      if (instance.exports._init) {
+        instance.exports._init(heap, this.byteOffset, width, height);
+      } else {
+        instance.exports.init(heap, this.byteOffset, width, height);
+      }
     },
     // The main hot spot function:
     step(signalAmplitude, drag = false) {
-      this.module.instance.exports.step(signalAmplitude, drag ? 5 : 0);
+      if (this.module.instance.exports._step) {
+        this.module.instance.exports._step(signalAmplitude, drag ? 5 : 0);
+      } else {
+        this.module.instance.exports.step(signalAmplitude, drag ? 5 : 0);
+      }
     },
     // The "output" from WASM
     getImageArray() {
