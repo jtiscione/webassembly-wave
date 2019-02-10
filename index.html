@@ -23,12 +23,12 @@
                     <label for="js-box">JAVASCRIPT</label>
                     <input type="radio" id="clang-box" name="algorithm" />
                     <label for="clang-box">CLANG</label>
-                    <input type="radio" id="emscripten-box" name="algorithm" />
-                    <label for="emscripten-box">EMSCRIPTEN</label>
-                    <input type="radio" id="walt-box" name="algorithm" />
-                    <label for="walt-box">WALT</label>
+                    <input type="radio" id="emscripten-box" name="algorithm" class="ems" />
+                    <label for="emscripten-box" class="ems">EMSCRIPTEN</label>
                     <input type="radio" id="assembly-box" name="algorithm" />
                     <label for="assembly-box">ASSEMBLYSCRIPT</label>
+                    <input type="radio" id="walt-box" name="algorithm" />
+                    <label for="walt-box">WALT</label>
                 </div>
                 <div id="sorry" class="lame" style="display:none">
                     NO WEBASSEMBLY SUPPORT.
@@ -45,15 +45,16 @@
             <p class="description">
                 This compares a standard Javascript implementation against three different WebAssembly modules:
                 <ul>
-                    <li>C code compiled by Enscripten</li>
-                    <li>JS-like code compiled by <a href="https://github.com/ballercat/walt">Walt</a></li>
+                    <li>C code compiled by WebAssembly Studio (Clang / Binaryen)</li>
+                    <li class="ems">C code compiled by Emscripten</li>
                     <li>TypeScript-like code compiled by <a href="http://assemblyscript.org">AssemblyScript</a></li>
+                    <li>JS-like code compiled by <a href="https://github.com/ballercat/walt">Walt</a></li>
                 </ul>
             </p>
             <p class="description"><a href="https://github.com/jtiscione/webassembly-wave">Github repository</a></p>
         </div>
         <div>
-            <canvas id="canvas" width="500" height="500"></canvas>
+            <canvas id="canvas" width="512" height="512"></canvas>
         </div>
     </div>
     </body>

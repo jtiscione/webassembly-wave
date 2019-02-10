@@ -15,6 +15,12 @@ function wave(modules) {
   const noiseBtn = document.getElementById('noiseBtn');
   const clearBtn = document.getElementById('clearBtn');
 
+  if (canvas.width > 512 || canvas.height > 512) {
+    // Emscripten doesn't export its memory object, so we have to make one ourselves and import it.
+    // But if the size exceeds a certain threshold it will be replaced with one that is inaccessible.
+    document.querySelectorAll('.ems').forEach(e => e.style.display = 'none');
+  }
+
   let width = canvas.width;
   let height = canvas.height;
   const context = canvas.getContext('2d');
@@ -337,6 +343,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
         })
       }
     };
+
+    // Hack: look for a "size" parameter in the URL
+    const matches = window.location.href.match(/size=(\d+)/);
+    if (matches) {
+      const canvas = document.getElementById('canvas');
+      canvas.width = canvas.height = parseInt(matches[1]);
+    }
 
     fetch('clang/main.wasm')
       .then(response => response.arrayBuffer())
