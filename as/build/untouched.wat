@@ -430,9 +430,9 @@
   end
   block $break|2
    i32.const 0
-   local.set $9
+   local.set $15
    loop $repeat|2
-    local.get $9
+    local.get $15
     local.get $2
     i32.lt_s
     i32.eqz
@@ -440,28 +440,41 @@
     block
      block $assembly/index/Pointer#get|inlined.9 (result i32)
       local.get $3
-      local.set $18
-      local.get $9
-      local.set $16
-      local.get $18
-      local.get $16
+      local.set $14
+      local.get $15
+      local.set $13
+      local.get $14
+      local.get $13
       i32.const 2
       i32.shl
       i32.add
       i32.load
      end
-     local.set $16
-     local.get $16
+     local.set $9
+     local.get $9
      global.get $assembly/index/STATUS_DEFAULT
      i32.eq
      if
       block $assembly/index/Pointer#get|inlined.10 (result i32)
        local.get $6
-       local.set $18
-       local.get $9
-       local.set $11
-       local.get $18
-       local.get $11
+       local.set $13
+       local.get $15
+       local.set $14
+       local.get $13
+       local.get $14
+       i32.const 2
+       i32.shl
+       i32.add
+       i32.load
+      end
+      local.set $18
+      block $assembly/index/Pointer#get|inlined.11 (result i32)
+       local.get $4
+       local.set $14
+       local.get $15
+       local.set $13
+       local.get $14
+       local.get $13
        i32.const 2
        i32.shl
        i32.add
@@ -469,117 +482,97 @@
       end
       local.set $11
       block $assembly/index/applyCap|inlined.1 (result i32)
-       block $assembly/index/Pointer#get|inlined.11 (result i32)
-        local.get $4
-        local.set $18
-        local.get $9
-        local.set $15
-        local.get $18
-        local.get $15
-        i32.const 2
-        i32.shl
-        i32.add
-        i32.load
-       end
+       local.get $11
        block $assembly/index/Pointer#get|inlined.12 (result i32)
         local.get $5
-        local.set $15
-        local.get $9
-        local.set $18
+        local.set $13
         local.get $15
-        local.get $18
+        local.set $14
+        local.get $13
+        local.get $14
         i32.const 2
         i32.shl
         i32.add
         i32.load
        end
        i32.add
-       local.set $18
-       local.get $18
+       local.set $14
+       local.get $14
        i32.const -1073741824
        i32.lt_s
        if (result i32)
         i32.const -1073741824
        else        
-        local.get $18
+        local.get $14
         i32.const 1073741823
         i32.gt_s
         if (result i32)
          i32.const 1073741823
         else         
-         local.get $18
+         local.get $14
         end
        end
       end
-      local.set $18
-      local.get $4
-      local.get $9
+      local.set $16
       block $assembly/index/applyCap|inlined.2 (result i32)
-       local.get $11
        local.get $18
+       local.get $16
        i32.add
-       local.set $15
-       local.get $15
+       local.set $14
+       local.get $14
        i32.const -1073741824
        i32.lt_s
        if (result i32)
         i32.const -1073741824
        else        
-        local.get $15
+        local.get $14
         i32.const 1073741823
         i32.gt_s
         if (result i32)
          i32.const 1073741823
         else         
-         local.get $15
+         local.get $14
         end
        end
       end
+      local.set $11
+      local.get $4
+      local.get $15
+      local.get $11
       call $assembly/index/Pointer#set
       local.get $6
-      local.get $9
-      local.get $11
-      local.get $11
+      local.get $15
+      local.get $18
+      local.get $18
       global.get $assembly/index/FORCE_DAMPING_BIT_SHIFT
       i32.shr_s
       i32.sub
       call $assembly/index/Pointer#set
      end
-     local.get $16
+     local.get $9
      global.get $assembly/index/STATUS_WALL
      i32.eq
      if
       local.get $7
-      local.get $9
+      local.get $15
       i32.const 0
       call $assembly/index/Pointer#set
      else      
       local.get $7
-      local.get $9
+      local.get $15
       block $assembly/index/toRGB|inlined.0 (result i32)
-       block $assembly/index/Pointer#get|inlined.13 (result i32)
-        local.get $4
-        local.set $18
-        local.get $9
-        local.set $11
-        local.get $18
-        local.get $11
-        i32.const 2
-        i32.shl
-        i32.add
-        i32.load
-       end
-       local.set $11
        local.get $11
+       local.set $14
+       local.get $14
        i32.const 22
        i32.shr_s
-       local.set $18
-       local.get $18
+       local.set $13
+       local.get $13
        i32.const 0
        i32.lt_s
        if
         i32.const 0
-        local.get $18
+        local.get $13
         i32.const 1
         i32.add
         i32.sub
@@ -587,10 +580,10 @@
         i32.or
         br $assembly/index/toRGB|inlined.0
        end
-       local.get $18
+       local.get $13
        i32.const 8
        i32.shl
-       local.get $18
+       local.get $13
        i32.const 16
        i32.shl
        i32.or
@@ -600,10 +593,10 @@
       call $assembly/index/Pointer#set
      end
     end
-    local.get $9
+    local.get $15
     i32.const 1
     i32.add
-    local.set $9
+    local.set $15
     br $repeat|2
     unreachable
    end
