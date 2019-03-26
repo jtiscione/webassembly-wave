@@ -17,12 +17,29 @@ function jsWaveAlgorithm() {
     // Map negative values to red, positive to blue-green, zero to black
     let val = (signed32bitValue >> 22);
     let rgba = ALPHA;
+
     if (val > 0) {
       rgba = val | (val << 8) | ALPHA; // yellow
     } else if (val < 0) {
-      val = val + 1;  // OR: val = Math.max(val, -255);
+      val = val + 1;  // intent: val = max(val, -255);
       rgba = -val | ((-val) << 16) | ALPHA; // purple
     }
+
+    /*
+    if (val > 0) {
+      rgba = ((val & 0xFE) << 15) | (val << 8) | ALPHA; // bluish-green
+    } else if (val < 0) {
+      val = val + 1;  // intent: val = max(val, -255);
+      rgba = -val | ((-val & 0xFE) << 15) | ALPHA; // pink
+    }
+
+    if (val > 0) {
+      rgba = val | ((val & 0xFE) << 7) | ALPHA; // orange
+    } else if (val < 0) {
+      val = val + 1;  // intent: val = max(val, -255);
+      rgba = ((-val & 0xFE) << 7) | (-val << 16) | ALPHA; // blue
+    }
+    */
     return rgba;
   }
 
