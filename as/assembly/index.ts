@@ -23,10 +23,10 @@ class Pointer {
 }
 
 @inline function toRGB(x: i32): i32 {
-  // Map negative values to red, positive to blue-green, zero to black
+  // Map negative values to pink, positive to pale green, zero to black
   var val = x >> 22;
-  if (val < 0) return ((-(val + 1))  | 0xFF000000); // red
-  return (((val << 8) | (val << 16)) | 0xFF000000); // cyan
+  if (val < 0) return ((-(val + 1)) | (((-(val + 1)) & 0xFE) << 15) | 0xFF000000); // pink
+  return (((val << 8) | ((val & 0xFE) << 15)) | 0xFF000000); // pale green
 }
 
 const STATUS_DEFAULT: i32 = 0;

@@ -22,10 +22,10 @@ function toRGB(x: i32) : i32 {
   let val: i32 = x >> 22;
   let rgba: i32 = ALPHA;
   if (val > 0) {
-    rgba = val | (val << 8) | (val << 16) | ALPHA; // gray
+    rgba = val | ((val & 0xFE) << 7) | ALPHA; // gray
   } else if (val < 0) {
-    val = -(val + 1);
-    rgba = ((val << 8) | ALPHA); // green
+    val = val + 1; // intent: val = max(val, -255)
+    rgba = (((-val & 0xFE) << 7) | (-val << 16) | ALPHA); // green
   }
   return rgba;
 }
