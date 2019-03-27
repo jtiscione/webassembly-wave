@@ -21,10 +21,10 @@
                 <div id="radio" class="radio">
                     <input type="radio" id="js-box" name="algorithm" checked />
                     <label for="js-box">JAVASCRIPT</label>
-                    <input type="radio" id="clang-box" name="algorithm" />
-                    <label for="clang-box">CLANG</label>
                     <input type="radio" id="emscripten-box" name="algorithm" class="ems" />
                     <label for="emscripten-box" class="ems">EMSCRIPTEN</label>
+                    <input type="radio" id="clang-box" name="algorithm" />
+                    <label for="clang-box">CLANG</label>
                     <input type="radio" id="assembly-box" name="algorithm" />
                     <label for="assembly-box">ASSEMBLYSCRIPT</label>
                     <input type="radio" id="walt-box" name="algorithm" />
@@ -45,8 +45,8 @@
             <p class="description">
                 This compares a standard Javascript implementation against three different WebAssembly modules:
                 <ul>
-                    <li>C code compiled by WebAssembly Studio (Clang / Binaryen)</li>
                     <li class="ems">C code compiled by Emscripten</li>
+                    <li>C code compiled by WebAssembly Studio (Clang / Binaryen)</li>
                     <li>TypeScript-like code compiled by <a href="http://assemblyscript.org">AssemblyScript</a></li>
                     <li>JS-like code compiled by <a href="https://github.com/ballercat/walt">Walt</a></li>
                 </ul>
