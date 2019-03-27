@@ -18,14 +18,14 @@ int applyCap(x) {
 }
 
 unsigned int toRGB(x) {
-  // Map negative values to red, positive to blue-green, zero to black
+  // Map negative values to peach, positive to pale green, zero to black
   int val = x >> 22;
   int rgba = ALPHA;
   if (val > 0) {
-    rgba = (val << 8) | (val << 16) | ALPHA;
+    rgba = (val << 8) | ((val & 0xFE) << 15) | ALPHA; // pale green
   } else if (val < 0) {
-    val = val + 1; // OR: val = Math.max(val, -255);
-    rgba = -val | ALPHA; // red
+    val = val + 1; // intent: val = Math.max(val, -255);
+    rgba = -val | ((-val & 0xFE) << 7) | ((-val & 0xFE) << 15) | ALPHA; // peach
   }
   return rgba;
 }
