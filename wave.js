@@ -11,7 +11,8 @@ function wave(modules) {
   const clangBox = document.getElementById('clang-box');
   const emscriptenBox = document.getElementById('emscripten-box');
   const waltBox = document.getElementById('walt-box');
-  const assemblyBox = document.getElementById('assembly-box');
+  const slowAssemblyBox = document.getElementById('slow-assembly-box');
+  const fastAssemblyBox = document.getElementById('fast-assembly-box');
   const noiseBtn = document.getElementById('noiseBtn');
   const clearBtn = document.getElementById('clearBtn');
 
@@ -36,7 +37,8 @@ function wave(modules) {
   let clangAlgorithm = null;
   let emscriptenAlgorithm = null;
   let waltAlgorithm = null;
-  let assemblyScriptAlgorithm = null;
+  let slowAssemblyScriptAlgorithm = null;
+  let fastAssemblyScriptAlgorithm = null;
   if (modules) {
 
     if (modules.clang) {
@@ -54,9 +56,14 @@ function wave(modules) {
       waltAlgorithm.init(width, height);
     }
 
-    if (modules.assemblyScript) {
-      assemblyScriptAlgorithm = wasmWaveAlgorithm(modules.assemblyScript);
-      assemblyScriptAlgorithm.init(width, height);
+    if (modules.slowAssemblyScript) {
+      slowAssemblyScriptAlgorithm = wasmWaveAlgorithm(modules.slowAssemblyScript);
+      slowAssemblyScriptAlgorithm.init(width, height);
+    }
+
+    if (modules.fastAssemblyScript) {
+      fastAssemblyScriptAlgorithm = wasmWaveAlgorithm(modules.fastAssemblyScript);
+      fastAssemblyScriptAlgorithm.init(width, height);
     }
 
     const swap = function(replacement) {
@@ -78,8 +85,11 @@ function wave(modules) {
     waltBox.addEventListener('click', function(event) {
       swap(waltAlgorithm);
     });
-    assemblyBox.addEventListener('click', function(event) {
-      swap(assemblyScriptAlgorithm);
+    slowAssemblyBox.addEventListener('click', function(event) {
+      swap(slowAssemblyScriptAlgorithm);
+    });
+    fastAssemblyBox.addEventListener('click', function(event) {
+      swap(fastAssemblyScriptAlgorithm);
     });
 
   } else {
@@ -87,8 +97,12 @@ function wave(modules) {
     clangBox.disabled = true;
     emscriptenBox.disabled = true;
     waltBox.disabled = true;
-    assemblyBox.disabled = true;
-    document.getElementById('radio').style.display='none';
+    slowAssemblyBox.disabled = true;
+    fastAssemblyBox.disabled = true;
+    const selection = document.getElementsByClassName('radio');
+    for (let i = 0; i < selection.length; i++) {
+      selection[i].style.display = 'none';
+    }
     document.getElementById('sorry').style.display='block';
   }
 
@@ -327,7 +341,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
     let emscripten = null;
     let clang = null;
     let walt = null;
-    let assemblyScript = null;
+    let slowAssemblyScript = null;
+    let fastAssemblyScript = null;
 
     // Emscripten doesn't support exporting memory, only importing
     let emscriptenImportsObject = {
@@ -372,14 +387,21 @@ document.addEventListener("DOMContentLoaded", function(event) {
       .then((wasm) => {
         walt = wasm;
 
+        return fetch('as/build/untouched.wasm');
+      })
+      .then(response => response.arrayBuffer())
+      .then((bytes) => WebAssembly.instantiate(bytes, {}))
+      .then((wasm) => {
+        slowAssemblyScript = wasm;
+
         return fetch('as/build/optimized.wasm');
       })
       .then(response => response.arrayBuffer())
       .then((bytes) => WebAssembly.instantiate(bytes, {}))
       .then((wasm) => {
-        assemblyScript = wasm;
+        fastAssemblyScript = wasm;
 
-        return { clang, emscripten, walt, assemblyScript };
+        return { clang, emscripten, walt, slowAssemblyScript, fastAssemblyScript };
       }).then(wave);
   }
 });
