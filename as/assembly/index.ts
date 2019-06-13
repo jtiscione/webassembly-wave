@@ -18,10 +18,12 @@ class Pointer {
 }
 
 // Full int32 range is -0x80000000 to 0x7FFFFFFF. Use half.
+// @ts-ignore: decorator
 @inline function applyCap(x: i32): i32 {
   return x < -0x40000000 ? -0x40000000 : (x > 0x3FFFFFFF ? 0x3FFFFFFF : x);
 }
 
+// @ts-ignore: decorator
 @inline function toRGB(x: i32): i32 {
   // Map negative values to pink, positive to pale green, zero to black
   var val = x >> 22;
@@ -29,16 +31,16 @@ class Pointer {
   return (((val << 8) | ((val & 0xFE) << 15)) | 0xFF000000); // pale green
 }
 
-const STATUS_DEFAULT: i32 = 0;
-const STATUS_WALL: i32 = 1;
-const STATUS_POS_TRANSMITTER: i32 = 2;
-const STATUS_NEG_TRANSMITTER: i32 = 3;
+const STATUS_DEFAULT = 0;
+const STATUS_WALL = 1;
+const STATUS_POS_TRANSMITTER = 2;
+const STATUS_NEG_TRANSMITTER = 3;
 
-const FORCE_DAMPING_BIT_SHIFT: i32 = 4;
+const FORCE_DAMPING_BIT_SHIFT = 4;
 
-let width:  i32 = 0;
-let height: i32 = 0;
-let area:   i32 = 0;
+let width = 0;
+let height = 0;
+let area = 0;
 
 let image:  Pointer;
 let force:  Pointer;
@@ -52,8 +54,8 @@ export function init(_ignored: i32, offset: i32, w: i32, h: i32): void {
   height = h;
   area   = width * height;
   image  = new Pointer(offset);
-  force  = new Pointer(offset + 4  * area);
-  status = new Pointer(offset + 8  * area);
+  force  = new Pointer(offset +  4 * area);
+  status = new Pointer(offset +  8 * area);
   u      = new Pointer(offset + 12 * area);
   v      = new Pointer(offset + 16 * area);
 
@@ -69,7 +71,8 @@ export function init(_ignored: i32, offset: i32, w: i32, h: i32): void {
 }
 
 export function step(signalAmplitude: i32, dampingBitShift: i32): void {
-  let _area = area,
+  let
+    _area = area,
     _status = status,
     _u = u,
     _v = v,
