@@ -1,6 +1,8 @@
 (module
  (type $FUNCSIG$viiii (func (param i32 i32 i32 i32)))
  (type $FUNCSIG$iii (func (param i32 i32) (result i32)))
+ (type $FUNCSIG$ii (func (param i32) (result i32)))
+ (type $FUNCSIG$vi (func (param i32)))
  (type $FUNCSIG$viii (func (param i32 i32 i32)))
  (type $FUNCSIG$vii (func (param i32 i32)))
  (type $FUNCSIG$v (func))
@@ -20,15 +22,20 @@
  (global $assembly/index/status (mut i32) (i32.const 0))
  (global $assembly/index/u (mut i32) (i32.const 0))
  (global $assembly/index/v (mut i32) (i32.const 0))
- (global $~lib/memory/HEAP_BASE i32 (i32.const 8))
  (export "memory" (memory $0))
- (export "table" (table $0))
  (export "init" (func $assembly/index/init))
  (export "step" (func $assembly/index/step))
- (func $assembly/index/Pointer#constructor (; 0 ;) (type $FUNCSIG$iii) (param $0 i32) (param $1 i32) (result i32)
-  local.get $1
+ (func $~lib/rt/stub/__retain (; 0 ;) (type $FUNCSIG$ii) (param $0 i32) (result i32)
+  local.get $0
  )
- (func $assembly/index/Pointer#set (; 1 ;) (type $FUNCSIG$viii) (param $0 i32) (param $1 i32) (param $2 i32)
+ (func $assembly/index/Pointer#constructor (; 1 ;) (type $FUNCSIG$iii) (param $0 i32) (param $1 i32) (result i32)
+  local.get $1
+  call $~lib/rt/stub/__retain
+ )
+ (func $~lib/rt/stub/__release (; 2 ;) (type $FUNCSIG$vi) (param $0 i32)
+  nop
+ )
+ (func $assembly/index/Pointer#set (; 3 ;) (type $FUNCSIG$viii) (param $0 i32) (param $1 i32) (param $2 i32)
   local.get $0
   local.get $1
   i32.const 2
@@ -37,7 +44,7 @@
   local.get $2
   i32.store
  )
- (func $assembly/index/init (; 2 ;) (type $FUNCSIG$viiii) (param $0 i32) (param $1 i32) (param $2 i32) (param $3 i32)
+ (func $assembly/index/init (; 4 ;) (type $FUNCSIG$viiii) (param $0 i32) (param $1 i32) (param $2 i32) (param $3 i32)
   (local $4 i32)
   local.get $2
   global.set $assembly/index/width
@@ -50,6 +57,10 @@
   i32.const 0
   local.get $1
   call $assembly/index/Pointer#constructor
+  local.set $4
+  global.get $assembly/index/image
+  call $~lib/rt/stub/__release
+  local.get $4
   global.set $assembly/index/image
   i32.const 0
   local.get $1
@@ -58,6 +69,10 @@
   i32.mul
   i32.add
   call $assembly/index/Pointer#constructor
+  local.set $4
+  global.get $assembly/index/force
+  call $~lib/rt/stub/__release
+  local.get $4
   global.set $assembly/index/force
   i32.const 0
   local.get $1
@@ -66,6 +81,10 @@
   i32.mul
   i32.add
   call $assembly/index/Pointer#constructor
+  local.set $4
+  global.get $assembly/index/status
+  call $~lib/rt/stub/__release
+  local.get $4
   global.set $assembly/index/status
   i32.const 0
   local.get $1
@@ -74,6 +93,10 @@
   i32.mul
   i32.add
   call $assembly/index/Pointer#constructor
+  local.set $4
+  global.get $assembly/index/u
+  call $~lib/rt/stub/__release
+  local.get $4
   global.set $assembly/index/u
   i32.const 0
   local.get $1
@@ -82,77 +105,75 @@
   i32.mul
   i32.add
   call $assembly/index/Pointer#constructor
+  local.set $4
+  global.get $assembly/index/v
+  call $~lib/rt/stub/__release
+  local.get $4
   global.set $assembly/index/v
   block $break|0
    i32.const 0
    local.set $4
-   loop $repeat|0
+   loop $loop|0
     local.get $4
     global.get $assembly/index/height
     i32.lt_s
     i32.eqz
     br_if $break|0
-    block
-     global.get $assembly/index/status
-     local.get $4
-     global.get $assembly/index/width
-     i32.mul
-     global.get $assembly/index/STATUS_WALL
-     call $assembly/index/Pointer#set
-     global.get $assembly/index/status
-     local.get $4
-     global.get $assembly/index/width
-     i32.mul
-     global.get $assembly/index/width
-     i32.add
-     i32.const 1
-     i32.sub
-     global.get $assembly/index/STATUS_WALL
-     call $assembly/index/Pointer#set
-    end
+    global.get $assembly/index/status
+    local.get $4
+    global.get $assembly/index/width
+    i32.mul
+    global.get $assembly/index/STATUS_WALL
+    call $assembly/index/Pointer#set
+    global.get $assembly/index/status
+    local.get $4
+    global.get $assembly/index/width
+    i32.mul
+    global.get $assembly/index/width
+    i32.add
+    i32.const 1
+    i32.sub
+    global.get $assembly/index/STATUS_WALL
+    call $assembly/index/Pointer#set
     local.get $4
     i32.const 1
     i32.add
     local.set $4
-    br $repeat|0
-    unreachable
+    br $loop|0
    end
    unreachable
   end
   block $break|1
    i32.const 0
    local.set $4
-   loop $repeat|1
+   loop $loop|1
     local.get $4
     global.get $assembly/index/width
     i32.lt_s
     i32.eqz
     br_if $break|1
-    block
-     global.get $assembly/index/status
-     local.get $4
-     global.get $assembly/index/STATUS_WALL
-     call $assembly/index/Pointer#set
-     global.get $assembly/index/status
-     global.get $assembly/index/area
-     global.get $assembly/index/width
-     i32.sub
-     local.get $4
-     i32.add
-     global.get $assembly/index/STATUS_WALL
-     call $assembly/index/Pointer#set
-    end
+    global.get $assembly/index/status
+    local.get $4
+    global.get $assembly/index/STATUS_WALL
+    call $assembly/index/Pointer#set
+    global.get $assembly/index/status
+    global.get $assembly/index/area
+    global.get $assembly/index/width
+    i32.sub
+    local.get $4
+    i32.add
+    global.get $assembly/index/STATUS_WALL
+    call $assembly/index/Pointer#set
     local.get $4
     i32.const 1
     i32.add
     local.set $4
-    br $repeat|1
-    unreachable
+    br $loop|1
    end
    unreachable
   end
  )
- (func $assembly/index/step (; 3 ;) (type $FUNCSIG$vii) (param $0 i32) (param $1 i32)
+ (func $assembly/index/step (; 5 ;) (type $FUNCSIG$vii) (param $0 i32) (param $1 i32)
   (local $2 i32)
   (local $3 i32)
   (local $4 i32)
@@ -173,212 +194,198 @@
   global.get $assembly/index/area
   local.set $2
   global.get $assembly/index/status
+  call $~lib/rt/stub/__retain
   local.set $3
   global.get $assembly/index/u
+  call $~lib/rt/stub/__retain
   local.set $4
   global.get $assembly/index/v
+  call $~lib/rt/stub/__retain
   local.set $5
   global.get $assembly/index/force
+  call $~lib/rt/stub/__retain
   local.set $6
   global.get $assembly/index/image
+  call $~lib/rt/stub/__retain
   local.set $7
   global.get $assembly/index/width
   local.set $8
   block $break|0
    i32.const 0
    local.set $9
-   loop $repeat|0
+   loop $loop|0
     local.get $9
     local.get $2
     i32.lt_s
     i32.eqz
     br_if $break|0
-    block
-     block $assembly/index/Pointer#get|inlined.0 (result i32)
-      local.get $3
-      local.set $10
-      local.get $9
-      local.set $11
-      local.get $10
-      local.get $11
-      i32.const 2
-      i32.shl
-      i32.add
-      i32.load
-     end
-     local.set $11
-     local.get $11
-     global.get $assembly/index/STATUS_POS_TRANSMITTER
-     i32.eq
-     if
-      local.get $4
-      local.get $9
-      local.get $0
-      call $assembly/index/Pointer#set
-      local.get $5
-      local.get $9
-      i32.const 0
-      call $assembly/index/Pointer#set
-      local.get $6
-      local.get $9
-      i32.const 0
-      call $assembly/index/Pointer#set
-     end
-     local.get $11
-     global.get $assembly/index/STATUS_NEG_TRANSMITTER
-     i32.eq
-     if
-      local.get $4
-      local.get $9
-      i32.const 0
-      local.get $0
-      i32.sub
-      call $assembly/index/Pointer#set
-      local.get $5
-      local.get $9
-      i32.const 0
-      call $assembly/index/Pointer#set
-      local.get $6
-      local.get $9
-      i32.const 0
-      call $assembly/index/Pointer#set
-     end
+    local.get $3
+    local.set $11
+    local.get $9
+    local.set $10
+    local.get $11
+    local.get $10
+    i32.const 2
+    i32.shl
+    i32.add
+    i32.load
+    local.set $11
+    local.get $11
+    i32.const 2
+    i32.eq
+    if
+     local.get $4
+     local.get $9
+     local.get $0
+     call $assembly/index/Pointer#set
+     local.get $5
+     local.get $9
+     i32.const 0
+     call $assembly/index/Pointer#set
+     local.get $6
+     local.get $9
+     i32.const 0
+     call $assembly/index/Pointer#set
+    end
+    local.get $11
+    i32.const 3
+    i32.eq
+    if
+     local.get $4
+     local.get $9
+     i32.const 0
+     local.get $0
+     i32.sub
+     call $assembly/index/Pointer#set
+     local.get $5
+     local.get $9
+     i32.const 0
+     call $assembly/index/Pointer#set
+     local.get $6
+     local.get $9
+     i32.const 0
+     call $assembly/index/Pointer#set
     end
     local.get $9
     i32.const 1
     i32.add
     local.set $9
-    br $repeat|0
-    unreachable
+    br $loop|0
    end
    unreachable
   end
   block $break|1
    i32.const 0
-   local.set $9
-   loop $repeat|1
-    local.get $9
+   local.set $11
+   loop $loop|1
+    local.get $11
     local.get $2
     i32.lt_s
     i32.eqz
     br_if $break|1
-    block $assembly/index/Pointer#get|inlined.2 (result i32)
-     local.get $3
+    local.get $3
+    local.set $9
+    local.get $11
+    local.set $10
+    local.get $9
+    local.get $10
+    i32.const 2
+    i32.shl
+    i32.add
+    i32.load
+    i32.const 0
+    i32.eq
+    if
+     local.get $4
+     local.set $9
+     local.get $11
      local.set $10
      local.get $9
-     local.set $11
      local.get $10
-     local.get $11
      i32.const 2
      i32.shl
      i32.add
      i32.load
-    end
-    global.get $assembly/index/STATUS_DEFAULT
-    i32.eq
-    if
-     block $assembly/index/Pointer#get|inlined.3 (result i32)
-      local.get $4
-      local.set $11
-      local.get $9
-      local.set $10
-      local.get $11
-      local.get $10
-      i32.const 2
-      i32.shl
-      i32.add
-      i32.load
-     end
-     local.set $10
-     block $assembly/index/Pointer#get|inlined.4 (result i32)
-      local.get $4
-      local.set $11
-      local.get $9
-      local.get $8
-      i32.sub
-      local.set $12
-      local.get $11
-      local.get $12
-      i32.const 2
-      i32.shl
-      i32.add
-      i32.load
-     end
+     local.set $9
+     local.get $4
      local.set $12
-     block $assembly/index/Pointer#get|inlined.5 (result i32)
-      local.get $4
-      local.set $11
-      local.get $9
-      local.get $8
-      i32.add
-      local.set $13
-      local.get $11
-      local.get $13
-      i32.const 2
-      i32.shl
-      i32.add
-      i32.load
-     end
+     local.get $11
+     local.get $8
+     i32.sub
+     local.set $10
+     local.get $12
+     local.get $10
+     i32.const 2
+     i32.shl
+     i32.add
+     i32.load
+     local.set $12
+     local.get $4
      local.set $13
-     block $assembly/index/Pointer#get|inlined.6 (result i32)
-      local.get $4
-      local.set $11
-      local.get $9
-      i32.const 1
-      i32.add
-      local.set $14
-      local.get $11
-      local.get $14
-      i32.const 2
-      i32.shl
-      i32.add
-      i32.load
-     end
+     local.get $11
+     local.get $8
+     i32.add
+     local.set $10
+     local.get $13
+     local.get $10
+     i32.const 2
+     i32.shl
+     i32.add
+     i32.load
+     local.set $13
+     local.get $4
      local.set $14
-     block $assembly/index/Pointer#get|inlined.7 (result i32)
-      local.get $4
-      local.set $11
-      local.get $9
-      i32.const 1
-      i32.sub
-      local.set $15
-      local.get $11
-      local.get $15
-      i32.const 2
-      i32.shl
-      i32.add
-      i32.load
-     end
+     local.get $11
+     i32.const 1
+     i32.add
+     local.set $10
+     local.get $14
+     local.get $10
+     i32.const 2
+     i32.shl
+     i32.add
+     i32.load
+     local.set $14
+     local.get $4
+     local.set $15
+     local.get $11
+     i32.const 1
+     i32.sub
+     local.set $10
+     local.get $15
+     local.get $10
+     i32.const 2
+     i32.shl
+     i32.add
+     i32.load
      local.set $15
      local.get $15
      local.get $14
      i32.add
      i32.const 1
      i32.shr_s
-     local.get $10
+     local.get $9
      i32.sub
-     local.set $11
+     local.set $10
      local.get $12
      local.get $13
      i32.add
      i32.const 1
      i32.shr_s
-     local.get $10
+     local.get $9
      i32.sub
      local.set $16
-     block $assembly/index/Pointer#get|inlined.8 (result i32)
-      local.get $5
-      local.set $17
-      local.get $9
-      local.set $18
-      local.get $17
-      local.get $18
-      i32.const 2
-      i32.shl
-      i32.add
-      i32.load
-     end
+     local.get $5
+     local.set $18
      local.get $11
+     local.set $17
+     local.get $18
+     local.get $17
+     i32.const 2
+     i32.shl
+     i32.add
+     i32.load
+     local.get $10
      i32.const 1
      i32.shr_s
      i32.add
@@ -397,203 +404,174 @@
       local.set $18
      end
      local.get $5
-     local.get $9
-     block $assembly/index/applyCap|inlined.0 (result i32)
-      local.get $18
-      local.set $17
-      local.get $17
+     local.get $11
+     local.get $18
+     local.set $17
+     local.get $17
+     i32.const -1073741824
+     i32.lt_s
+     if (result i32)
       i32.const -1073741824
-      i32.lt_s
+     else      
+      local.get $17
+      i32.const 1073741823
+      i32.gt_s
       if (result i32)
-       i32.const -1073741824
+       i32.const 1073741823
       else       
        local.get $17
-       i32.const 1073741823
-       i32.gt_s
-       if (result i32)
-        i32.const 1073741823
-       else        
-        local.get $17
-       end
       end
      end
      call $assembly/index/Pointer#set
     end
-    local.get $9
+    local.get $11
     i32.const 1
     i32.add
-    local.set $9
-    br $repeat|1
-    unreachable
+    local.set $11
+    br $loop|1
    end
    unreachable
   end
   block $break|2
    i32.const 0
    local.set $15
-   loop $repeat|2
+   loop $loop|2
     local.get $15
     local.get $2
     i32.lt_s
     i32.eqz
     br_if $break|2
-    block
-     block $assembly/index/Pointer#get|inlined.9 (result i32)
-      local.get $3
-      local.set $14
-      local.get $15
-      local.set $13
-      local.get $14
-      local.get $13
-      i32.const 2
-      i32.shl
-      i32.add
-      i32.load
-     end
+    local.get $3
+    local.set $9
+    local.get $15
+    local.set $17
+    local.get $9
+    local.get $17
+    i32.const 2
+    i32.shl
+    i32.add
+    i32.load
+    local.set $11
+    local.get $11
+    i32.const 0
+    i32.eq
+    if
+     local.get $6
+     local.set $13
+     local.get $15
+     local.set $12
+     local.get $13
+     local.get $12
+     i32.const 2
+     i32.shl
+     i32.add
+     i32.load
+     local.set $18
+     local.get $4
+     local.set $17
+     local.get $15
+     local.set $14
+     local.get $17
+     local.get $14
+     i32.const 2
+     i32.shl
+     i32.add
+     i32.load
+     local.set $10
+     local.get $10
+     local.get $5
+     local.set $12
+     local.get $15
      local.set $9
+     local.get $12
      local.get $9
-     global.get $assembly/index/STATUS_DEFAULT
-     i32.eq
-     if
-      block $assembly/index/Pointer#get|inlined.10 (result i32)
-       local.get $6
-       local.set $13
-       local.get $15
-       local.set $14
-       local.get $13
-       local.get $14
-       i32.const 2
-       i32.shl
-       i32.add
-       i32.load
-      end
-      local.set $18
-      block $assembly/index/Pointer#get|inlined.11 (result i32)
-       local.get $4
-       local.set $14
-       local.get $15
-       local.set $13
-       local.get $14
-       local.get $13
-       i32.const 2
-       i32.shl
-       i32.add
-       i32.load
-      end
-      local.set $11
-      block $assembly/index/applyCap|inlined.1 (result i32)
-       local.get $11
-       block $assembly/index/Pointer#get|inlined.12 (result i32)
-        local.get $5
-        local.set $13
-        local.get $15
-        local.set $14
-        local.get $13
-        local.get $14
-        i32.const 2
-        i32.shl
-        i32.add
-        i32.load
-       end
-       i32.add
-       local.set $14
-       local.get $14
-       i32.const -1073741824
-       i32.lt_s
-       if (result i32)
-        i32.const -1073741824
-       else        
-        local.get $14
-        i32.const 1073741823
-        i32.gt_s
-        if (result i32)
-         i32.const 1073741823
-        else         
-         local.get $14
-        end
-       end
-      end
-      local.set $16
-      block $assembly/index/applyCap|inlined.2 (result i32)
-       local.get $18
-       local.get $16
-       i32.add
-       local.set $14
-       local.get $14
-       i32.const -1073741824
-       i32.lt_s
-       if (result i32)
-        i32.const -1073741824
-       else        
-        local.get $14
-        i32.const 1073741823
-        i32.gt_s
-        if (result i32)
-         i32.const 1073741823
-        else         
-         local.get $14
-        end
-       end
-      end
-      local.set $11
-      local.get $4
-      local.get $15
-      local.get $11
-      call $assembly/index/Pointer#set
-      local.get $6
-      local.get $15
-      local.get $18
-      local.get $18
-      global.get $assembly/index/FORCE_DAMPING_BIT_SHIFT
-      i32.shr_s
-      i32.sub
-      call $assembly/index/Pointer#set
-     end
-     local.get $9
-     global.get $assembly/index/STATUS_WALL
-     i32.eq
-     if
-      local.get $7
-      local.get $15
-      i32.const 0
-      call $assembly/index/Pointer#set
+     i32.const 2
+     i32.shl
+     i32.add
+     i32.load
+     i32.add
+     local.set $13
+     local.get $13
+     i32.const -1073741824
+     i32.lt_s
+     if (result i32)
+      i32.const -1073741824
      else      
-      local.get $7
-      local.get $15
-      block $assembly/index/toRGB|inlined.0 (result i32)
-       local.get $11
-       local.set $14
+      local.get $13
+      i32.const 1073741823
+      i32.gt_s
+      if (result i32)
+       i32.const 1073741823
+      else       
+       local.get $13
+      end
+     end
+     local.set $16
+     local.get $18
+     local.get $16
+     i32.add
+     local.set $14
+     local.get $14
+     i32.const -1073741824
+     i32.lt_s
+     if (result i32)
+      i32.const -1073741824
+     else      
+      local.get $14
+      i32.const 1073741823
+      i32.gt_s
+      if (result i32)
+       i32.const 1073741823
+      else       
        local.get $14
-       i32.const 22
-       i32.shr_s
-       local.set $13
-       local.get $13
+      end
+     end
+     local.set $10
+     local.get $4
+     local.get $15
+     local.get $10
+     call $assembly/index/Pointer#set
+     local.get $6
+     local.get $15
+     local.get $18
+     local.get $18
+     global.get $assembly/index/FORCE_DAMPING_BIT_SHIFT
+     i32.shr_s
+     i32.sub
+     call $assembly/index/Pointer#set
+    end
+    local.get $11
+    i32.const 1
+    i32.eq
+    if
+     local.get $7
+     local.get $15
+     i32.const 0
+     call $assembly/index/Pointer#set
+    else     
+     local.get $7
+     local.get $15
+     block $assembly/index/toRGB|inlined.0 (result i32)
+      local.get $10
+      local.set $17
+      local.get $17
+      i32.const 22
+      i32.shr_s
+      local.set $14
+      local.get $14
+      i32.const 0
+      i32.lt_s
+      if
        i32.const 0
-       i32.lt_s
-       if
-        i32.const 0
-        local.get $13
-        i32.const 1
-        i32.add
-        i32.sub
-        i32.const 0
-        local.get $13
-        i32.const 1
-        i32.add
-        i32.sub
-        i32.const 254
-        i32.and
-        i32.const 15
-        i32.shl
-        i32.or
-        i32.const -16777216
-        i32.or
-        br $assembly/index/toRGB|inlined.0
-       end
-       local.get $13
-       i32.const 8
-       i32.shl
-       local.get $13
+       local.get $14
+       i32.const 1
+       i32.add
+       i32.sub
+       i32.const 0
+       local.get $14
+       i32.const 1
+       i32.add
+       i32.sub
        i32.const 254
        i32.and
        i32.const 15
@@ -601,20 +579,41 @@
        i32.or
        i32.const -16777216
        i32.or
+       br $assembly/index/toRGB|inlined.0
       end
-      call $assembly/index/Pointer#set
+      local.get $14
+      i32.const 8
+      i32.shl
+      local.get $14
+      i32.const 254
+      i32.and
+      i32.const 15
+      i32.shl
+      i32.or
+      i32.const -16777216
+      i32.or
      end
+     call $assembly/index/Pointer#set
     end
     local.get $15
     i32.const 1
     i32.add
     local.set $15
-    br $repeat|2
-    unreachable
+    br $loop|2
    end
    unreachable
   end
+  local.get $3
+  call $~lib/rt/stub/__release
+  local.get $4
+  call $~lib/rt/stub/__release
+  local.get $5
+  call $~lib/rt/stub/__release
+  local.get $6
+  call $~lib/rt/stub/__release
+  local.get $7
+  call $~lib/rt/stub/__release
  )
- (func $null (; 4 ;) (type $FUNCSIG$v)
+ (func $null (; 6 ;) (type $FUNCSIG$v)
  )
 )
