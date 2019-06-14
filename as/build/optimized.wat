@@ -3,8 +3,6 @@
  (type $FUNCSIG$vii (func (param i32 i32)))
  (type $FUNCSIG$v (func))
  (memory $0 0)
- (table $0 1 funcref)
- (elem (i32.const 0) $null)
  (global $assembly/index/width (mut i32) (i32.const 0))
  (global $assembly/index/height (mut i32) (i32.const 0))
  (global $assembly/index/area (mut i32) (i32.const 0))
@@ -14,7 +12,6 @@
  (global $assembly/index/u (mut i32) (i32.const 0))
  (global $assembly/index/v (mut i32) (i32.const 0))
  (export "memory" (memory $0))
- (export "table" (table $0))
  (export "init" (func $assembly/index/init))
  (export "step" (func $assembly/index/step))
  (func $assembly/index/init (; 0 ;) (type $FUNCSIG$viiii) (param $0 i32) (param $1 i32) (param $2 i32) (param $3 i32)
@@ -54,13 +51,15 @@
   global.set $assembly/index/v
   i32.const 0
   local.set $0
-  loop $repeat|0
+  loop $loop|0
    local.get $0
    global.get $assembly/index/height
    i32.lt_s
    if
     global.get $assembly/index/status
+    local.tee $2
     global.get $assembly/index/width
+    local.tee $1
     local.get $0
     i32.mul
     i32.const 2
@@ -68,17 +67,16 @@
     i32.add
     i32.const 1
     i32.store
-    global.get $assembly/index/status
-    global.get $assembly/index/width
-    local.tee $1
     local.get $0
     local.get $1
     i32.mul
+    local.get $1
     i32.add
     i32.const 1
     i32.sub
     i32.const 2
     i32.shl
+    local.get $2
     i32.add
     i32.const 1
     i32.store
@@ -86,24 +84,24 @@
     i32.const 1
     i32.add
     local.set $0
-    br $repeat|0
+    br $loop|0
    end
   end
   i32.const 0
   local.set $0
-  loop $repeat|1
+  loop $loop|1
    local.get $0
    global.get $assembly/index/width
    i32.lt_s
    if
     global.get $assembly/index/status
+    local.tee $1
     local.get $0
     i32.const 2
     i32.shl
     i32.add
     i32.const 1
     i32.store
-    global.get $assembly/index/status
     global.get $assembly/index/area
     global.get $assembly/index/width
     i32.sub
@@ -111,6 +109,7 @@
     i32.add
     i32.const 2
     i32.shl
+    local.get $1
     i32.add
     i32.const 1
     i32.store
@@ -118,7 +117,7 @@
     i32.const 1
     i32.add
     local.set $0
-    br $repeat|1
+    br $loop|1
    end
   end
  )
@@ -138,7 +137,7 @@
   global.get $assembly/index/status
   local.set $9
   global.get $assembly/index/u
-  local.set $3
+  local.set $4
   global.get $assembly/index/v
   local.set $5
   global.get $assembly/index/force
@@ -147,36 +146,37 @@
   local.set $10
   global.get $assembly/index/width
   local.set $7
-  loop $repeat|0
+  loop $loop|0
    local.get $2
    local.get $8
    i32.lt_s
    if
     local.get $2
+    local.tee $3
     i32.const 2
     i32.shl
     local.get $9
     i32.add
     i32.load
-    local.tee $4
+    local.tee $2
     i32.const 2
     i32.eq
     if
-     local.get $2
+     local.get $3
      i32.const 2
      i32.shl
-     local.get $3
+     local.get $4
      i32.add
      local.get $0
      i32.store
-     local.get $2
+     local.get $3
      i32.const 2
      i32.shl
      local.get $5
      i32.add
      i32.const 0
      i32.store
-     local.get $2
+     local.get $3
      i32.const 2
      i32.shl
      local.get $6
@@ -184,27 +184,27 @@
      i32.const 0
      i32.store
     end
-    local.get $4
+    local.get $2
     i32.const 3
     i32.eq
     if
-     local.get $2
+     local.get $3
      i32.const 2
      i32.shl
-     local.get $3
+     local.get $4
      i32.add
      i32.const 0
      local.get $0
      i32.sub
      i32.store
-     local.get $2
+     local.get $3
      i32.const 2
      i32.shl
      local.get $5
      i32.add
      i32.const 0
      i32.store
-     local.get $2
+     local.get $3
      i32.const 2
      i32.shl
      local.get $6
@@ -212,23 +212,22 @@
      i32.const 0
      i32.store
     end
-    local.get $2
+    local.get $3
     i32.const 1
     i32.add
     local.set $2
-    br $repeat|0
+    br $loop|0
    end
   end
   i32.const 0
-  local.set $2
-  loop $repeat|1
-   local.get $2
+  local.set $0
+  loop $loop|1
+   local.get $0
    local.get $8
    i32.lt_s
    if
-    local.get $2
-    local.set $4
-    local.get $2
+    local.get $0
+    local.tee $3
     i32.const 2
     i32.shl
     local.get $9
@@ -236,62 +235,62 @@
     i32.load
     i32.eqz
     if
-     local.get $2
+     local.get $0
      i32.const 1
      i32.add
      i32.const 2
      i32.shl
-     local.get $3
+     local.get $4
      i32.add
      i32.load
-     local.get $2
+     local.get $0
      i32.const 1
      i32.sub
      i32.const 2
      i32.shl
-     local.get $3
+     local.get $4
      i32.add
      i32.load
      i32.add
      i32.const 1
      i32.shr_s
-     local.get $2
+     local.get $0
      i32.const 2
      i32.shl
-     local.tee $0
-     local.get $3
+     local.tee $2
+     local.get $4
      i32.add
      i32.load
      local.tee $11
      i32.sub
-     local.set $4
-     local.get $2
+     local.set $3
+     local.get $0
      i32.const 2
      i32.shl
      local.get $5
      i32.add
-     local.get $0
+     local.get $2
      local.get $5
      i32.add
      i32.load
-     local.get $4
+     local.get $3
      i32.const 1
      i32.shr_s
      i32.add
-     local.get $2
+     local.get $0
      local.get $7
      i32.sub
      i32.const 2
      i32.shl
-     local.get $3
+     local.get $4
      i32.add
      i32.load
-     local.get $2
+     local.get $0
      local.get $7
      i32.add
      i32.const 2
      i32.shl
-     local.get $3
+     local.get $4
      i32.add
      i32.load
      i32.add
@@ -302,39 +301,39 @@
      i32.const 1
      i32.shr_s
      i32.add
-     local.tee $0
-     local.get $0
+     local.tee $2
+     local.get $2
      local.get $1
      i32.shr_s
      i32.sub
-     local.get $0
+     local.get $2
      local.get $1
      select
-     local.tee $0
+     local.tee $2
      i32.const -1073741824
      i32.lt_s
      if (result i32)
       i32.const -1073741824
      else      
       i32.const 1073741823
-      local.get $0
-      local.get $0
+      local.get $2
+      local.get $2
       i32.const 1073741823
       i32.gt_s
       select
      end
      i32.store
     end
-    local.get $2
+    local.get $0
     i32.const 1
     i32.add
-    local.set $2
-    br $repeat|1
+    local.set $0
+    br $loop|1
    end
   end
   i32.const 0
   local.set $1
-  loop $repeat|2
+  loop $loop|2
    local.get $1
    local.get $8
    i32.lt_s
@@ -359,10 +358,10 @@
      local.get $1
      i32.const 2
      i32.shl
-     local.get $3
+     local.get $4
      i32.add
      local.get $0
-     local.get $3
+     local.get $4
      i32.add
      i32.load
      local.get $0
@@ -385,20 +384,20 @@
      end
      local.get $2
      i32.add
-     local.tee $4
+     local.tee $3
      i32.const -1073741824
      i32.lt_s
      if (result i32)
       i32.const -1073741824
      else      
       i32.const 1073741823
-      local.get $4
-      local.get $4
+      local.get $3
+      local.get $3
       i32.const 1073741823
       i32.gt_s
       select
      end
-     local.tee $4
+     local.tee $3
      i32.store
      local.get $1
      i32.const 2
@@ -430,7 +429,7 @@
      local.get $10
      i32.add
      block $assembly/index/toRGB|inlined.0 (result i32)
-      local.get $4
+      local.get $3
       i32.const 22
       i32.shr_s
       local.tee $0
@@ -471,7 +470,7 @@
     i32.const 1
     i32.add
     local.set $1
-    br $repeat|2
+    br $loop|2
    end
   end
  )
