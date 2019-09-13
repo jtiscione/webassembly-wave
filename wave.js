@@ -97,6 +97,7 @@ function wave(modules) {
 
   function animate() {
     setTimeout(animate, 0);
+    // requestAnimationFrame(animate);
 
     if (animationCount === 0) {
       // First frame-
@@ -124,7 +125,7 @@ function wave(modules) {
     const imgData = context.createImageData(width, height);
     imgData.data.set(imageArray);
     context.putImageData(imgData, 0, 0);
-    const now = Date.now();
+    const now = performance.now();
     timestamps.push(now);
     timestamps = timestamps.filter(function(e) {
       return ((now - e) < 1000);
@@ -157,10 +158,11 @@ function wave(modules) {
     }
   }
 
+  function applyCap(x) {
+    return x < -0x40000000 ? -0x40000000 : (x > 0x3FFFFFFF ? 0x3FFFFFFF : x);
+  }
+
   function applyBrush(x, y) {
-    function applyCap(x) {
-      return x < -0x40000000 ? -0x40000000 : (x > 0x3FFFFFFF ? 0x3FFFFFFF : x);
-    }
     if (forceArray === null) {
       forceArray = algorithm.getForceArray();
     }
@@ -169,15 +171,15 @@ function wave(modules) {
       if (targetY <= 0 || targetY >= height - 1) {
         continue;
       }
+      const brushStride = brushMatrix[p + brushMatrixRadius];
       for (let q = -brushMatrixRadius; q <= brushMatrixRadius; q++) {
         const targetX = x + q;
         if (targetX <= 0 || targetX >= width - 1) {
           continue;
         }
-        const brushValue = brushMatrix[p + brushMatrixRadius][q + brushMatrixRadius];
+        const brushValue = brushStride[q + brushMatrixRadius];
         const targetIndex = targetY * width + targetX;
-        forceArray[targetIndex] += brushValue;
-        forceArray[targetIndex] = applyCap(forceArray[targetIndex]);
+        forceArray[targetIndex] = applyCap(forceArray[targetIndex] + brushValue);
       }
     }
   }
