@@ -28,7 +28,6 @@ function wave(modules) {
 
   let imageArray = null;
   let forceArray = null;
-  let statusArray = null;
   let applyBrakes = false;
 
   const jsAlgorithm = jsWaveAlgorithm();
@@ -66,31 +65,18 @@ function wave(modules) {
       fastAssemblyScriptAlgorithm.init(width, height);
     }
 
-    const swap = function(replacement) {
+    const swap = replacement => {
       replacement.getEntireArray().set(algorithm.getEntireArray());
       algorithm = replacement;
       forceArray = null;
-      statusArray = null;
       imageArray = null;
     };
-    jsBox.addEventListener('click', function(event) {
-      swap(jsAlgorithm);
-    });
-    clangBox.addEventListener('click', function(event) {
-      swap(clangAlgorithm);
-    });
-    emscriptenBox.addEventListener('click', function(event) {
-      swap(emscriptenAlgorithm);
-    });
-    waltBox.addEventListener('click', function(event) {
-      swap(waltAlgorithm);
-    });
-    slowAssemblyBox.addEventListener('click', function(event) {
-      swap(slowAssemblyScriptAlgorithm);
-    });
-    fastAssemblyBox.addEventListener('click', function(event) {
-      swap(fastAssemblyScriptAlgorithm);
-    });
+    jsBox.addEventListener('click',           () => { swap(jsAlgorithm) });
+    clangBox.addEventListener('click',        () => { swap(clangAlgorithm) });
+    emscriptenBox.addEventListener('click',   () => { swap(emscriptenAlgorithm) });
+    waltBox.addEventListener('click',         () => { swap(waltAlgorithm) });
+    slowAssemblyBox.addEventListener('click', () => { swap(slowAssemblyScriptAlgorithm) });
+    fastAssemblyBox.addEventListener('click', () => { swap(fastAssemblyScriptAlgorithm) });
 
   } else {
     jsBox.disabled = true;
@@ -99,11 +85,8 @@ function wave(modules) {
     waltBox.disabled = true;
     slowAssemblyBox.disabled = true;
     fastAssemblyBox.disabled = true;
-    const selection = document.getElementsByClassName('radio');
-    for (let i = 0; i < selection.length; i++) {
-      selection[i].style.display = 'none';
-    }
-    document.getElementById('sorry').style.display='block';
+    document.getElementsByClassName('radio').forEach(btn => btn.style.display = 'none');
+    document.getElementById('sorry').style.display = 'block';
   }
 
   let timestamps = [];
@@ -133,7 +116,7 @@ function wave(modules) {
     }
 
     let amplitude = Math.floor(0x3FFFFFFF * Math.sin(6.283 * animationCount / 100));
-    algorithm.step(amplitude, (applyBrakes ? 5 : 0));
+    algorithm.step(amplitude, applyBrakes ? 5 : 0);
 
     if (imageArray === null) {
       imageArray = algorithm.getImageArray();
@@ -199,7 +182,7 @@ function wave(modules) {
     }
   }
 
-  canvas.onmousedown = function (e) {
+  canvas.onmousedown = e => {
     e.preventDefault();
     applyBrakes = false;
     const loc = windowToCanvas(canvas, e.clientX, e.clientY);
@@ -208,7 +191,7 @@ function wave(modules) {
     applyBrush(loc.x, loc.y);
   };
 
-  canvas.ontouchstart = function (e) {
+  canvas.ontouchstart = e => {
     e.preventDefault();
     applyBrakes = false;
     for (let i = 0; i < e.targetTouches.length; i++) {
@@ -220,7 +203,7 @@ function wave(modules) {
     }
   };
 
-  canvas.onmousemove = function (e) {
+  canvas.onmousemove = e => {
     e.preventDefault();
     const loc = windowToCanvas(canvas, e.clientX, e.clientY);
     const targetX = loc.x, targetY = loc.y;
@@ -238,7 +221,7 @@ function wave(modules) {
     }
   };
 
-  canvas.ontouchmove = function (e) {
+  canvas.ontouchmove = e => {
     e.preventDefault();
     if (lastMouseX !== null && lastMouseY !== null) {
       for (let i = 0; i < e.targetTouches.length; i++) {
@@ -259,21 +242,24 @@ function wave(modules) {
     }
   };
 
-  canvas.onmouseover = canvas.onmouseout = canvas.onmouseup = canvas.ontouchend = function (e) {
+  canvas.onmouseover =
+  canvas.onmouseout  =
+  canvas.onmouseup   =
+  canvas.ontouchend  = e => {
     e.preventDefault();
     lastMouseX = null;
     lastMouseY = null;
   };
 
   if (noiseBtn) {
-    noiseBtn.addEventListener('click', function(e) {
+    noiseBtn.addEventListener('click', e => {
       e.preventDefault();
       animationCount = 0;
     });
   }
 
   if (clearBtn) {
-    clearBtn.addEventListener('click', function(e) {
+    clearBtn.addEventListener('click', e => {
       e.preventDefault();
       applyBrakes = true;
     });
@@ -284,10 +270,10 @@ function wave(modules) {
 
 function scatterTransmitterPoints(algorithm) {
   const statusArray = algorithm.getStatusArray();
-  for (let i = 0; i < statusArray.length; i++) {
+  for (let i = 0, len = statusArray.length; i < len; i++) {
     if (statusArray[i] === STATUS_DEFAULT) {
       if (Math.random() < 0.001) {
-        statusArray[i] = (i % 2 === 0) ? 2 : 3;
+        statusArray[i] = !(i & 1) ? 2 : 3;
       }
     }
   }
@@ -295,7 +281,7 @@ function scatterTransmitterPoints(algorithm) {
 
 function clearTransmitterPoints(algorithm) {
   const statusArray = algorithm.getStatusArray();
-  for (let i=0; i < statusArray.length; i++) {
+  for (let i = 0, len = statusArray.length; i < len; i++) {
     if (statusArray[i] === STATUS_POS_TRANSMITTER || statusArray[i] === STATUS_NEG_TRANSMITTER) {
       statusArray[i] = STATUS_DEFAULT;
     }
@@ -306,13 +292,16 @@ function drawCircularWall(algorithm) {
   const { width, height } = algorithm;
   const statusArray = algorithm.getStatusArray();
   // Draw a circular wall
-  const centerX = algorithm.width / 2;
-  const centerY = algorithm.height / 2;
-  const radius = Math.min((width / 2), (height / 2));
+  const halfW = width  >>> 1;
+  const halfH = height >>> 1;
+  const centerX = halfW;
+  const centerY = halfH;
+  const radius = Math.min(halfW, halfH);
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
-      let dist = Math.sqrt(((i - centerY) * (i - centerY)) + ((j - centerX) * (j - centerX)));
-      if (dist > radius) {
+      const dx = j - centerX;
+      const dy = i - centerY;
+      if (dx * dx + dy * dy > radius * radius) {
         const targetIndex = i * width + j;
         statusArray[targetIndex] = 1;
       }
@@ -320,20 +309,12 @@ function drawCircularWall(algorithm) {
   }
 }
 
-// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly
+
 function webAssemblySupported() {
-  try {
-    if (typeof WebAssembly === "object"
-      && typeof WebAssembly.instantiate === "function") {
-      const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
-      if (module instanceof WebAssembly.Module)
-        return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
-    }
-  } catch (e) {}
-  return false;
+  return typeof WebAssembly !== 'undefined' && WebAssembly.validate(Uint32Array.of(0x6D736100, 1));
 }
 
-document.addEventListener("DOMContentLoaded", function(event) {
+document.addEventListener("DOMContentLoaded", () => {
   if (!webAssemblySupported()) {
     wave(null);
   } else {
@@ -368,39 +349,34 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
     fetch('clang/main.wasm')
       .then(response => response.arrayBuffer())
-      .then((bytes) =>  WebAssembly.instantiate(bytes, {}))
-      .then((wasm) => {
+      .then(bytes =>  WebAssembly.instantiate(bytes, {}))
+      .then(wasm => {
         clang = wasm;
-
         return fetch('emscripten/emscripten.wasm');
       })
       .then(response => response.arrayBuffer())
-      .then((bytes) =>  WebAssembly.instantiate(bytes, emscriptenImportsObject))
-      .then((wasm) => {
+      .then(bytes =>  WebAssembly.instantiate(bytes, emscriptenImportsObject))
+      .then(wasm => {
         emscripten = wasm;
         emscripten.importsObject = emscriptenImportsObject;
-
         return fetch('walt/waves.wasm');
       })
       .then(response => response.arrayBuffer())
-      .then((bytes) => WebAssembly.instantiate(bytes, {}))
-      .then((wasm) => {
+      .then(bytes => WebAssembly.instantiate(bytes, {}))
+      .then(wasm => {
         walt = wasm;
-
         return fetch('as/build/untouched.wasm');
       })
       .then(response => response.arrayBuffer())
-      .then((bytes) => WebAssembly.instantiate(bytes, {}))
-      .then((wasm) => {
+      .then(bytes => WebAssembly.instantiate(bytes, {}))
+      .then(wasm => {
         slowAssemblyScript = wasm;
-
         return fetch('as/build/optimized.wasm');
       })
       .then(response => response.arrayBuffer())
-      .then((bytes) => WebAssembly.instantiate(bytes, {}))
-      .then((wasm) => {
+      .then(bytes => WebAssembly.instantiate(bytes, {}))
+      .then(wasm => {
         fastAssemblyScript = wasm;
-
         return { clang, emscripten, walt, slowAssemblyScript, fastAssemblyScript };
       }).then(wave);
   }

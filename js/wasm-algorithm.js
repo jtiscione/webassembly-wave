@@ -4,11 +4,11 @@ function wasmWaveAlgorithm(wasm) {
     module: wasm,
     // The initialization function
     init(width, height) {
-
-      this.width = width;
+      const area  = width * height;
+      this.width  = width;
       this.height = height;
-      const area = width * height;
-      this.area = area;
+      this.area   = area;
+
       const instance = wasm.instance;
       const memory = wasm.importsObject ? wasm.importsObject.env.memory : instance.exports.memory;
       this.byteOffset = wasm.importsObject ? instance.exports._getByteOffset() : 9192;
@@ -18,24 +18,19 @@ function wasmWaveAlgorithm(wasm) {
       const heap = memory.buffer;
       this.heap = heap;
 
-      this.force = new Int32Array(heap, this.byteOffset + (4 * area), area);
-      this.status = new Int32Array(heap, this.byteOffset + (8 * area), area);
-      this.u = new Int32Array(heap, this.byteOffset + (12 * area), area);
-      this.v = new Int32Array(heap, this.byteOffset + (16 * area), area);
+      this.force  = new Int32Array(heap, this.byteOffset +  4 * area, area);
+      this.status = new Int32Array(heap, this.byteOffset +  8 * area, area);
+      this.u      = new Int32Array(heap, this.byteOffset + 12 * area, area);
+      this.v      = new Int32Array(heap, this.byteOffset + 16 * area, area);
 
-      if (instance.exports._init) {
-        instance.exports._init(heap, this.byteOffset, width, height);
-      } else {
-        instance.exports.init(heap, this.byteOffset, width, height);
-      }
+      this.step = this.module.instance.exports._step || this.module.instance.exports.step;
+      this.init = this.module.instance.exports._init || this.module.instance.exports.init;
+
+      this.init(heap, this.byteOffset, width, height);
     },
     // The main hot spot function:
-    step(signalAmplitude, drag = false) {
-      if (this.module.instance.exports._step) {
-        this.module.instance.exports._step(signalAmplitude, drag ? 5 : 0);
-      } else {
-        this.module.instance.exports.step(signalAmplitude, drag ? 5 : 0);
-      }
+    step(signalAmplitude, dampingBitShift = 0) {
+      this.step(signalAmplitude, dampingBitShift);
     },
     // The "output" from WASM
     getImageArray() {
