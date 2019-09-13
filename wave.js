@@ -3,6 +3,8 @@ const STATUS_WALL = 1;
 const STATUS_POS_TRANSMITTER = 2;
 const STATUS_NEG_TRANSMITTER = 3;
 
+const BRUSH_RADIUS = 28;
+
 function wave(modules) {
 
   const canvas = document.getElementById('canvas');
@@ -27,6 +29,7 @@ function wave(modules) {
   const context = canvas.getContext('2d');
 
   let imageArray = null;
+  let imgData    = null;
   let forceArray = null;
   let applyBrakes = false;
 
@@ -70,6 +73,7 @@ function wave(modules) {
       algorithm = replacement;
       forceArray = null;
       imageArray = null;
+      imgData = null;
     };
     jsBox.addEventListener('click',           () => { swap(jsAlgorithm) });
     clangBox.addEventListener('click',        () => { swap(clangAlgorithm) });
@@ -122,7 +126,9 @@ function wave(modules) {
     if (imageArray === null) {
       imageArray = algorithm.getImageArray();
     }
-    const imgData = context.createImageData(width, height);
+    if (imgData == null) {
+      imgData = context.createImageData(width, height);
+    }
     imgData.data.set(imageArray);
     context.putImageData(imgData, 0, 0);
     const now = performance.now();
@@ -148,11 +154,10 @@ function wave(modules) {
   }
 
   const brushMatrix = [];
-  const brushMatrixRadius = 28;
-  for (let p = -brushMatrixRadius; p <= brushMatrixRadius; p++) {
+  for (let p = -BRUSH_RADIUS; p <= BRUSH_RADIUS; p++) {
     const row = [];
     brushMatrix.push(row);
-    for (let q = -brushMatrixRadius; q <= brushMatrixRadius; q++) {
+    for (let q = -BRUSH_RADIUS; q <= BRUSH_RADIUS; q++) {
       const element = Math.floor(0x3FFFFFFF * Math.exp(-0.05 * ((p * p) + (q * q))));
       row.push(element);
     }
@@ -166,18 +171,18 @@ function wave(modules) {
     if (forceArray === null) {
       forceArray = algorithm.getForceArray();
     }
-    for (let p = -brushMatrixRadius; p <= brushMatrixRadius; p++) {
+    for (let p = -BRUSH_RADIUS; p <= BRUSH_RADIUS; p++) {
       const targetY = y + p;
       if (targetY <= 0 || targetY >= height - 1) {
         continue;
       }
-      const brushStride = brushMatrix[p + brushMatrixRadius];
-      for (let q = -brushMatrixRadius; q <= brushMatrixRadius; q++) {
+      const brushStride = brushMatrix[p + BRUSH_RADIUS];
+      for (let q = -BRUSH_RADIUS; q <= BRUSH_RADIUS; q++) {
         const targetX = x + q;
         if (targetX <= 0 || targetX >= width - 1) {
           continue;
         }
-        const brushValue = brushStride[q + brushMatrixRadius];
+        const brushValue = brushStride[q + BRUSH_RADIUS];
         const targetIndex = targetY * width + targetX;
         forceArray[targetIndex] = applyCap(forceArray[targetIndex] + brushValue);
       }
