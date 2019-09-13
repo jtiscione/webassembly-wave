@@ -3,7 +3,6 @@
  (type $FUNCSIG$iii (func (param i32 i32) (result i32)))
  (type $FUNCSIG$ii (func (param i32) (result i32)))
  (type $FUNCSIG$vi (func (param i32)))
- (type $FUNCSIG$viii (func (param i32 i32 i32)))
  (type $FUNCSIG$vii (func (param i32 i32)))
  (type $FUNCSIG$v (func))
  (memory $0 0)
@@ -35,17 +34,11 @@
  (func $~lib/rt/stub/__release (; 2 ;) (type $FUNCSIG$vi) (param $0 i32)
   nop
  )
- (func $assembly/index/Pointer#set (; 3 ;) (type $FUNCSIG$viii) (param $0 i32) (param $1 i32) (param $2 i32)
-  local.get $0
-  local.get $1
-  i32.const 2
-  i32.shl
-  i32.add
-  local.get $2
-  i32.store
- )
- (func $assembly/index/init (; 4 ;) (type $FUNCSIG$viiii) (param $0 i32) (param $1 i32) (param $2 i32) (param $3 i32)
+ (func $assembly/index/init (; 3 ;) (type $FUNCSIG$viiii) (param $0 i32) (param $1 i32) (param $2 i32) (param $3 i32)
   (local $4 i32)
+  (local $5 i32)
+  (local $6 i32)
+  (local $7 i32)
   local.get $2
   global.set $assembly/index/width
   local.get $3
@@ -120,12 +113,22 @@
     i32.eqz
     br_if $break|0
     global.get $assembly/index/status
+    local.set $7
     local.get $4
     global.get $assembly/index/width
     i32.mul
+    local.set $6
     global.get $assembly/index/STATUS_WALL
-    call $assembly/index/Pointer#set
+    local.set $5
+    local.get $7
+    local.get $6
+    i32.const 2
+    i32.shl
+    i32.add
+    local.get $5
+    i32.store
     global.get $assembly/index/status
+    local.set $7
     local.get $4
     global.get $assembly/index/width
     i32.mul
@@ -133,8 +136,16 @@
     i32.add
     i32.const 1
     i32.sub
+    local.set $6
     global.get $assembly/index/STATUS_WALL
-    call $assembly/index/Pointer#set
+    local.set $5
+    local.get $7
+    local.get $6
+    i32.const 2
+    i32.shl
+    i32.add
+    local.get $5
+    i32.store
     local.get $4
     i32.const 1
     i32.add
@@ -153,17 +164,35 @@
     i32.eqz
     br_if $break|1
     global.get $assembly/index/status
+    local.set $7
     local.get $4
+    local.set $6
     global.get $assembly/index/STATUS_WALL
-    call $assembly/index/Pointer#set
+    local.set $5
+    local.get $7
+    local.get $6
+    i32.const 2
+    i32.shl
+    i32.add
+    local.get $5
+    i32.store
     global.get $assembly/index/status
+    local.set $7
     global.get $assembly/index/area
     global.get $assembly/index/width
     i32.sub
     local.get $4
     i32.add
+    local.set $6
     global.get $assembly/index/STATUS_WALL
-    call $assembly/index/Pointer#set
+    local.set $5
+    local.get $7
+    local.get $6
+    i32.const 2
+    i32.shl
+    i32.add
+    local.get $5
+    i32.store
     local.get $4
     i32.const 1
     i32.add
@@ -173,7 +202,7 @@
    unreachable
   end
  )
- (func $assembly/index/step (; 5 ;) (type $FUNCSIG$vii) (param $0 i32) (param $1 i32)
+ (func $assembly/index/step (; 4 ;) (type $FUNCSIG$vii) (param $0 i32) (param $1 i32)
   (local $2 i32)
   (local $3 i32)
   (local $4 i32)
@@ -191,6 +220,8 @@
   (local $16 i32)
   (local $17 i32)
   (local $18 i32)
+  (local $19 i32)
+  (local $20 i32)
   global.get $assembly/index/area
   local.set $2
   global.get $assembly/index/status
@@ -235,36 +266,90 @@
     i32.eq
     if
      local.get $4
+     local.set $13
      local.get $9
+     local.set $12
      local.get $0
-     call $assembly/index/Pointer#set
+     local.set $10
+     local.get $13
+     local.get $12
+     i32.const 2
+     i32.shl
+     i32.add
+     local.get $10
+     i32.store
      local.get $5
+     local.set $13
      local.get $9
+     local.set $12
      i32.const 0
-     call $assembly/index/Pointer#set
+     local.set $10
+     local.get $13
+     local.get $12
+     i32.const 2
+     i32.shl
+     i32.add
+     local.get $10
+     i32.store
      local.get $6
+     local.set $13
      local.get $9
+     local.set $12
      i32.const 0
-     call $assembly/index/Pointer#set
+     local.set $10
+     local.get $13
+     local.get $12
+     i32.const 2
+     i32.shl
+     i32.add
+     local.get $10
+     i32.store
     end
     local.get $11
     i32.const 3
     i32.eq
     if
      local.get $4
+     local.set $13
      local.get $9
+     local.set $12
      i32.const 0
      local.get $0
      i32.sub
-     call $assembly/index/Pointer#set
+     local.set $10
+     local.get $13
+     local.get $12
+     i32.const 2
+     i32.shl
+     i32.add
+     local.get $10
+     i32.store
      local.get $5
+     local.set $13
      local.get $9
+     local.set $12
      i32.const 0
-     call $assembly/index/Pointer#set
+     local.set $10
+     local.get $13
+     local.get $12
+     i32.const 2
+     i32.shl
+     i32.add
+     local.get $10
+     i32.store
      local.get $6
+     local.set $13
      local.get $9
+     local.set $12
      i32.const 0
-     call $assembly/index/Pointer#set
+     local.set $10
+     local.get $13
+     local.get $12
+     i32.const 2
+     i32.shl
+     i32.add
+     local.get $10
+     i32.store
     end
     local.get $9
     i32.const 1
@@ -284,10 +369,10 @@
     i32.eqz
     br_if $break|1
     local.get $3
-    local.set $9
+    local.set $12
     local.get $11
     local.set $10
-    local.get $9
+    local.get $12
     local.get $10
     i32.const 2
     i32.shl
@@ -299,9 +384,9 @@
      local.get $4
      local.set $9
      local.get $11
-     local.set $10
+     local.set $13
      local.get $9
-     local.get $10
+     local.get $13
      i32.const 2
      i32.shl
      i32.add
@@ -321,26 +406,26 @@
      i32.load
      local.set $12
      local.get $4
-     local.set $13
+     local.set $10
      local.get $11
      local.get $8
      i32.add
-     local.set $10
-     local.get $13
+     local.set $13
      local.get $10
+     local.get $13
      i32.const 2
      i32.shl
      i32.add
      i32.load
-     local.set $13
+     local.set $10
      local.get $4
      local.set $14
      local.get $11
      i32.const 1
      i32.add
-     local.set $10
+     local.set $13
      local.get $14
-     local.get $10
+     local.get $13
      i32.const 2
      i32.shl
      i32.add
@@ -351,9 +436,9 @@
      local.get $11
      i32.const 1
      i32.sub
-     local.set $10
+     local.set $13
      local.get $15
-     local.get $10
+     local.get $13
      i32.const 2
      i32.shl
      i32.add
@@ -366,9 +451,9 @@
      i32.shr_s
      local.get $9
      i32.sub
-     local.set $10
+     local.set $13
      local.get $12
-     local.get $13
+     local.get $10
      i32.add
      i32.const 1
      i32.shr_s
@@ -385,7 +470,7 @@
      i32.shl
      i32.add
      i32.load
-     local.get $10
+     local.get $13
      i32.const 1
      i32.shr_s
      i32.add
@@ -404,7 +489,9 @@
       local.set $18
      end
      local.get $5
+     local.set $20
      local.get $11
+     local.set $19
      local.get $18
      local.set $17
      local.get $17
@@ -412,17 +499,24 @@
      i32.lt_s
      if (result i32)
       i32.const -1073741824
-     else      
+     else
       local.get $17
       i32.const 1073741823
       i32.gt_s
       if (result i32)
        i32.const 1073741823
-      else       
+      else
        local.get $17
       end
      end
-     call $assembly/index/Pointer#set
+     local.set $17
+     local.get $20
+     local.get $19
+     i32.const 2
+     i32.shl
+     i32.add
+     local.get $17
+     i32.store
     end
     local.get $11
     i32.const 1
@@ -442,10 +536,10 @@
     i32.eqz
     br_if $break|2
     local.get $3
-    local.set $9
+    local.set $19
     local.get $15
     local.set $17
-    local.get $9
+    local.get $19
     local.get $17
     i32.const 2
     i32.shl
@@ -457,17 +551,29 @@
     i32.eq
     if
      local.get $6
-     local.set $13
+     local.set $9
      local.get $15
-     local.set $12
-     local.get $13
-     local.get $12
+     local.set $20
+     local.get $9
+     local.get $20
      i32.const 2
      i32.shl
      i32.add
      i32.load
      local.set $18
      local.get $4
+     local.set $10
+     local.get $15
+     local.set $12
+     local.get $10
+     local.get $12
+     i32.const 2
+     i32.shl
+     i32.add
+     i32.load
+     local.set $13
+     local.get $13
+     local.get $5
      local.set $17
      local.get $15
      local.set $14
@@ -477,98 +583,115 @@
      i32.shl
      i32.add
      i32.load
-     local.set $10
-     local.get $10
-     local.get $5
-     local.set $12
-     local.get $15
-     local.set $9
-     local.get $12
-     local.get $9
-     i32.const 2
-     i32.shl
      i32.add
-     i32.load
-     i32.add
-     local.set $13
-     local.get $13
+     local.set $19
+     local.get $19
      i32.const -1073741824
      i32.lt_s
      if (result i32)
       i32.const -1073741824
-     else      
-      local.get $13
+     else
+      local.get $19
       i32.const 1073741823
       i32.gt_s
       if (result i32)
        i32.const 1073741823
-      else       
-       local.get $13
+      else
+       local.get $19
       end
      end
      local.set $16
      local.get $18
      local.get $16
      i32.add
-     local.set $14
-     local.get $14
+     local.set $20
+     local.get $20
      i32.const -1073741824
      i32.lt_s
      if (result i32)
       i32.const -1073741824
-     else      
-      local.get $14
+     else
+      local.get $20
       i32.const 1073741823
       i32.gt_s
       if (result i32)
        i32.const 1073741823
-      else       
-       local.get $14
+      else
+       local.get $20
       end
      end
-     local.set $10
+     local.set $13
      local.get $4
+     local.set $10
      local.get $15
+     local.set $12
+     local.get $13
+     local.set $9
      local.get $10
-     call $assembly/index/Pointer#set
+     local.get $12
+     i32.const 2
+     i32.shl
+     i32.add
+     local.get $9
+     i32.store
      local.get $6
+     local.set $19
      local.get $15
+     local.set $17
      local.get $18
      local.get $18
      global.get $assembly/index/FORCE_DAMPING_BIT_SHIFT
      i32.shr_s
      i32.sub
-     call $assembly/index/Pointer#set
+     local.set $14
+     local.get $19
+     local.get $17
+     i32.const 2
+     i32.shl
+     i32.add
+     local.get $14
+     i32.store
     end
     local.get $11
     i32.const 1
     i32.eq
     if
      local.get $7
+     local.set $12
      local.get $15
+     local.set $9
      i32.const 0
-     call $assembly/index/Pointer#set
-    else     
+     local.set $20
+     local.get $12
+     local.get $9
+     i32.const 2
+     i32.shl
+     i32.add
+     local.get $20
+     i32.store
+    else
      local.get $7
+     local.set $19
      local.get $15
+     local.set $17
      block $assembly/index/toRGB|inlined.0 (result i32)
+      local.get $13
+      local.set $10
       local.get $10
-      local.set $17
-      local.get $17
       i32.const 22
       i32.shr_s
-      local.set $14
-      local.get $14
+      local.set $12
+      local.get $12
       i32.const 0
       i32.lt_s
       if
        i32.const 0
-       local.get $14
+       local.get $12
        i32.const 1
        i32.add
        i32.sub
        i32.const 0
-       local.get $14
+       local.get $12
        i32.const 1
        i32.add
        i32.sub
@@ -581,10 +704,10 @@
        i32.or
        br $assembly/index/toRGB|inlined.0
       end
-      local.get $14
+      local.get $12
       i32.const 8
       i32.shl
-      local.get $14
+      local.get $12
       i32.const 254
       i32.and
       i32.const 15
@@ -593,7 +716,14 @@
       i32.const -16777216
       i32.or
      end
-     call $assembly/index/Pointer#set
+     local.set $14
+     local.get $19
+     local.get $17
+     i32.const 2
+     i32.shl
+     i32.add
+     local.get $14
+     i32.store
     end
     local.get $15
     i32.const 1
@@ -614,6 +744,6 @@
   local.get $7
   call $~lib/rt/stub/__release
  )
- (func $null (; 6 ;) (type $FUNCSIG$v)
+ (func $null (; 5 ;) (type $FUNCSIG$v)
  )
 )
