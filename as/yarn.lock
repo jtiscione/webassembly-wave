@@ -9,10 +9,10 @@
 
 "assemblyscript@github:AssemblyScript/assemblyscript":
   version "0.7.0"
-  resolved "https://codeload.github.com/AssemblyScript/assemblyscript/tar.gz/9af14b84228f4ff5c4d50cccbe891d1bac959736"
+  resolved "https://codeload.github.com/AssemblyScript/assemblyscript/tar.gz/d97ccac0292f68806e20527b2d5305b561319377"
   dependencies:
     "@protobufjs/utf8" "^1.1.0"
-    binaryen "89.0.0-nightly.20190909"
+    binaryen "89.0.0-nightly.20190914"
     glob "^7.1.4"
     long "^4.0.0"
     opencollective-postinstall "^2.0.0"
@@ -23,10 +23,10 @@ balanced-match@^1.0.0:
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
   integrity sha1-ibTRmasr7kneFk6gK4nORi1xt2c=
 
-binaryen@89.0.0-nightly.20190909:
-  version "89.0.0-nightly.20190909"
-  resolved "https://registry.yarnpkg.com/binaryen/-/binaryen-89.0.0-nightly.20190909.tgz#f3affc2430cfc1c19ba55daaf31f84210f1773ce"
-  integrity sha512-IQZjTZ5K8no8SJLQ8j6g8CgTQ98bHVYaqFYEKl8y4i+Z+Vev702b7arjIJq9mn10F4uvL4qqOYI1f7zGteChhA==
+binaryen@89.0.0-nightly.20190914:
+  version "89.0.0-nightly.20190914"
+  resolved "https://registry.yarnpkg.com/binaryen/-/binaryen-89.0.0-nightly.20190914.tgz#5878787f140123fc564fb94011f4d2d2db2fe95e"
+  integrity sha512-pfGX5IwPguli8IPuPjjcCYriZ2CzoEuk0XE70g6bmibZfieDUoK7miEq0FlPLNixL+n8vvyjRSPK5NtMuCcqNg==
 
 brace-expansion@^1.1.7:
   version "1.1.11"
