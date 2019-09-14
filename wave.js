@@ -21,7 +21,7 @@ function wave(modules) {
   if (canvas.width > 512 || canvas.height > 512) {
     // Emscripten doesn't export its memory object, so we have to make one ourselves and import it.
     // But if the size exceeds a certain threshold it will be replaced with one that is inaccessible.
-    document.querySelectorAll('.ems').forEach(e => e.style.display = 'none');
+    document.querySelectorAll('.ems').forEach(e => { e.style.display = 'none' });
   }
 
   let width = canvas.width;
@@ -133,10 +133,7 @@ function wave(modules) {
     context.putImageData(imgData, 0, 0);
     const now = performance.now();
     timestamps.push(now);
-    timestamps = timestamps.filter(function(e) {
-      return ((now - e) < 1000);
-    });
-
+    timestamps = timestamps.filter(e => ((now - e) < 1000));
     const count = timestamps.length;
     if (now - lastFpsJitter > 400) {
       lastFpsJitter = now;
@@ -318,73 +315,74 @@ function drawCircularWall(algorithm) {
 
 
 function webAssemblySupported() {
-  return typeof WebAssembly !== 'undefined' && WebAssembly.validate(Uint32Array.of(0x6D736100, 1));
+  return typeof WebAssembly !== 'undefined' && WebAssembly.validate(Uint32Array.of(0x6D736100, 1).buffer);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   if (!webAssemblySupported()) {
+    console.warn('WebAssembly not supported');
     wave(null);
-  } else {
-
-    let emscripten = null;
-    let clang = null;
-    let walt = null;
-    let slowAssemblyScript = null;
-    let fastAssemblyScript = null;
-
-    // Emscripten doesn't support exporting memory, only importing
-    let emscriptenImportsObject = {
-      env: {
-        __memory_base: 0,
-        __table_base: 0,
-        memory: new WebAssembly.Memory({
-          initial: 512,
-        }),
-        table: new WebAssembly.Table({
-          initial: 0,
-          element: 'anyfunc',
-        })
-      }
-    };
-
-    // Hack: look for a "size" parameter in the URL
-    const matches = window.location.href.match(/size=(\d+)/);
-    if (matches) {
-      const canvas = document.getElementById('canvas');
-      canvas.width = canvas.height = parseInt(matches[1]);
-    }
-
-    fetch('clang/main.wasm')
-      .then(response => response.arrayBuffer())
-      .then(bytes =>  WebAssembly.instantiate(bytes, {}))
-      .then(wasm => {
-        clang = wasm;
-        return fetch('emscripten/emscripten.wasm');
-      })
-      .then(response => response.arrayBuffer())
-      .then(bytes =>  WebAssembly.instantiate(bytes, emscriptenImportsObject))
-      .then(wasm => {
-        emscripten = wasm;
-        emscripten.importsObject = emscriptenImportsObject;
-        return fetch('walt/waves.wasm');
-      })
-      .then(response => response.arrayBuffer())
-      .then(bytes => WebAssembly.instantiate(bytes, {}))
-      .then(wasm => {
-        walt = wasm;
-        return fetch('as/build/untouched.wasm');
-      })
-      .then(response => response.arrayBuffer())
-      .then(bytes => WebAssembly.instantiate(bytes, {}))
-      .then(wasm => {
-        slowAssemblyScript = wasm;
-        return fetch('as/build/optimized.wasm');
-      })
-      .then(response => response.arrayBuffer())
-      .then(bytes => WebAssembly.instantiate(bytes, {}))
-      .then(wasm => {
-        fastAssemblyScript = wasm;
-        return { clang, emscripten, walt, slowAssemblyScript, fastAssemblyScript };
-      }).then(wave);
+    return;
   }
+
+  let emscripten = null;
+  let clang = null;
+  let walt = null;
+  let slowAssemblyScript = null;
+  let fastAssemblyScript = null;
+
+  // Emscripten doesn't support exporting memory, only importing
+  let emscriptenImportsObject = {
+    env: {
+      __memory_base: 0,
+      __table_base: 0,
+      memory: new WebAssembly.Memory({
+        initial: 512,
+      }),
+      table: new WebAssembly.Table({
+        initial: 0,
+        element: 'anyfunc',
+      })
+    }
+  };
+
+  // Hack: look for a "size" parameter in the URL
+  const matches = window.location.href.match(/size=(\d+)/);
+  if (matches) {
+    const canvas = document.getElementById('canvas');
+    canvas.width = canvas.height = parseInt(matches[1]);
+  }
+
+  fetch('clang/main.wasm')
+    .then(response => response.arrayBuffer())
+    .then(bytes =>  WebAssembly.instantiate(bytes, {}))
+    .then(wasm => {
+      clang = wasm;
+      return fetch('emscripten/emscripten.wasm');
+    })
+    .then(response => response.arrayBuffer())
+    .then(bytes =>  WebAssembly.instantiate(bytes, emscriptenImportsObject))
+    .then(wasm => {
+      emscripten = wasm;
+      emscripten.importsObject = emscriptenImportsObject;
+      return fetch('walt/waves.wasm');
+    })
+    .then(response => response.arrayBuffer())
+    .then(bytes => WebAssembly.instantiate(bytes, {}))
+    .then(wasm => {
+      walt = wasm;
+      return fetch('as/build/untouched.wasm');
+    })
+    .then(response => response.arrayBuffer())
+    .then(bytes => WebAssembly.instantiate(bytes, {}))
+    .then(wasm => {
+      slowAssemblyScript = wasm;
+      return fetch('as/build/optimized.wasm');
+    })
+    .then(response => response.arrayBuffer())
+    .then(bytes => WebAssembly.instantiate(bytes, {}))
+    .then(wasm => {
+      fastAssemblyScript = wasm;
+      return { clang, emscripten, walt, slowAssemblyScript, fastAssemblyScript };
+    }).then(wave);
 });
