@@ -93,9 +93,10 @@ function wave(modules) {
     document.getElementById('sorry').style.display = 'block';
   }
 
-  let timestamps = [];
-  let lastFpsJitter = 0;
+  let lastTime = 0;
   let animationCount = 0;
+  let fpsCount = 0;
+  let accTime = 0;
 
   let lastMouseX = null, lastMouseY = null;
 
@@ -131,14 +132,17 @@ function wave(modules) {
     }
     imgData.data.set(imageArray);
     context.putImageData(imgData, 0, 0);
+
     const now = performance.now();
-    timestamps.push(now);
-    timestamps = timestamps.filter(e => ((now - e) < 1000));
-    const count = timestamps.length;
-    if (now - lastFpsJitter > 400) {
-      lastFpsJitter = now;
-      fps.innerHTML = count;
+    fpsCount++;
+    if (accTime >= 1000) {
+      fps.innerHTML = Math.floor(1000 * fpsCount / accTime);
+      fpsCount = 0;
+      accTime = 0;
+    } else {
+      accTime += now - lastTime;
     }
+    lastTime = now;
     animationCount++;
   }
 
