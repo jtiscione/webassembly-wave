@@ -17,6 +17,7 @@ function wave(modules) {
   const fastAssemblyBox = document.getElementById('fast-assembly-box');
   const noiseBtn = document.getElementById('noiseBtn');
   const clearBtn = document.getElementById('clearBtn');
+  const stepsBtn = document.getElementById('stepsBtn');
 
   if (canvas.width > 512 || canvas.height > 512) {
     // Emscripten doesn't export its memory object, so we have to make one ourselves and import it.
@@ -32,6 +33,8 @@ function wave(modules) {
   let imgData    = null;
   let forceArray = null;
   let applyBrakes = false;
+
+  let steps = 1;
 
   const jsAlgorithm = jsWaveAlgorithm();
   jsAlgorithm.init(width, height);
@@ -81,6 +84,7 @@ function wave(modules) {
     waltBox.addEventListener('click',         () => { swap(waltAlgorithm) });
     slowAssemblyBox.addEventListener('click', () => { swap(slowAssemblyScriptAlgorithm) });
     fastAssemblyBox.addEventListener('click', () => { swap(fastAssemblyScriptAlgorithm) });
+    stepsBtn.addEventListener('click',        () => { steps = parseInt(stepsBtn.value) || 1 });
 
   } else {
     jsBox.disabled = true;
@@ -89,6 +93,7 @@ function wave(modules) {
     waltBox.disabled = true;
     slowAssemblyBox.disabled = true;
     fastAssemblyBox.disabled = true;
+    stepsBtn.disabled = true;
     document.getElementsByClassName('radio').forEach(btn => btn.style.display = 'none');
     document.getElementById('sorry').style.display = 'block';
   }
@@ -122,7 +127,10 @@ function wave(modules) {
     }
 
     let amplitude = Math.floor(0x3FFFFFFF * Math.sin(6.283 * animationCount / 100));
-    algorithm.step(amplitude, applyBrakes ? 5 : 0);
+
+    for (let i = 0; i < steps; i++) {
+      algorithm.step(amplitude, applyBrakes ? 5 : 0);
+    }
 
     if (imageArray === null) {
       imageArray = algorithm.getImageArray();
