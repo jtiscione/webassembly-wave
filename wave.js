@@ -3,6 +3,8 @@ const STATUS_WALL = 1;
 const STATUS_POS_TRANSMITTER = 2;
 const STATUS_NEG_TRANSMITTER = 3;
 
+const BRUSH_RADIUS = 28;
+
 function wave(modules) {
 
   const canvas = document.getElementById('canvas');
@@ -15,11 +17,12 @@ function wave(modules) {
   const fastAssemblyBox = document.getElementById('fast-assembly-box');
   const noiseBtn = document.getElementById('noiseBtn');
   const clearBtn = document.getElementById('clearBtn');
+  const stepsBtn = document.getElementById('stepsBtn');
 
   if (canvas.width > 512 || canvas.height > 512) {
     // Emscripten doesn't export its memory object, so we have to make one ourselves and import it.
     // But if the size exceeds a certain threshold it will be replaced with one that is inaccessible.
-    document.querySelectorAll('.ems').forEach(e => e.style.display = 'none');
+    document.querySelectorAll('.ems').forEach(e => { e.style.display = 'none' });
   }
 
   let width = canvas.width;
@@ -27,9 +30,11 @@ function wave(modules) {
   const context = canvas.getContext('2d');
 
   let imageArray = null;
+  let imgData    = null;
   let forceArray = null;
-  let statusArray = null;
   let applyBrakes = false;
+
+  let steps = 1;
 
   const jsAlgorithm = jsWaveAlgorithm();
   jsAlgorithm.init(width, height);
@@ -66,31 +71,20 @@ function wave(modules) {
       fastAssemblyScriptAlgorithm.init(width, height);
     }
 
-    const swap = function(replacement) {
+    const swap = replacement => {
       replacement.getEntireArray().set(algorithm.getEntireArray());
       algorithm = replacement;
       forceArray = null;
-      statusArray = null;
       imageArray = null;
+      imgData = null;
     };
-    jsBox.addEventListener('click', function(event) {
-      swap(jsAlgorithm);
-    });
-    clangBox.addEventListener('click', function(event) {
-      swap(clangAlgorithm);
-    });
-    emscriptenBox.addEventListener('click', function(event) {
-      swap(emscriptenAlgorithm);
-    });
-    waltBox.addEventListener('click', function(event) {
-      swap(waltAlgorithm);
-    });
-    slowAssemblyBox.addEventListener('click', function(event) {
-      swap(slowAssemblyScriptAlgorithm);
-    });
-    fastAssemblyBox.addEventListener('click', function(event) {
-      swap(fastAssemblyScriptAlgorithm);
-    });
+    jsBox.addEventListener('click',           () => { swap(jsAlgorithm) });
+    clangBox.addEventListener('click',        () => { swap(clangAlgorithm) });
+    emscriptenBox.addEventListener('click',   () => { swap(emscriptenAlgorithm) });
+    waltBox.addEventListener('click',         () => { swap(waltAlgorithm) });
+    slowAssemblyBox.addEventListener('click', () => { swap(slowAssemblyScriptAlgorithm) });
+    fastAssemblyBox.addEventListener('click', () => { swap(fastAssemblyScriptAlgorithm) });
+    stepsBtn.addEventListener('click',        () => { steps = parseInt(stepsBtn.value) || 1 });
 
   } else {
     jsBox.disabled = true;
@@ -99,21 +93,21 @@ function wave(modules) {
     waltBox.disabled = true;
     slowAssemblyBox.disabled = true;
     fastAssemblyBox.disabled = true;
-    const selection = document.getElementsByClassName('radio');
-    for (let i = 0; i < selection.length; i++) {
-      selection[i].style.display = 'none';
-    }
-    document.getElementById('sorry').style.display='block';
+    stepsBtn.disabled = true;
+    document.getElementsByClassName('radio').forEach(btn => btn.style.display = 'none');
+    document.getElementById('sorry').style.display = 'block';
   }
 
-  let timestamps = [];
-  let lastFpsJitter = 0;
+  let lastTime = 0;
   let animationCount = 0;
+  let fpsCount = 0;
+  let accTime = 0;
 
   let lastMouseX = null, lastMouseY = null;
 
   function animate() {
     setTimeout(animate, 0);
+    // requestAnimationFrame(animate);
 
     if (animationCount === 0) {
       // First frame-
@@ -133,25 +127,30 @@ function wave(modules) {
     }
 
     let amplitude = Math.floor(0x3FFFFFFF * Math.sin(6.283 * animationCount / 100));
-    algorithm.step(amplitude, (applyBrakes ? 5 : 0));
+
+    for (let i = 0; i < steps; i++) {
+      algorithm.step(amplitude, applyBrakes ? 5 : 0);
+    }
 
     if (imageArray === null) {
       imageArray = algorithm.getImageArray();
     }
-    const imgData = context.createImageData(width, height);
+    if (imgData == null) {
+      imgData = context.createImageData(width, height);
+    }
     imgData.data.set(imageArray);
     context.putImageData(imgData, 0, 0);
-    const now = Date.now();
-    timestamps.push(now);
-    timestamps = timestamps.filter(function(e) {
-      return ((now - e) < 1000);
-    });
 
-    const count = timestamps.length;
-    if (now - lastFpsJitter > 400) {
-      lastFpsJitter = now;
-      fps.innerHTML = count;
+    const now = performance.now();
+    fpsCount++;
+    if (accTime >= 1000) {
+      fps.innerHTML = Math.floor(1000 * fpsCount / accTime);
+      fpsCount = 0;
+      accTime = 0;
+    } else {
+      accTime += now - lastTime;
     }
+    lastTime = now;
     animationCount++;
   }
 
@@ -164,42 +163,42 @@ function wave(modules) {
   }
 
   const brushMatrix = [];
-  const brushMatrixRadius = 28;
-  for (let p = -brushMatrixRadius; p <= brushMatrixRadius; p++) {
+  for (let p = -BRUSH_RADIUS; p <= BRUSH_RADIUS; p++) {
     const row = [];
     brushMatrix.push(row);
-    for (let q = -brushMatrixRadius; q <= brushMatrixRadius; q++) {
+    for (let q = -BRUSH_RADIUS; q <= BRUSH_RADIUS; q++) {
       const element = Math.floor(0x3FFFFFFF * Math.exp(-0.05 * ((p * p) + (q * q))));
       row.push(element);
     }
   }
 
+  function applyCap(x) {
+    return x < -0x40000000 ? -0x40000000 : (x > 0x3FFFFFFF ? 0x3FFFFFFF : x);
+  }
+
   function applyBrush(x, y) {
-    function applyCap(x) {
-      return x < -0x40000000 ? -0x40000000 : (x > 0x3FFFFFFF ? 0x3FFFFFFF : x);
-    }
     if (forceArray === null) {
       forceArray = algorithm.getForceArray();
     }
-    for (let p = -brushMatrixRadius; p <= brushMatrixRadius; p++) {
+    for (let p = -BRUSH_RADIUS; p <= BRUSH_RADIUS; p++) {
       const targetY = y + p;
       if (targetY <= 0 || targetY >= height - 1) {
         continue;
       }
-      for (let q = -brushMatrixRadius; q <= brushMatrixRadius; q++) {
+      const brushStride = brushMatrix[p + BRUSH_RADIUS];
+      for (let q = -BRUSH_RADIUS; q <= BRUSH_RADIUS; q++) {
         const targetX = x + q;
         if (targetX <= 0 || targetX >= width - 1) {
           continue;
         }
-        const brushValue = brushMatrix[p + brushMatrixRadius][q + brushMatrixRadius];
+        const brushValue = brushStride[q + BRUSH_RADIUS];
         const targetIndex = targetY * width + targetX;
-        forceArray[targetIndex] += brushValue;
-        forceArray[targetIndex] = applyCap(forceArray[targetIndex]);
+        forceArray[targetIndex] = applyCap(forceArray[targetIndex] + brushValue);
       }
     }
   }
 
-  canvas.onmousedown = function (e) {
+  canvas.onmousedown = e => {
     e.preventDefault();
     applyBrakes = false;
     const loc = windowToCanvas(canvas, e.clientX, e.clientY);
@@ -208,7 +207,7 @@ function wave(modules) {
     applyBrush(loc.x, loc.y);
   };
 
-  canvas.ontouchstart = function (e) {
+  canvas.ontouchstart = e => {
     e.preventDefault();
     applyBrakes = false;
     for (let i = 0; i < e.targetTouches.length; i++) {
@@ -220,7 +219,7 @@ function wave(modules) {
     }
   };
 
-  canvas.onmousemove = function (e) {
+  canvas.onmousemove = e => {
     e.preventDefault();
     const loc = windowToCanvas(canvas, e.clientX, e.clientY);
     const targetX = loc.x, targetY = loc.y;
@@ -238,7 +237,7 @@ function wave(modules) {
     }
   };
 
-  canvas.ontouchmove = function (e) {
+  canvas.ontouchmove = e => {
     e.preventDefault();
     if (lastMouseX !== null && lastMouseY !== null) {
       for (let i = 0; i < e.targetTouches.length; i++) {
@@ -259,21 +258,24 @@ function wave(modules) {
     }
   };
 
-  canvas.onmouseover = canvas.onmouseout = canvas.onmouseup = canvas.ontouchend = function (e) {
+  canvas.onmouseover =
+  canvas.onmouseout  =
+  canvas.onmouseup   =
+  canvas.ontouchend  = e => {
     e.preventDefault();
     lastMouseX = null;
     lastMouseY = null;
   };
 
   if (noiseBtn) {
-    noiseBtn.addEventListener('click', function(e) {
+    noiseBtn.addEventListener('click', e => {
       e.preventDefault();
       animationCount = 0;
     });
   }
 
   if (clearBtn) {
-    clearBtn.addEventListener('click', function(e) {
+    clearBtn.addEventListener('click', e => {
       e.preventDefault();
       applyBrakes = true;
     });
@@ -284,10 +286,10 @@ function wave(modules) {
 
 function scatterTransmitterPoints(algorithm) {
   const statusArray = algorithm.getStatusArray();
-  for (let i = 0; i < statusArray.length; i++) {
+  for (let i = 0, len = statusArray.length; i < len; i++) {
     if (statusArray[i] === STATUS_DEFAULT) {
       if (Math.random() < 0.001) {
-        statusArray[i] = (i % 2 === 0) ? 2 : 3;
+        statusArray[i] = !(i & 1) ? 2 : 3;
       }
     }
   }
@@ -295,7 +297,7 @@ function scatterTransmitterPoints(algorithm) {
 
 function clearTransmitterPoints(algorithm) {
   const statusArray = algorithm.getStatusArray();
-  for (let i=0; i < statusArray.length; i++) {
+  for (let i = 0, len = statusArray.length; i < len; i++) {
     if (statusArray[i] === STATUS_POS_TRANSMITTER || statusArray[i] === STATUS_NEG_TRANSMITTER) {
       statusArray[i] = STATUS_DEFAULT;
     }
@@ -306,13 +308,16 @@ function drawCircularWall(algorithm) {
   const { width, height } = algorithm;
   const statusArray = algorithm.getStatusArray();
   // Draw a circular wall
-  const centerX = algorithm.width / 2;
-  const centerY = algorithm.height / 2;
-  const radius = Math.min((width / 2), (height / 2));
+  const halfW = width  >>> 1;
+  const halfH = height >>> 1;
+  const centerX = halfW;
+  const centerY = halfH;
+  const radius = Math.min(halfW, halfH);
   for (let i = 0; i < height; i++) {
     for (let j = 0; j < width; j++) {
-      let dist = Math.sqrt(((i - centerY) * (i - centerY)) + ((j - centerX) * (j - centerX)));
-      if (dist > radius) {
+      const dx = j - centerX;
+      const dy = i - centerY;
+      if (dx * dx + dy * dy > radius * radius) {
         const targetIndex = i * width + j;
         statusArray[targetIndex] = 1;
       }
@@ -320,88 +325,76 @@ function drawCircularWall(algorithm) {
   }
 }
 
-// https://stackoverflow.com/questions/47879864/how-can-i-check-if-a-browser-supports-webassembly
+
 function webAssemblySupported() {
-  try {
-    if (typeof WebAssembly === "object"
-      && typeof WebAssembly.instantiate === "function") {
-      const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
-      if (module instanceof WebAssembly.Module)
-        return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
-    }
-  } catch (e) {}
-  return false;
+  return typeof WebAssembly !== 'undefined' && WebAssembly.validate(Uint32Array.of(0x6D736100, 1).buffer);
 }
 
-document.addEventListener("DOMContentLoaded", function(event) {
+document.addEventListener("DOMContentLoaded", () => {
   if (!webAssemblySupported()) {
+    console.warn('WebAssembly not supported');
     wave(null);
-  } else {
-
-    let emscripten = null;
-    let clang = null;
-    let walt = null;
-    let slowAssemblyScript = null;
-    let fastAssemblyScript = null;
-
-    // Emscripten doesn't support exporting memory, only importing
-    let emscriptenImportsObject = {
-      env: {
-        __memory_base: 0,
-        __table_base: 0,
-        memory: new WebAssembly.Memory({
-          initial: 512,
-        }),
-        table: new WebAssembly.Table({
-          initial: 0,
-          element: 'anyfunc',
-        })
-      }
-    };
-
-    // Hack: look for a "size" parameter in the URL
-    const matches = window.location.href.match(/size=(\d+)/);
-    if (matches) {
-      const canvas = document.getElementById('canvas');
-      canvas.width = canvas.height = parseInt(matches[1]);
-    }
-
-    fetch('clang/main.wasm')
-      .then(response => response.arrayBuffer())
-      .then((bytes) =>  WebAssembly.instantiate(bytes, {}))
-      .then((wasm) => {
-        clang = wasm;
-
-        return fetch('emscripten/emscripten.wasm');
-      })
-      .then(response => response.arrayBuffer())
-      .then((bytes) =>  WebAssembly.instantiate(bytes, emscriptenImportsObject))
-      .then((wasm) => {
-        emscripten = wasm;
-        emscripten.importsObject = emscriptenImportsObject;
-
-        return fetch('walt/waves.wasm');
-      })
-      .then(response => response.arrayBuffer())
-      .then((bytes) => WebAssembly.instantiate(bytes, {}))
-      .then((wasm) => {
-        walt = wasm;
-
-        return fetch('as/build/untouched.wasm');
-      })
-      .then(response => response.arrayBuffer())
-      .then((bytes) => WebAssembly.instantiate(bytes, {}))
-      .then((wasm) => {
-        slowAssemblyScript = wasm;
-
-        return fetch('as/build/optimized.wasm');
-      })
-      .then(response => response.arrayBuffer())
-      .then((bytes) => WebAssembly.instantiate(bytes, {}))
-      .then((wasm) => {
-        fastAssemblyScript = wasm;
-
-        return { clang, emscripten, walt, slowAssemblyScript, fastAssemblyScript };
-      }).then(wave);
+    return;
   }
+
+  let emscripten = null;
+  let clang = null;
+  let walt = null;
+  let slowAssemblyScript = null;
+  let fastAssemblyScript = null;
+
+  // Emscripten doesn't support exporting memory, only importing
+  let emscriptenImportsObject = {
+    env: {
+      __memory_base: 0,
+      __table_base: 0,
+      memory: new WebAssembly.Memory({
+        initial: 512,
+      }),
+      table: new WebAssembly.Table({
+        initial: 0,
+        element: 'anyfunc',
+      })
+    }
+  };
+
+  // Hack: look for a "size" parameter in the URL
+  const matches = window.location.href.match(/size=(\d+)/);
+  if (matches) {
+    const canvas = document.getElementById('canvas');
+    canvas.width = canvas.height = parseInt(matches[1]);
+  }
+
+  fetch('clang/main.wasm')
+    .then(response => response.arrayBuffer())
+    .then(bytes =>  WebAssembly.instantiate(bytes, {}))
+    .then(wasm => {
+      clang = wasm;
+      return fetch('emscripten/emscripten.wasm');
+    })
+    .then(response => response.arrayBuffer())
+    .then(bytes =>  WebAssembly.instantiate(bytes, emscriptenImportsObject))
+    .then(wasm => {
+      emscripten = wasm;
+      emscripten.importsObject = emscriptenImportsObject;
+      return fetch('walt/waves.wasm');
+    })
+    .then(response => response.arrayBuffer())
+    .then(bytes => WebAssembly.instantiate(bytes, {}))
+    .then(wasm => {
+      walt = wasm;
+      return fetch('as/build/untouched.wasm');
+    })
+    .then(response => response.arrayBuffer())
+    .then(bytes => WebAssembly.instantiate(bytes, {}))
+    .then(wasm => {
+      slowAssemblyScript = wasm;
+      return fetch('as/build/optimized.wasm');
+    })
+    .then(response => response.arrayBuffer())
+    .then(bytes => WebAssembly.instantiate(bytes, {}))
+    .then(wasm => {
+      fastAssemblyScript = wasm;
+      return { clang, emscripten, walt, slowAssemblyScript, fastAssemblyScript };
+    }).then(wave);
 });

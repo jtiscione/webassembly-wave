@@ -9,24 +9,24 @@
 
 "assemblyscript@github:AssemblyScript/assemblyscript":
   version "0.7.0"
-  resolved "https://codeload.github.com/AssemblyScript/assemblyscript/tar.gz/addb99eff250af2af0241442d45ff3d23434e6f1"
+  resolved "https://codeload.github.com/AssemblyScript/assemblyscript/tar.gz/d97ccac0292f68806e20527b2d5305b561319377"
   dependencies:
     "@protobufjs/utf8" "^1.1.0"
-    binaryen "84.0.0-nightly.20190522"
+    binaryen "89.0.0-nightly.20190914"
     glob "^7.1.4"
     long "^4.0.0"
     opencollective-postinstall "^2.0.0"
-    source-map-support "^0.5.12"
+    source-map-support "^0.5.13"
 
 balanced-match@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
   integrity sha1-ibTRmasr7kneFk6gK4nORi1xt2c=
 
-binaryen@84.0.0-nightly.20190522:
-  version "84.0.0-nightly.20190522"
-  resolved "https://registry.yarnpkg.com/binaryen/-/binaryen-84.0.0-nightly.20190522.tgz#31d3e8df90ec01509183d23d15b1ce16b53e87af"
-  integrity sha512-bxSPi3MOkFmK5W6VIlqxnOc1nYzpUCzT/tHz3C7sgbz7jTR2lOBlZnKStTJlBt018xeZK9/JpK/jXdduH7eQFg==
+binaryen@89.0.0-nightly.20190914:
+  version "89.0.0-nightly.20190914"
+  resolved "https://registry.yarnpkg.com/binaryen/-/binaryen-89.0.0-nightly.20190914.tgz#5878787f140123fc564fb94011f4d2d2db2fe95e"
+  integrity sha512-pfGX5IwPguli8IPuPjjcCYriZ2CzoEuk0XE70g6bmibZfieDUoK7miEq0FlPLNixL+n8vvyjRSPK5NtMuCcqNg==
 
 brace-expansion@^1.1.7:
   version "1.1.11"
@@ -72,9 +72,9 @@ inflight@^1.0.4:
     wrappy "1"
 
 inherits@2:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.3.tgz#633c2c83e3da42a502f52466022480f4208261de"
-  integrity sha1-Yzwsg+PaQqUC9SRmAiSA9CCCYd4=
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.4.tgz#0fa2c64f932917c3433a0ded55363aae37416b7c"
+  integrity sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==
 
 long@^4.0.0:
   version "4.0.0"
@@ -105,10 +105,10 @@ path-is-absolute@^1.0.0:
   resolved "https://registry.yarnpkg.com/path-is-absolute/-/path-is-absolute-1.0.1.tgz#174b9268735534ffbc7ace6bf53a5a9e1b5c5f5f"
   integrity sha1-F0uSaHNVNP+8es5r9TpanhtcX18=
 
-source-map-support@^0.5.12:
-  version "0.5.12"
-  resolved "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.5.12.tgz#b4f3b10d51857a5af0138d3ce8003b201613d599"
-  integrity sha512-4h2Pbvyy15EE02G+JOZpUCmqWJuqrs+sEkzewTm++BPi7Hvn/HwcqLAcNxYAyI0x13CpPPn+kMjl+hplXMHITQ==
+source-map-support@^0.5.13:
+  version "0.5.13"
+  resolved "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.5.13.tgz#31b24a9c2e73c2de85066c0feb7d44767ed52932"
+  integrity sha512-SHSKFHadjVA5oR4PPqhtAVdcBWwRYVd6g6cAXnIbRiIwc2EhPrTuKUBdSLvlEKyIP3GCf89fltvcZiP9MMFA1w==
   dependencies:
     buffer-from "^1.0.0"
     source-map "^0.6.0"
