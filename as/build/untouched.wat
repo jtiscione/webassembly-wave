@@ -526,6 +526,8 @@
    end
    unreachable
   end
+  i32.const 0
+  local.set $13
   block $break|2
    i32.const 0
    local.set $15
