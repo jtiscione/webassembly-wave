@@ -112,21 +112,20 @@ export function step(signalAmplitude: i32, dampingBitShift: i32): void {
     }
   }
 
-  let stat: i32, f: i32, capped: i32, w = 0;
   for (let i = 0; i < _area; ++i) {
-    stat = _status[i];
+    let stat = _status[i];
+    let u = _u[i];
     if (stat === STATUS_DEFAULT) {
-      f = _force[i];
-      w = _u[i];
-      capped = applyCap(w + _v[i]);
-      w = applyCap(f + capped);
-      _u[i] = w;
+      let f = _force[i];
+      let capped = applyCap(u + _v[i]);
+      u = applyCap(f + capped);
+      _u[i] = u;
       _force[i] = f - (f >> FORCE_DAMPING_BIT_SHIFT);
     }
     if (stat === STATUS_WALL) {
       _image[i] = 0x00000000;
     } else {
-      _image[i] = toRGB(w);
+      _image[i] = toRGB(u);
     }
   }
 }
