@@ -13,6 +13,6 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "assemblyscript": "github:AssemblyScript/assemblyscript"
+    "assemblyscript": "^0.8.1-nightly.20191124"
   }
 }
