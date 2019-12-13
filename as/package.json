@@ -5,14 +5,12 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "asbuild:untouched": "asc assembly/index.ts -b build/untouched.wasm -t build/untouched.wat --sourceMap --validate --debug --runtime none",
-    "asbuild:optimized": "asc assembly/index.ts -b build/optimized.wasm -t build/optimized.wat --sourceMap --validate --noAssert --runtime none -O3",
-    "asbuild": "npm run asbuild:untouched && npm run asbuild:optimized"
+    "asbuild": "asc assembly/index.ts -b build/optimized.wasm -t build/optimized.wat --sourceMap --validate --runtime none -O3"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "assemblyscript": "^0.8.1-nightly.20191124"
+    "assemblyscript": "^0.8.1-nightly.20191209"
   }
 }

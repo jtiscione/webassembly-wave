@@ -13,8 +13,7 @@ function wave(modules) {
   const clangBox = document.getElementById('clang-box');
   const emscriptenBox = document.getElementById('emscripten-box');
   const waltBox = document.getElementById('walt-box');
-  const slowAssemblyBox = document.getElementById('slow-assembly-box');
-  const fastAssemblyBox = document.getElementById('fast-assembly-box');
+  const assemblyBox = document.getElementById('assembly-box');
   const noiseBtn = document.getElementById('noiseBtn');
   const clearBtn = document.getElementById('clearBtn');
   const stepsBtn = document.getElementById('stepsBtn');
@@ -42,8 +41,7 @@ function wave(modules) {
   let clangAlgorithm = null;
   let emscriptenAlgorithm = null;
   let waltAlgorithm = null;
-  let slowAssemblyScriptAlgorithm = null;
-  let fastAssemblyScriptAlgorithm = null;
+  let assemblyScriptAlgorithm = null;
   if (modules) {
 
     if (modules.clang) {
@@ -61,14 +59,9 @@ function wave(modules) {
       waltAlgorithm.init(width, height);
     }
 
-    if (modules.slowAssemblyScript) {
-      slowAssemblyScriptAlgorithm = wasmWaveAlgorithm(modules.slowAssemblyScript);
-      slowAssemblyScriptAlgorithm.init(width, height);
-    }
-
-    if (modules.fastAssemblyScript) {
-      fastAssemblyScriptAlgorithm = wasmWaveAlgorithm(modules.fastAssemblyScript);
-      fastAssemblyScriptAlgorithm.init(width, height);
+    if (modules.assemblyScript) {
+      assemblyScriptAlgorithm = wasmWaveAlgorithm(modules.assemblyScript);
+      assemblyScriptAlgorithm.init(width, height);
     }
 
     const swap = replacement => {
@@ -78,21 +71,19 @@ function wave(modules) {
       imageArray = null;
       imgData = null;
     };
-    jsBox.addEventListener('click',           () => { swap(jsAlgorithm) });
-    clangBox.addEventListener('click',        () => { swap(clangAlgorithm) });
-    emscriptenBox.addEventListener('click',   () => { swap(emscriptenAlgorithm) });
-    waltBox.addEventListener('click',         () => { swap(waltAlgorithm) });
-    slowAssemblyBox.addEventListener('click', () => { swap(slowAssemblyScriptAlgorithm) });
-    fastAssemblyBox.addEventListener('click', () => { swap(fastAssemblyScriptAlgorithm) });
-    stepsBtn.addEventListener('click',        () => { steps = parseInt(stepsBtn.value) || 1 });
+    jsBox.addEventListener('click',         () => { swap(jsAlgorithm) });
+    clangBox.addEventListener('click',      () => { swap(clangAlgorithm) });
+    emscriptenBox.addEventListener('click', () => { swap(emscriptenAlgorithm) });
+    waltBox.addEventListener('click',       () => { swap(waltAlgorithm) });
+    assemblyBox.addEventListener('click',   () => { swap(assemblyScriptAlgorithm) });
+    stepsBtn.addEventListener('click',      () => { steps = parseInt(stepsBtn.value) || 1 });
 
   } else {
     jsBox.disabled = true;
     clangBox.disabled = true;
     emscriptenBox.disabled = true;
     waltBox.disabled = true;
-    slowAssemblyBox.disabled = true;
-    fastAssemblyBox.disabled = true;
+    assemblyBox.disabled = true;
     stepsBtn.disabled = true;
     document.getElementsByClassName('radio').forEach(btn => btn.style.display = 'none');
     document.getElementById('sorry').style.display = 'block';
@@ -340,8 +331,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let emscripten = null;
   let clang = null;
   let walt = null;
-  let slowAssemblyScript = null;
-  let fastAssemblyScript = null;
+  let assemblyScript = null;
 
   // Emscripten doesn't support exporting memory, only importing
   let emscriptenImportsObject = {
@@ -382,19 +372,13 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(response => response.arrayBuffer())
     .then(bytes => WebAssembly.instantiate(bytes, {}))
     .then(wasm => {
-      walt = wasm;
-      return fetch('as/build/untouched.wasm');
-    })
-    .then(response => response.arrayBuffer())
-    .then(bytes => WebAssembly.instantiate(bytes, {}))
-    .then(wasm => {
       slowAssemblyScript = wasm;
       return fetch('as/build/optimized.wasm');
     })
     .then(response => response.arrayBuffer())
     .then(bytes => WebAssembly.instantiate(bytes, {}))
     .then(wasm => {
-      fastAssemblyScript = wasm;
-      return { clang, emscripten, walt, slowAssemblyScript, fastAssemblyScript };
+      assemblyScript = wasm;
+      return { clang, emscripten, walt, assemblyScript };
     }).then(wave);
 });
