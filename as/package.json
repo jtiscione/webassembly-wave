@@ -11,6 +11,6 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "assemblyscript": "^0.8.1-nightly.20191209"
+    "assemblyscript": "0.8.1-nightly.20200101"
   }
 }
