@@ -372,7 +372,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(response => response.arrayBuffer())
     .then(bytes => WebAssembly.instantiate(bytes, {}))
     .then(wasm => {
-      slowAssemblyScript = wasm;
+      walt = wasm;
       return fetch('as/build/optimized.wasm');
     })
     .then(response => response.arrayBuffer())
