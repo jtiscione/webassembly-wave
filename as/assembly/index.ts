@@ -1,5 +1,6 @@
 /// <reference path="../node_modules/assemblyscript/index.d.ts" />
 
+@final
 class Pointer {
   // just need for making tslint happy
   [key: number]: number;
