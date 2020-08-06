@@ -5,12 +5,12 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "asbuild": "asc assembly/index.ts -b build/optimized.wasm -t build/optimized.wat --sourceMap --runtime none -O3"
+    "asbuild": "asc assembly/index.ts -b build/optimized.wasm -t build/optimized.wat --measure --sourceMap --runtime none -O3"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "assemblyscript": "^0.10.0"
+    "assemblyscript": "^0.14.8"
   }
 }
