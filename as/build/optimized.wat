@@ -27,24 +27,25 @@
   global.set $assembly/index/image
   local.get $1
   global.get $assembly/index/area
+  local.tee $0
   i32.const 2
   i32.shl
   i32.add
   global.set $assembly/index/force
   local.get $1
-  global.get $assembly/index/area
+  local.get $0
   i32.const 3
   i32.shl
   i32.add
   global.set $assembly/index/status
   local.get $1
-  global.get $assembly/index/area
+  local.get $0
   i32.const 12
   i32.mul
   i32.add
   global.set $assembly/index/u
   local.get $1
-  global.get $assembly/index/area
+  local.get $0
   i32.const 4
   i32.shl
   i32.add

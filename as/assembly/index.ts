@@ -1,11 +1,11 @@
 /// <reference path="../node_modules/assemblyscript/index.d.ts" />
 
-@final
+@final @unmanaged
 class Pointer {
   // just need for making tslint happy
   [key: number]: number;
 
-  constructor(offset: usize = 0) {
+  @inline constructor(offset: usize = 0) {
     return changetype<Pointer>(offset);
   }
 
